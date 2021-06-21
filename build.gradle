@@ -1,0 +1,97 @@
+plugins {
+    id "fabric-loom" version "0.9-SNAPSHOT"
+    id "org.ajoberstar.grgit" version "4.1.0"
+}
+
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
+
+String loaderDependencyVersion = ">=${project.loader_version.split(/\+/)[0]}"
+String minecraftDependencyVersion = project.minecraft_version.split(/[+ -]/)[0].replaceFirst(/^(\d+\.\d+)(\.\d+|)$/, '$1.x')
+
+group = project.maven_group
+version = "${project.mod_version}${getVersionMetadata()}" as Object
+archivesBaseName = "${project.archives_base_name}-mc${minecraftDependencyVersion}"
+
+loom {
+    accessWidenerPath = file("src/main/resources/sync.accesswidener")
+}
+
+repositories {
+    maven {
+        name = "Databreaker"
+        url = "https://maven.gegy.dev/"
+    }
+}
+
+// To change the versions see the gradle.properties file
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Minecraft 1.17 is slow as heck
+    modRuntime("supercoder79:databreaker:${project.databreaker_version}") {
+        transitive = false
+    }
+}
+
+processResources {
+    def fabricModProperties = [
+        "version": version,
+        "fabric": loaderDependencyVersion,
+        "minecraft": minecraftDependencyVersion
+    ]
+
+    filesMatching("fabric.mod.json") {
+        expand fabricModProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    // Ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    // If Javadoc is generated, this must be specified in that task too.
+    it.options.encoding = "UTF-8"
+}
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    from "LICENSE.md"
+}
+
+@SuppressWarnings('GrMethodMayBeStatic') // It cannot
+String getVersionMetadata() {
+    // Release builds don't require additional metadata
+    String release_tag = System.getenv("RELEASE_TAG")
+    if (release_tag != null && release_tag.length() != 0) {
+        return ""
+    }
+
+    // GitHub CI builds only
+    String build_id = System.getenv("GITHUB_RUN_NUMBER")
+    if (build_id != null && build_id.length() != 0) {
+        return "+build.${build_id}"
+    }
+
+    if (grgit != null) {
+        def head = grgit.head()
+        def id = head.abbreviatedId
+
+        // Flag the build if the build tree is not clean
+        if (!grgit.status().clean) {
+            id += "-dirty"
+        }
+
+        return "+rev.${id}"
+    }
+
+    // No tracking information could be found about the build
+    return "+unknown"
+}
