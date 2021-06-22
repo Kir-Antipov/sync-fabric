@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "sync",
+  "version": "${version}",
+  "name": "Sync (Fabric)",
+  "description": "One mind. Many bodies.",
+  "authors": [
+    "Kir_Antipov"
+  ],
+  "contact": {
+    "website": "https://github.com/Kir-Antipov/sync-fabric",
+    "repo": "https://github.com/Kir-Antipov/sync-fabric",
+    "issues": "https://github.com/Kir-Antipov/sync-fabric/issues/new/choose"
+  },
+  "license": "LGPL-3.0",
+  "icon": "assets/sync/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.kirantipov.mods.sync.Sync"
+    ],
+    "client": [
+      "me.kirantipov.mods.sync.Sync"
+    ]
+  },
+  "mixins": [
+    "sync.mixins.json"
+  ],
+  "accessWidener": "sync.accesswidener",
+  "depends": {
+    "fabric": "*",
+    "fabricloader": "${fabric}",
+    "minecraft": "${minecraft}",
+    "java": ">=16"
+  }
+}
