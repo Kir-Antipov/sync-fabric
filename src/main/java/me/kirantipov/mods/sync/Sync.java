@@ -2,6 +2,7 @@ package me.kirantipov.mods.sync;
 
 import me.kirantipov.mods.sync.block.SyncBlocks;
 import me.kirantipov.mods.sync.block.entity.SyncBlockEntities;
+import me.kirantipov.mods.sync.client.render.SyncRenderers;
 import me.kirantipov.mods.sync.item.SyncItems;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -26,5 +27,6 @@ public class Sync implements ModInitializer, ClientModInitializer {
     @Override
     @Environment(EnvType.CLIENT)
     public void onInitializeClient() {
+        SyncRenderers.initClient();
     }
 }
