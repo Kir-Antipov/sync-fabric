@@ -1,4 +1,6 @@
 package me.kirantipov.mods.sync;
+
+import me.kirantipov.mods.sync.block.SyncBlocks;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,6 +16,7 @@ public class Sync implements ModInitializer, ClientModInitializer {
 
     @Override
     public void onInitialize() {
+        SyncBlocks.init();
     }
 
     @Override
