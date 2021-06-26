@@ -9,6 +9,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public final class SyncItems {
+    public static final Item SYNC_CORE;
+
+    static {
+        SYNC_CORE = register("sync_core", new FabricItemSettings().group(SyncItemGroups.MAIN).maxCount(16));
+    }
 
     public static void init() { }
 
