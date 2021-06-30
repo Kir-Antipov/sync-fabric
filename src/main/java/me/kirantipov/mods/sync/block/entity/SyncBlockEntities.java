@@ -1,5 +1,6 @@
 package me.kirantipov.mods.sync.block.entity;
 
+import me.kirantipov.mods.sync.block.SyncBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -7,6 +8,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public final class SyncBlockEntities {
+    public static final BlockEntityType<TreadmillBlockEntity> TREADMILL;
+
+    static {
+        TREADMILL = register(TreadmillBlockEntity::new, SyncBlocks.TREADMILL);
+    }
 
     public static void init() { }
 

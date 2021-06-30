@@ -1,6 +1,7 @@
 package me.kirantipov.mods.sync.item;
 
 import me.kirantipov.mods.sync.Sync;
+import me.kirantipov.mods.sync.block.SyncBlocks;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
@@ -10,9 +11,11 @@ import net.minecraft.util.registry.Registry;
 
 public final class SyncItems {
     public static final Item SYNC_CORE;
+    public static final Item TREADMILL;
 
     static {
         SYNC_CORE = register("sync_core", new FabricItemSettings().group(SyncItemGroups.MAIN).maxCount(16));
+        TREADMILL = register(SyncBlocks.TREADMILL, new FabricItemSettings().group(SyncItemGroups.MAIN).maxCount(1));
     }
 
     public static void init() { }
