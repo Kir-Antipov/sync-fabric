@@ -1,5 +1,6 @@
 package me.kirantipov.mods.sync;
 
+import me.kirantipov.mods.sync.api.networking.SyncPackets;
 import me.kirantipov.mods.sync.block.SyncBlocks;
 import me.kirantipov.mods.sync.block.entity.SyncBlockEntities;
 import me.kirantipov.mods.sync.client.render.SyncRenderers;
@@ -23,6 +24,7 @@ public class Sync implements ModInitializer, ClientModInitializer {
         SyncBlocks.init();
         SyncBlockEntities.init();
         SyncItems.init();
+        SyncPackets.init();
         SyncRecipes.init();
     }
 
@@ -30,5 +32,6 @@ public class Sync implements ModInitializer, ClientModInitializer {
     @Environment(EnvType.CLIENT)
     public void onInitializeClient() {
         SyncRenderers.initClient();
+        SyncPackets.initClient();
     }
 }
