@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 public class MixinGameRenderer {
     @Unique
     private static final ImmutableList<Triplet<String, VertexFormat, Consumer<Shader>>> CUSTOM_SHADERS = ImmutableList.of(
+        new Triplet<String, VertexFormat, Consumer<Shader>>("rendertype_entity_translucent_partially_textured", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, CustomGameRenderer::setRenderTypeEntityTranslucentPartiallyTexturedShader),
         new Triplet<String, VertexFormat, Consumer<Shader>>("rendertype_voxel", CustomVertexFormats.POSITION_COLOR_OVERLAY_LIGHT_NORMAL, CustomGameRenderer::setRenderTypeVoxelShader)
     );
 
