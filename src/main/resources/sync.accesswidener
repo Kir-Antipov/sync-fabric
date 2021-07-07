@@ -5,6 +5,9 @@ accessible class net/minecraft/block/entity/BlockEntityType$BlockEntityFactory
 accessible field net/minecraft/client/model/ModelPart cuboids Ljava/util/List;
 accessible field net/minecraft/client/model/ModelPart children Ljava/util/Map;
 
+accessible method net/minecraft/client/render/entity/model/AnimalModel getHeadParts ()Ljava/lang/Iterable;
+accessible method net/minecraft/client/render/entity/model/AnimalModel getBodyParts ()Ljava/lang/Iterable;
+
 accessible method net/minecraft/client/render/RenderLayer of (Ljava/lang/String;Lnet/minecraft/client/render/VertexFormat;Lnet/minecraft/client/render/VertexFormat$DrawMode;IZZLnet/minecraft/client/render/RenderLayer$MultiPhaseParameters;)Lnet/minecraft/client/render/RenderLayer$MultiPhase;
 
 accessible field net/minecraft/recipe/RecipeManager recipes Ljava/util/Map;
