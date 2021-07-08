@@ -296,6 +296,19 @@ public class ShellState {
         this.serializer.readNbt(nbt);
     }
 
+
+    @Environment(EnvType.CLIENT)
+    private ShellEntity entityInstance = null;
+
+    @Environment(EnvType.CLIENT)
+    public ShellEntity asEntity() {
+        if (this.entityInstance == null) {
+            this.entityInstance = new ShellEntity(this);
+        }
+        return this.entityInstance;
+    }
+
+
     static {
         NBT_SERIALIZER_FACTORY = new NbtSerializerFactoryBuilder<ShellState>()
             .add(UUID.class, "uuid", x -> x.uuid, (x, uuid) -> x.uuid = uuid)
