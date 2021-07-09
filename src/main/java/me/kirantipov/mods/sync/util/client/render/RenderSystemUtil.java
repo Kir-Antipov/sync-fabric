@@ -16,6 +16,14 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public final class RenderSystemUtil {
+    public static void drawTriangleStrip(Consumer<VertexConsumer> consumer) {
+        drawTriangleStrip(consumer, VertexFormats.POSITION_COLOR);
+    }
+
+    public static void drawTriangleStrip(Consumer<VertexConsumer> consumer, VertexFormat format) {
+        draw(consumer, VertexFormat.DrawMode.TRIANGLE_STRIP, format);
+    }
+
     public static void draw(Consumer<VertexConsumer> consumer, VertexFormat.DrawMode drawMode, VertexFormat format) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
