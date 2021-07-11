@@ -4,4 +4,6 @@
   "block.sync.treadmill": "Treadmill",
 
   "item.sync.sync_core": "Sync Core",
+
+  "gui.sync.default.cross_button.title": "Close",
 }
