@@ -78,4 +78,42 @@ public final class RenderSystemUtil {
         RenderSystem.disableBlend();
         RenderSystem.enableTexture();
     }
+
+    public static TextRenderer getTextRenderer() {
+        return MinecraftClient.getInstance().textRenderer;
+    }
+
+    public static void drawCenteredText(Text text, MatrixStack matrices, float cX, float cY, int color) {
+        drawCenteredText(text, matrices, cX, cY, 1F, color);
+    }
+
+    public static void drawCenteredText(Text text, MatrixStack matrices, float cX, float cY, float scale, int color) {
+        drawCenteredText(text, matrices, cX, cY, scale, color, false);
+    }
+
+    public static void drawCenteredText(Text text, MatrixStack matrices, float cX, float cY, float scale, int color, boolean shadow) {
+        drawCenteredText(text, matrices, getTextRenderer(), cX, cY, scale, color, shadow);
+    }
+
+    public static void drawCenteredText(Text text, MatrixStack matrices, TextRenderer textRenderer, float cX, float cY, float scale, int color, boolean shadow) {
+        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+        drawCenteredText(text, matrices, immediate, textRenderer, cX, cY, scale, color, shadow);
+        immediate.draw();
+    }
+
+    public static void drawCenteredText(Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, float cX, float cY, float scale, int color, boolean shadow) {
+        final int backgroundColor = 0;
+
+        float height = textRenderer.fontHeight * scale;
+        float width = textRenderer.getWidth(text) * scale;
+        cX -= width / 2F;
+        cY -= height / 2F;
+
+        matrices.push();
+        matrices.translate(cX, cY, 0);
+        matrices.scale(scale, scale, 1F);
+        matrices.translate(-cX, -cY, 0);
+        textRenderer.draw(text, cX, cY, color, shadow, matrices.peek().getModel(), vertexConsumers, false, backgroundColor, MAX_LIGHT_LEVEL);
+        matrices.pop();
+    }
 }
