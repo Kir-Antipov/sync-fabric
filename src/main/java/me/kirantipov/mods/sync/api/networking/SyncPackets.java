@@ -9,5 +9,6 @@ public final class SyncPackets {
 
     @Environment(EnvType.CLIENT)
     public static void initClient() {
+        ClientPlayerPacket.register(ShellDestroyedPacket.class);
     }
 }
