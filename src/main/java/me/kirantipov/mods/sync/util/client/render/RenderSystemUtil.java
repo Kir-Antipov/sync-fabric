@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public final class RenderSystemUtil {
+    public static final int MAX_LIGHT_LEVEL = (15 << 20) | (15 << 4);
     public static void drawTriangleStrip(Consumer<VertexConsumer> consumer) {
         drawTriangleStrip(consumer, VertexFormats.POSITION_COLOR);
     }
