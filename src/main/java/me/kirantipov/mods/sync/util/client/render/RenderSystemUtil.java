@@ -24,6 +24,28 @@ public final class RenderSystemUtil {
         draw(consumer, VertexFormat.DrawMode.TRIANGLE_STRIP, format);
     }
 
+    public static void drawAnnulusSector(MatrixStack matrices, double cX, double cY, double majorR, double minorR, double from, double to, double step, float r, float g, float b, float a) {
+        drawTriangleStrip(consumer -> drawAnnulusSector(matrices, consumer, cX, cY, majorR, minorR, from, to, step, r, g, b, a));
+    }
+
+    public static void drawAnnulusSector(MatrixStack matrices, VertexConsumer consumer, double cX, double cY, double majorR, double minorR, double from, double to, double step, float r, float g, float b, float a) {
+        to += step / 32;
+        Matrix4f matrix = matrices.peek().getModel();
+        for (double i = from; i < to; i += step) {
+            double sin = Math.sin(i);
+            double cos = Math.cos(i);
+
+            double x0 = majorR * cos + cX;
+            double y0 = majorR * sin + cY;
+
+            double x1 = minorR * cos + cX;
+            double y1 = minorR * sin + cY;
+
+            consumer.vertex(matrix, (float)x0, (float)y0, 0).color(r, g, b, a).next();
+            consumer.vertex(matrix, (float)x1, (float)y1, 0).color(r, g, b, a).next();
+        }
+    }
+
     public static void drawRectangle(MatrixStack matrices, float x, float y, float width, float height, float borderRadius, float scale, float rotation, float step, float r, float g, float b, float a) {
         drawTriangleStrip(consumer -> drawRectangle(matrices, consumer, x, y, width, height, borderRadius, scale, rotation, step, r, g, b, a));
     }
