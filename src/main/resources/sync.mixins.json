@@ -8,6 +8,7 @@
   "client": [
     "MixinEntityRenderDispatcher",
     "MixinGameRenderer",
+    "MixinMinecraftClient",
     "MixinPlayerEntityModel",
     "MixinWorldRenderer"
   ],
