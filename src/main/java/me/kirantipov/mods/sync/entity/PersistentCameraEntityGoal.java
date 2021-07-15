@@ -96,4 +96,30 @@ public class PersistentCameraEntityGoal {
 
         return goal0.then(goal1);
     }
+
+    public static PersistentCameraEntityGoal highwayToHell(BlockPos start, Direction startFacing, BlockPos target, Direction targetFacing, Consumer<PersistentCameraEntity> onTransitionFinished) {
+        return highwayToHell(start, startFacing, MAX_Y, target, targetFacing, MAX_PHASE_DURATION, MIN_PHASE_DURATION, PHASE_DELAY, MAX_DISTANCE, onTransitionFinished);
+    }
+
+    public static PersistentCameraEntityGoal highwayToHell(BlockPos start, Direction startFacing, double y, BlockPos target, Direction targetFacing, long firstPhaseDuration, long secondPhaseDuration, long phaseDelay, double maxDistance, Consumer<PersistentCameraEntity> onTransitionFinished) {
+        BlockPos pos0 = target.offset(targetFacing.getOpposite());
+        float yaw0 = targetFacing.asRotation();
+        float yaw1 = targetFacing.getOpposite().asRotation();
+
+        Vec3d centerPoint = new Vec3d(start.getX() + target.getX(), y * 2, start.getZ() + target.getZ()).multiply(0.5);
+        PersistentCameraEntityGoal tpGoal = null;
+        double dX = centerPoint.x - target.getX();
+        double dZ = centerPoint.z - target.getZ();
+        double horizontalDistance = Math.sqrt(dX * dX + dZ * dZ);
+        if (horizontalDistance > maxDistance) {
+            double factor = maxDistance / horizontalDistance;
+            BlockPos centerPointPos = new BlockPos(target.add(dX * factor, 0, dZ * factor)).withY((int)centerPoint.y);
+            tpGoal = PersistentCameraEntityGoal.tp(centerPointPos, startFacing.asRotation(), 90);
+        }
+
+        PersistentCameraEntityGoal goal0 = create(pos0, yaw0, 0, firstPhaseDuration);
+        PersistentCameraEntityGoal goal1 = create(target, yaw1, 0, phaseDelay, secondPhaseDuration, onTransitionFinished);
+
+        return tpGoal == null ? goal0.then(goal1) : tpGoal.then(goal0.then(goal1));
+    }
 }
