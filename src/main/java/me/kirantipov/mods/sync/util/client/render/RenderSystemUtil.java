@@ -17,6 +17,8 @@ import java.util.function.Consumer;
 @Environment(EnvType.CLIENT)
 public final class RenderSystemUtil {
     public static final int MAX_LIGHT_LEVEL = (15 << 20) | (15 << 4);
+    private static final BufferBuilderStorage BUFFER_BUILDER_STORAGE = new BufferBuilderStorage();
+
     public static void drawTriangleStrip(Consumer<VertexConsumer> consumer) {
         drawTriangleStrip(consumer, VertexFormats.POSITION_COLOR);
     }
@@ -104,6 +106,10 @@ public final class RenderSystemUtil {
 
     public static TextRenderer getTextRenderer() {
         return MinecraftClient.getInstance().textRenderer;
+    }
+
+    public static VertexConsumerProvider.Immediate getEntityVertexConsumerProvider() {
+        return BUFFER_BUILDER_STORAGE.getEntityVertexConsumers();
     }
 
     public static void drawCenteredText(Text text, MatrixStack matrices, float cX, float cY, int color) {
