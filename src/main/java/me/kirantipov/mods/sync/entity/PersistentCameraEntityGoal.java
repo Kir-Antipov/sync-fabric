@@ -64,6 +64,15 @@ public class PersistentCameraEntityGoal {
         return new PersistentCameraEntityGoal(pos, yaw, pitch, delay, duration, onTransitionFinished);
     }
 
+
+    public static PersistentCameraEntityGoal tp(BlockPos pos, float yaw, float pitch) {
+        return create(pos, yaw, pitch, 0, 0, null);
+    }
+
+    public static PersistentCameraEntityGoal tp(BlockPos pos, float yaw, float pitch, Consumer<PersistentCameraEntity> onTransitionFinished) {
+        return create(pos, yaw, pitch, 0, 0, onTransitionFinished);
+    }
+
     public static PersistentCameraEntityGoal stairwayToHeaven(BlockPos start, Direction startFacing, BlockPos target, Consumer<PersistentCameraEntity> onTransitionFinished) {
         return stairwayToHeaven(start, startFacing, MAX_Y, target, MIN_PHASE_DURATION, MAX_PHASE_DURATION, PHASE_DELAY, MAX_DISTANCE, onTransitionFinished);
     }
