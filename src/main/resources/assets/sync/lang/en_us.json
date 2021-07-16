@@ -5,6 +5,8 @@
 
   "item.sync.sync_core": "Sync Core",
 
+  "death.attack.sync.fingerstick": "%s died in the name of science",
+
   "gui.sync.default.cross_button.title": "Close",
   "gui.sync.shell_selector.title": "Shell Selector",
   "gui.sync.shell_selector.up.title": "Previous world",
