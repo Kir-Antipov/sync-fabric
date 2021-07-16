@@ -6,4 +6,9 @@
   "item.sync.sync_core": "Sync Core",
 
   "gui.sync.default.cross_button.title": "Close",
+  "gui.sync.shell_selector.title": "Shell Selector",
+  "gui.sync.shell_selector.up.title": "Previous world",
+  "gui.sync.shell_selector.down.title": "Next world",
+  "gui.sync.shell_selector.left.title": "Previous page",
+  "gui.sync.shell_selector.right.title": "Next page"
 }
