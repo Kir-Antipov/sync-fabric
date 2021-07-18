@@ -1,5 +1,6 @@
 {
   "values": [
+    "sync:shell_storage",
     "sync:shell_constructor",
     "sync:treadmill"
   ]

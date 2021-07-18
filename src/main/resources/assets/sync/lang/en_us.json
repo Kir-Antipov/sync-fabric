@@ -1,6 +1,7 @@
 {
   "itemGroup.sync.sync": "Sync",
 
+  "block.sync.shell_storage": "Shell Storage",
   "block.sync.shell_constructor": "Shell Constructor",
   "block.sync.treadmill": "Treadmill",
 

@@ -11,10 +11,12 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
 
 public final class SyncBlocks {
+    public static final Block SHELL_STORAGE;
     public static final Block SHELL_CONSTRUCTOR;
     public static final Block TREADMILL;
 
     static {
+        SHELL_STORAGE = register("shell_storage", new ShellStorageBlock(AbstractBlock.Settings.of(Material.GLASS, DyeColor.GRAY).requiresTool().strength(1.8F).sounds(BlockSoundGroup.GLASS).nonOpaque().allowsSpawning(SyncBlocks::never).solidBlock(SyncBlocks::never).suffocates(SyncBlocks::never).blockVision(SyncBlocks::never)));
         SHELL_CONSTRUCTOR = register("shell_constructor", new ShellConstructorBlock(AbstractBlock.Settings.of(Material.GLASS, DyeColor.GRAY).requiresTool().strength(1.8F).sounds(BlockSoundGroup.GLASS).nonOpaque().allowsSpawning(SyncBlocks::never).solidBlock(SyncBlocks::never).suffocates(SyncBlocks::never).blockVision(SyncBlocks::never)));
         TREADMILL = register("treadmill", new TreadmillBlock(AbstractBlock.Settings.of(Material.STONE, DyeColor.GRAY).requiresTool().strength(1.8F).allowsSpawning(SyncBlocks::never).solidBlock(SyncBlocks::never).suffocates(SyncBlocks::never).blockVision(SyncBlocks::never)));
     }

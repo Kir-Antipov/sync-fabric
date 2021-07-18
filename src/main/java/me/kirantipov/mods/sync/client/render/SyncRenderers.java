@@ -2,6 +2,7 @@ package me.kirantipov.mods.sync.client.render;
 
 import me.kirantipov.mods.sync.block.entity.SyncBlockEntities;
 import me.kirantipov.mods.sync.client.render.block.entity.ShellConstructorBlockEntityRenderer;
+import me.kirantipov.mods.sync.client.render.block.entity.ShellStorageBlockEntityRenderer;
 import me.kirantipov.mods.sync.client.render.block.entity.TreadmillBlockEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,6 +21,7 @@ import net.minecraft.util.registry.Registry;
 @Environment(EnvType.CLIENT)
 public final class SyncRenderers {
     public static void initClient() {
+        register(ShellStorageBlockEntityRenderer::new, SyncBlockEntities.SHELL_STORAGE);
         register(ShellConstructorBlockEntityRenderer::new, SyncBlockEntities.SHELL_CONSTRUCTOR);
         register(TreadmillBlockEntityRenderer::new, SyncBlockEntities.TREADMILL);
     }

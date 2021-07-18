@@ -8,10 +8,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public final class SyncBlockEntities {
+    public static final BlockEntityType<ShellStorageBlockEntity> SHELL_STORAGE;
     public static final BlockEntityType<ShellConstructorBlockEntity> SHELL_CONSTRUCTOR;
     public static final BlockEntityType<TreadmillBlockEntity> TREADMILL;
 
     static {
+        SHELL_STORAGE = register(ShellStorageBlockEntity::new, SyncBlocks.SHELL_STORAGE);
         SHELL_CONSTRUCTOR = register(ShellConstructorBlockEntity::new, SyncBlocks.SHELL_CONSTRUCTOR);
         TREADMILL = register(TreadmillBlockEntity::new, SyncBlocks.TREADMILL);
     }
