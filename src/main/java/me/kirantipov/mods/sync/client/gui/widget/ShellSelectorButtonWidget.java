@@ -3,6 +3,7 @@ package me.kirantipov.mods.sync.client.gui.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.kirantipov.mods.sync.api.core.ShellState;
 import me.kirantipov.mods.sync.api.networking.SynchronizationRequestPacket;
+import me.kirantipov.mods.sync.block.entity.ShellStorageBlockEntity;
 import me.kirantipov.mods.sync.client.gl.MSAAFramebuffer;
 import me.kirantipov.mods.sync.client.render.MatrixStackStorage;
 import me.kirantipov.mods.sync.entity.PersistentCameraEntity;
@@ -136,6 +137,9 @@ public class ShellSelectorButtonWidget extends AbstractWidget {
         PersistentCameraEntityGoal cameraGoal = PersistentCameraEntityGoal.stairwayToHeaven(pos, facing, shell.getPos(), x -> new SynchronizationRequestPacket(this.shell).send());
         PersistentCameraEntity.setup(client, cameraGoal);
 
+        if (world.getBlockEntity(pos) instanceof ShellStorageBlockEntity shellStorage) {
+            shellStorage.entityState = ShellStorageBlockEntity.EntityState.CHILLING;
+        }
         client.openScreen(null);
     }
 
