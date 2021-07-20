@@ -10,6 +10,7 @@ public final class SyncPackets {
 
     @Environment(EnvType.CLIENT)
     public static void initClient() {
+        ClientPlayerPacket.register(ShellStateUpdatePacket.class);
         ClientPlayerPacket.register(SynchronizationResponsePacket.class);
         ClientPlayerPacket.register(PlayerIsAlivePacket.class);
         ClientPlayerPacket.register(ShellDestroyedPacket.class);
