@@ -4,6 +4,7 @@
   "package": "me.kirantipov.mods.sync.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "MixinServerPlayerEntity"
   ],
   "client": [
     "MixinEntityRenderDispatcher",
