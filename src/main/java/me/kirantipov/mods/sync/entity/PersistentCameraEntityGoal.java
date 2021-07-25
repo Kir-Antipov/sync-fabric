@@ -73,6 +73,30 @@ public class PersistentCameraEntityGoal {
         return create(pos, yaw, pitch, 0, 0, onTransitionFinished);
     }
 
+    public static PersistentCameraEntityGoal limbo(BlockPos start, Direction startFacing, BlockPos target, Consumer<PersistentCameraEntity> onTransitionFinished) {
+        return limbo(start, startFacing, MAX_Y, target, MIN_PHASE_DURATION, MAX_PHASE_DURATION, PHASE_DELAY, MAX_DISTANCE, onTransitionFinished);
+    }
+
+    public static PersistentCameraEntityGoal limbo(BlockPos start, Direction startFacing, double y, BlockPos target, long firstPhaseDuration, long secondPhaseDuration, long phaseDelay, double maxDistance, Consumer<PersistentCameraEntity> onTransitionFinished) {
+        double dX = target.getX() - start.getX();
+        double dZ = target.getZ() - start.getZ();
+        double horizontalDistance = Math.sqrt(dX * dX + dZ * dZ);
+        if (horizontalDistance > maxDistance) {
+            double factor = maxDistance / horizontalDistance;
+            target = new BlockPos(start.add(dX * factor, 0, dZ * factor));
+        }
+
+        float yaw = startFacing.asRotation();
+        float pitch = 90;
+        BlockPos pos0 = start.offset(Direction.UP);
+        Vec3d pos1 = new Vec3d(start.getX() + target.getX(), y * 2, start.getZ() + target.getZ()).multiply(0.5);
+
+        PersistentCameraEntityGoal goal0 = create(pos0, yaw, pitch, firstPhaseDuration);
+        PersistentCameraEntityGoal goal1 = create(pos1, yaw, pitch, phaseDelay, secondPhaseDuration, onTransitionFinished);
+
+        return goal0.then(goal1);
+    }
+
     public static PersistentCameraEntityGoal stairwayToHeaven(BlockPos start, Direction startFacing, BlockPos target, Consumer<PersistentCameraEntity> onTransitionFinished) {
         return stairwayToHeaven(start, startFacing, MAX_Y, target, MIN_PHASE_DURATION, MAX_PHASE_DURATION, PHASE_DELAY, MAX_DISTANCE, onTransitionFinished);
     }
