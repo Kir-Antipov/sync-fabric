@@ -54,7 +54,7 @@ public class TreadmillBlock extends HorizontalFacingBlock implements BlockEntity
 
     public static DoubleBlockProperties.Type getTreadmillPart(BlockState state) {
         TreadmillPart part = state.get(PART);
-        return part == TreadmillPart.FRONT ? DoubleBlockProperties.Type.FIRST : DoubleBlockProperties.Type.SECOND;
+        return part == TreadmillPart.BACK ? DoubleBlockProperties.Type.FIRST : DoubleBlockProperties.Type.SECOND;
     }
 
     @Override

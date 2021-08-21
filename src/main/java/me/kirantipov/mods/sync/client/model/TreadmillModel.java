@@ -9,8 +9,8 @@ import net.minecraft.client.util.math.MatrixStack;
 
 @Environment(EnvType.CLIENT)
 public class TreadmillModel extends DoubleBlockModel {
-    private static final DoubleBlockProperties.Type FRONT = DoubleBlockProperties.Type.FIRST;
-    private static final DoubleBlockProperties.Type BACK = DoubleBlockProperties.Type.SECOND;
+    private static final DoubleBlockProperties.Type BACK = DoubleBlockProperties.Type.FIRST;
+    private static final DoubleBlockProperties.Type FRONT = DoubleBlockProperties.Type.SECOND;
 
     public final ModelPart runningBeltF;
     public final ModelPart runningBeltB;
@@ -82,6 +82,6 @@ public class TreadmillModel extends DoubleBlockModel {
 
     @Override
     protected void translate(MatrixStack matrices) {
-        matrices.translate(0, 0, -2F);
+        matrices.translate(0, 0, 2F);
     }
 }
