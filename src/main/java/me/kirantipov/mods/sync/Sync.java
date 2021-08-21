@@ -1,5 +1,6 @@
 package me.kirantipov.mods.sync;
 
+import me.kirantipov.mods.sync.api.enery.EnergyRegistry;
 import me.kirantipov.mods.sync.api.networking.SyncPackets;
 import me.kirantipov.mods.sync.block.SyncBlocks;
 import me.kirantipov.mods.sync.block.entity.SyncBlockEntities;
@@ -24,6 +25,7 @@ public class Sync implements ModInitializer, ClientModInitializer {
         SyncBlocks.init();
         SyncBlockEntities.init();
         SyncItems.init();
+        EnergyRegistry.init();
         SyncPackets.init();
         SyncRecipes.init();
     }

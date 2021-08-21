@@ -1,22 +1,22 @@
 package me.kirantipov.mods.sync.block.entity;
 
+import dev.technici4n.fasttransferlib.api.Simulation;
+import dev.technici4n.fasttransferlib.api.energy.EnergyIo;
 import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.energy.EnergyContainer;
-import me.kirantipov.mods.sync.api.energy.EnergyContainerProvider;
+import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
 import me.kirantipov.mods.sync.block.ShellConstructorBlock;
 import me.kirantipov.mods.sync.entity.damage.FingerstickDamageSource;
 import me.kirantipov.mods.sync.util.BlockPosUtil;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEntity {
-    private static final float PJ_AMOUNT = 16000;
+public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEntity implements EnergyIo {
+    private static final float LF_AMOUNT = 256000;
 
     public ShellConstructorBlockEntity(BlockPos pos, BlockState state) {
         super(SyncBlockEntities.SHELL_CONSTRUCTOR, pos, state);
@@ -28,28 +28,6 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
         if (ShellConstructorBlock.isOpen(state)) {
             ShellConstructorBlock.setOpen(state, world, pos, BlockPosUtil.hasPlayerInside(pos, world));
         }
-
-        if (this.shell != null && this.shell.getProgress() < 1F) {
-            float pj = extractEnergyFromNeighbors(world, pos) + extractEnergyFromNeighbors(world, pos.offset(ShellConstructorBlock.getDirectionTowardsAnotherPart(state)));
-            this.shell.setProgress(this.shell.getProgress() + pj / PJ_AMOUNT);
-        }
-    }
-
-    private static float extractEnergyFromNeighbors(World world, BlockPos pos) {
-        float pj = 0;
-        for (Direction direction : Direction.values()) {
-            BlockEntity be = world.getBlockEntity(pos.offset(direction));
-            EnergyContainer container = null;
-            if (be instanceof EnergyContainerProvider provider) {
-                container = provider.getEnergyContainer();
-            } else if (be instanceof EnergyContainer) {
-                container = ((EnergyContainer)be);
-            }
-            if (container != null) {
-                pj += container.extract(container.getAmount());
-            }
-        }
-        return pj;
     }
 
     @Override
@@ -62,5 +40,40 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
             player.damage(FingerstickDamageSource.getInstance(), damage);
             this.shell = ShellState.empty(serverPlayer, pos);
         }
+    }
+
+    @Override
+    public double getEnergy() {
+        return 0;
+    }
+
+    @Override
+    public boolean supportsInsertion() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsExtraction() {
+        return false;
+    }
+
+    @Override
+    public double insert(double amount, Simulation simulation) {
+        if (!AbstractShellContainerBlock.isBottom(this.getCachedState())) {
+            if (this.getSecondPart().orElse(null) instanceof EnergyIo energyIo) {
+                return energyIo.insert(amount, simulation);
+            }
+            return amount;
+        }
+
+        if (this.shell == null || this.shell.getProgress() >= ShellState.PROGRESS_DONE) {
+            return amount;
+        }
+
+        double maxEnergy = (ShellState.PROGRESS_DONE - this.shell.getProgress()) * LF_AMOUNT;
+        if (simulation != Simulation.SIMULATE) {
+            this.shell.setProgress(this.shell.getProgress() + (float)amount / LF_AMOUNT);
+        }
+        return MathHelper.clamp(amount - maxEnergy, 0, amount);
     }
 }

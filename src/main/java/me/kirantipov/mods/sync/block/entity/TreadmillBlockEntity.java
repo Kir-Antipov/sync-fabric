@@ -1,7 +1,9 @@
 package me.kirantipov.mods.sync.block.entity;
 
-import me.kirantipov.mods.sync.api.energy.EnergyContainer;
-import me.kirantipov.mods.sync.api.energy.EnergyContainerProvider;
+import dev.technici4n.fasttransferlib.api.Simulation;
+import dev.technici4n.fasttransferlib.api.energy.EnergyApi;
+import dev.technici4n.fasttransferlib.api.energy.EnergyIo;
+import dev.technici4n.fasttransferlib.api.energy.EnergyMovement;
 import me.kirantipov.mods.sync.block.TreadmillBlock;
 import me.kirantipov.mods.sync.util.nbt.NbtSerializer;
 import me.kirantipov.mods.sync.util.nbt.NbtSerializerFactory;
@@ -20,11 +22,12 @@ import net.minecraft.world.World;
 
 import java.util.UUID;
 
-public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEntity, TickableBlockEntity, EnergyContainerProvider, BlockEntityClientSerializable {
+public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEntity, TickableBlockEntity, EnergyIo, BlockEntityClientSerializable {
     private static final NbtSerializerFactory<TreadmillBlockEntity> NBT_SERIALIZER_FACTORY;
 
     private UUID runnerUUID;
     private Integer runnerId;
+    private TreadmillBlockEntity cachedBackPart;
     private final TreadmillStateManager treadmillStateManager;
     private final NbtSerializer<TreadmillBlockEntity> serializer;
 
@@ -74,10 +77,15 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
 
             if (runner == null) {
                 this.setRunner(this.treadmillStateManager.findRunner(world, anchor));
+                runner = this.getRunner();
+            }
+
+            if (runner != null) {
+                this.transferEnergy(world, pos);
             }
         }
 
-        this.treadmillStateManager.step(anchor, face);
+        this.treadmillStateManager.tick(anchor, face);
 
         if (!world.isClient && runningTime != this.treadmillStateManager.getRunningTime()) {
             this.markDirty();
@@ -85,6 +93,56 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
                 this.sync();
             }
         }
+    }
+
+    @Override
+    public double getEnergy() {
+        TreadmillBlockEntity back = this.getBackPart();
+        return back == null ? 0 : back.treadmillStateManager.getEnergy();
+    }
+
+    @Override
+    public boolean supportsInsertion() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsExtraction() {
+        return true;
+    }
+
+    @Override
+    public double extract(double maxAmount, Simulation simulation) {
+        TreadmillBlockEntity back = this.getBackPart();
+        return back == null ? 0 : back.treadmillStateManager.extract(maxAmount);
+    }
+
+    private void transferEnergy(World world, BlockPos pos) {
+        for (int i = 0; i < 2; ++i) {
+            for (Direction direction : Direction.values()) {
+                EnergyIo target = EnergyApi.SIDED.find(world, pos.offset(direction), direction);
+                if (target != null) {
+                    EnergyMovement.move(this, target, Double.MAX_VALUE);
+                }
+            }
+            pos = pos.offset(this.getCachedState().get(TreadmillBlock.FACING));
+        }
+    }
+
+    private TreadmillBlockEntity getBackPart() {
+        if (this.world == null) {
+            return null;
+        }
+
+        if (TreadmillBlock.isBack(this.getCachedState())) {
+            return this;
+        }
+
+        BlockPos backPartPos = this.pos.offset(this.getCachedState().get(TreadmillBlock.FACING).getOpposite());
+        if (this.cachedBackPart == null || !this.cachedBackPart.pos.equals(backPartPos)) {
+            this.cachedBackPart = this.world.getBlockEntity(backPartPos, SyncBlockEntities.TREADMILL).orElse(null);
+        }
+        return this.cachedBackPart;
     }
 
     @Override
@@ -121,19 +179,6 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
     @Override
     public DoubleBlockProperties.Type getBlockType(BlockState state) {
         return TreadmillBlock.getTreadmillPart(state);
-    }
-
-    @Override
-    public EnergyContainer getEnergyContainer() {
-        EnergyContainer container = this.treadmillStateManager;
-        if (this.world != null && !TreadmillBlock.isBack(this.getCachedState())) {
-            Direction direction = this.getCachedState().get(TreadmillBlock.FACING).getOpposite();
-            BlockEntity blockEntity = this.world.getBlockEntity(this.pos.offset(direction));
-            if (blockEntity instanceof TreadmillBlockEntity secondPart) {
-                container = secondPart.treadmillStateManager;
-            }
-        }
-        return container;
     }
 
     private static Vec3d getRunnerAnchor(BlockPos pos, Direction face) {

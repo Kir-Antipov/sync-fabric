@@ -1,7 +1,6 @@
 package me.kirantipov.mods.sync.block.entity;
 
 import com.google.common.collect.ImmutableMap;
-import me.kirantipov.mods.sync.api.energy.EnergyContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
@@ -19,7 +18,7 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class TreadmillStateManager implements EnergyContainer {
+public class TreadmillStateManager {
     private static final int MAX_RUNNING_TIME = 20 * 60 * 15; // ticks -> seconds -> minutes
     private static final double MAX_SQUARED_DISTANCE = 0.5;
     private static final double MAX_DIAGONAL_DISTANCE_HALF = Math.sqrt(3) * Math.sqrt(MAX_SQUARED_DISTANCE);
@@ -59,7 +58,7 @@ public class TreadmillStateManager implements EnergyContainer {
         return this.getRunner() != null && this.getRunningTime() >= this.getMaxRunningTime();
     }
 
-    public void step(Vec3d pos, Direction face) {
+    public void tick(Vec3d pos, Direction face) {
         if (this.runner == null) {
             return;
         }
@@ -116,34 +115,27 @@ public class TreadmillStateManager implements EnergyContainer {
         return isValid;
     }
 
-    @Override
-    public float getAmount() {
-        return this.getCapacity();
-    }
-
-    @Override
-    public float getCapacity() {
+    public double getEnergy() {
         if (this.runner == null) {
             return 0;
         }
 
-        float pw = ENERGY_MAP.getOrDefault(this.runner.getClass(), 0F);
-        return pw + pw * 0.5F * this.runningTime / MAX_RUNNING_TIME;
+        float lf = ENERGY_MAP.getOrDefault(this.runner.getClass(), 0F);
+        return lf + lf * 0.5F * this.runningTime / MAX_RUNNING_TIME;
     }
 
-    @Override
-    public float extract(float pj) {
-        return Math.min(pj, this.getAmount());
+    public double extract(double maxAmount) {
+        return Math.min(maxAmount, this.getEnergy());
     }
 
     private static ImmutableMap<Class<? extends Entity>, Float> createEnergyMap() {
         return ImmutableMap.<Class<? extends Entity>, Float>builder()
-            .put(ChickenEntity.class, 0.1F)
-            .put(PigEntity.class, 1F)
-            .put(ServerPlayerEntity.class, 1.25F)
-            .put(WolfEntity.class, 1.5F)
-            .put(CreeperEntity.class, 5F)
-            .put(EndermanEntity.class, 10F)
+            .put(ChickenEntity.class, 1.6F)
+            .put(PigEntity.class, 16F)
+            .put(ServerPlayerEntity.class, 20F)
+            .put(WolfEntity.class, 24F)
+            .put(CreeperEntity.class, 80F)
+            .put(EndermanEntity.class, 160F)
             .build();
     }
 }

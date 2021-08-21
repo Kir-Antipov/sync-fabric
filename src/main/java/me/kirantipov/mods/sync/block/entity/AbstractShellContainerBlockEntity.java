@@ -73,7 +73,7 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     }
 
     protected Optional<AbstractShellContainerBlockEntity> getSecondPart() {
-        return this.secondPart == null ? Optional.empty() : Optional.of(this.secondPart);
+        return this.secondPart == null ? Optional.ofNullable(this.updateSecondPart(this.world, this.pos, this.world == null ? null : this.getCachedState())) : Optional.of(this.secondPart);
     }
 
     @Override
@@ -119,14 +119,16 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
         this.doorAnimator.step();
     }
 
-    private void updateSecondPart(World world, BlockPos pos, BlockState state) {
-        BlockPos secondPartPos = pos.offset(AbstractShellContainerBlock.getDirectionTowardsAnotherPart(state));
-        if (this.secondPart != null && this.secondPart.pos.equals(secondPartPos)) {
-            return;
+    private AbstractShellContainerBlockEntity updateSecondPart(World world, BlockPos pos, BlockState state) {
+        if (world == null) {
+            return null;
         }
 
-        BlockEntity be = world.getBlockEntity(secondPartPos);
-        this.secondPart = be instanceof AbstractShellContainerBlockEntity shellContainer ? shellContainer : null;
+        BlockPos secondPartPos = pos.offset(AbstractShellContainerBlock.getDirectionTowardsAnotherPart(state));
+        if (this.secondPart == null || !this.secondPart.pos.equals(secondPartPos)) {
+            this.secondPart = world.getBlockEntity(secondPartPos) instanceof AbstractShellContainerBlockEntity shellContainer ? shellContainer : null;
+        }
+        return this.secondPart;
     }
 
     public void onBreak(World world, BlockPos pos) {

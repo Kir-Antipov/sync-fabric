@@ -22,6 +22,10 @@ repositories {
         name = "Databreaker"
         url = "https://maven.gegy.dev/"
     }
+    maven {
+        name = "Fast Transfer Lib"
+        url = "https://raw.githubusercontent.com/Technici4n/Technici4n-maven/master/"
+    }
 }
 
 // To change the versions see the gradle.properties file
@@ -31,6 +35,9 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modImplementation "dev.technici4n:FastTransferLib:${project.ftl_version}"
+    include "dev.technici4n:FastTransferLib:${project.ftl_version}"
 
     // Minecraft 1.17 is slow as heck
     modRuntime("supercoder79:databreaker:${project.databreaker_version}") {
