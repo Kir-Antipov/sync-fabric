@@ -16,7 +16,7 @@
       "item": "minecraft:quartz"
     },
     "#": {
-      "item": "minecraft:ender_pearl"
+      "item": "minecraft:nether_star"
     },
     "E": {
       "item": "minecraft:emerald"
@@ -28,7 +28,5 @@
   "result": {
     "item": "sync:sync_core"
   },
-  "conditions": {
-    "not": "is_hardcore"
-  }
+  "conditions": "is_hardcore"
 }

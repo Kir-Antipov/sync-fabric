@@ -28,6 +28,8 @@ As for the brief description of the mod, I think the original one says it all:
 
 ![Sync Core (Hardcore): Daylight Detector + Lapis Block + Daylight Detector + Quartz + Nether Star + Quartz + Emerald + Redstone Block + Emerald](media/sync_core-recipe-hardcore.png)
 
+P.S. - If you aren't brave enough to fight the Wither in Hardcore, you can use [this datapack](media/simplified_hardcore_recipe_datapack.zip) *(it will bring back the original Sync Core recipe)*. Please read [this article](https://minecraft.fandom.com/wiki/Tutorials/Installing_a_data_pack), if you don't know how to do it.
+
 #### Shell Constructor:
 
 ![Shell Constructor: Gray Concrete + Sync Core + Gray Concrete + Glass Pane + Glass Pane + Glass Pane + Gray Concrete + Redstone + Gray Concrete](media/shell_constructor-recipe.png)
@@ -87,6 +89,8 @@ You can download the mod from:
 
 Requirements:
  - JDK `16`
+ - `GITHUB_ACTOR` *(GitHub login)* project property/environment variable
+ - `GITHUB_TOKEN` project property/environment variable. Required scopes: `read:packages`
 
 ### Linux/MacOS
 

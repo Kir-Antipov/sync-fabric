@@ -26,6 +26,14 @@ repositories {
         name = "Fast Transfer Lib"
         url = "https://raw.githubusercontent.com/Technici4n/Technici4n-maven/master/"
     }
+    maven {
+        name = "Smart Recipes"
+        url = "https://maven.pkg.github.com/Kir-Antipov/smart-recipes"
+        credentials {
+            username = project.findProperty("GITHUB_ACTOR") ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("GITHUB_TOKEN") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 // To change the versions see the gradle.properties file
@@ -38,6 +46,9 @@ dependencies {
 
     modImplementation "dev.technici4n:FastTransferLib:${project.ftl_version}"
     include "dev.technici4n:FastTransferLib:${project.ftl_version}"
+
+    modImplementation "dev.kirantipov:smartrecipes:${project.smartrecipes_version}"
+    include "dev.kirantipov:smartrecipes:${project.smartrecipes_version}"
 
     // Minecraft 1.17 is slow as heck
     modRuntime("supercoder79:databreaker:${project.databreaker_version}") {

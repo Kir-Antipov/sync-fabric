@@ -6,7 +6,6 @@ import me.kirantipov.mods.sync.block.SyncBlocks;
 import me.kirantipov.mods.sync.block.entity.SyncBlockEntities;
 import me.kirantipov.mods.sync.client.render.SyncRenderers;
 import me.kirantipov.mods.sync.item.SyncItems;
-import me.kirantipov.mods.sync.recipe.SyncRecipes;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,7 +26,6 @@ public class Sync implements ModInitializer, ClientModInitializer {
         SyncItems.init();
         EnergyRegistry.init();
         SyncPackets.init();
-        SyncRecipes.init();
     }
 
     @Override
