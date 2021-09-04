@@ -9,6 +9,12 @@
 
   "death.attack.sync.fingerstick": "%s died in the name of science",
 
+  "command.sync.ghostshells.invalid_action": "Available actions are: sync, remove and repair",
+  "command.sync.ghostshells.not_found": "%s has no information about the shell that should be located at %s",
+  "command.sync.ghostshells.repaired": "Successfully repaired %s's shell at %s",
+  "command.sync.ghostshells.failed": "%s's shell cannot be repaired at %s. There's no shell container at the given coords",
+  "command.sync.ghostshells.removed": "Successfully removed shell (%2$s) from %1$s's radial menu",
+
   "gui.sync.default.cross_button.title": "Close",
   "gui.sync.shell_selector.title": "Shell Selector",
   "gui.sync.shell_selector.up.title": "Previous world",

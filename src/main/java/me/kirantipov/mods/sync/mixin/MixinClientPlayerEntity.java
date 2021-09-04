@@ -94,14 +94,16 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
 
     @Override
     public void remove(ShellState state) {
-        if (this.canBeApplied(state)) {
+        if (state != null) {
             this.shellsById.remove(state.getUuid());
         }
     }
 
     @Override
     public void update(ShellState state) {
-        this.add(state);
+        if (this.canBeApplied(state) || state != null && this.shellsById.containsKey(state.getUuid())) {
+            this.shellsById.put(state.getUuid(), state);
+        }
     }
 
     @Override
