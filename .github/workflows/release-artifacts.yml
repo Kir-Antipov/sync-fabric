@@ -28,6 +28,8 @@ jobs:
 
       - name: Build artifacts
         run: ./gradlew clean build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload assets to GitHub
         uses: AButler/upload-release-assets@v2.0
