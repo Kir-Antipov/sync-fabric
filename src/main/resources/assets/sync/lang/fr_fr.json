@@ -7,7 +7,7 @@
 
   "item.sync.sync_core": "Noyau de synchronisation",
 
-  "death.attack.sync.fingerstick": "%s est mort pour faire avancer la science !",
+  "death.attack.sync.fingerstick": "%s est mort pour faire avancer la science!",
 
   "command.sync.ghostshells.invalid_action": "Les actions disponnibles sont: synchroniser, supprimer and réparer",
   "command.sync.ghostshells.not_found": "%s n'a aucune information sur la capsule qui devrait se trouver en %s",
