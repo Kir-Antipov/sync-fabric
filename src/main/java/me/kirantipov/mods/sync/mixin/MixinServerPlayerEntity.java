@@ -10,7 +10,6 @@ import me.kirantipov.mods.sync.api.networking.ShellStateUpdatePacket;
 import me.kirantipov.mods.sync.api.networking.ShellUpdatePacket;
 import me.kirantipov.mods.sync.util.BlockPosUtil;
 import me.kirantipov.mods.sync.util.WorldUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -45,7 +44,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -331,9 +329,11 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements Sh
         this.shellDirty = true;
     }
 
-    @Inject(method = "moveToWorld", at = @At("TAIL"))
-    private void moveToWorld(ServerWorld destination, CallbackInfoReturnable<Entity> cir) {
-        this.shellDirty = true;
+    @Inject(method = "setWorld", at = @At("HEAD"))
+    private void setWorld(ServerWorld world, CallbackInfo ci) {
+        if (world != this.world) {
+            this.shellDirty = true;
+        }
     }
 
     @Unique
