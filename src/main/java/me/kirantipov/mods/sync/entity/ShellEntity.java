@@ -50,7 +50,7 @@ public class ShellEntity extends AbstractClientPlayerEntity {
 
     @Override
     public PlayerInventory getInventory() {
-        return this.state.getInventory();
+        return this.state == null ? super.getInventory() : this.state.getInventory();
     }
 
     @Override
@@ -69,12 +69,12 @@ public class ShellEntity extends AbstractClientPlayerEntity {
 
     @Override
     public Iterable<ItemStack> getArmorItems() {
-        return this.state.getInventory().armor;
+        return this.getInventory().armor;
     }
 
     @Override
     public ItemStack getEquippedStack(EquipmentSlot slot) {
-        PlayerInventory inventory = this.state.getInventory();
+        PlayerInventory inventory = this.getInventory();
         return switch (slot) {
             case MAINHAND -> inventory.getMainHandStack();
             case OFFHAND -> inventory.offHand.get(0);
