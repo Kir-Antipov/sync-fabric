@@ -27,6 +27,14 @@ repositories {
         url = "https://raw.githubusercontent.com/Technici4n/Technici4n-maven/master/"
     }
     maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+    }
+    maven {
+        name = "Ladysnake Libs"
+        url = "https://ladysnake.jfrog.io/artifactory/mods"
+    }
+    maven {
         name = "Smart Recipes"
         url = "https://maven.pkg.github.com/Kir-Antipov/smart-recipes"
         credentials {
@@ -49,6 +57,8 @@ dependencies {
 
     modImplementation "dev.kirantipov:smartrecipes:${project.smartrecipes_version}"
     include "dev.kirantipov:smartrecipes:${project.smartrecipes_version}"
+
+    modImplementation "dev.emi:trinkets:${project.trinkets_version}"
 
     // Minecraft 1.17 is slow as heck
     modRuntime("supercoder79:databreaker:${project.databreaker_version}") {

@@ -21,6 +21,9 @@
     ],
     "client": [
       "me.kirantipov.mods.sync.Sync"
+    ],
+    "cardinal-components-entity": [
+      "me.kirantipov.mods.sync.compat.trinkets.TrinketsCompat"
     ]
   },
   "mixins": [

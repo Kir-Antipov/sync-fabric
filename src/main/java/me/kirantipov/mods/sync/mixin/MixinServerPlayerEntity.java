@@ -8,6 +8,7 @@ import me.kirantipov.mods.sync.api.core.ShellStateUpdateType;
 import me.kirantipov.mods.sync.api.networking.PlayerIsAlivePacket;
 import me.kirantipov.mods.sync.api.networking.ShellStateUpdatePacket;
 import me.kirantipov.mods.sync.api.networking.ShellUpdatePacket;
+import me.kirantipov.mods.sync.compat.trinkets.TrinketInventory;
 import me.kirantipov.mods.sync.util.BlockPosUtil;
 import me.kirantipov.mods.sync.util.WorldUtil;
 import net.minecraft.entity.damage.DamageSource;
@@ -131,6 +132,9 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements Sh
         int selectedSlot = inventory.selectedSlot;
         inventory.clone(state.getInventory());
         inventory.selectedSlot = selectedSlot;
+
+        TrinketInventory trinketInventory = TrinketInventory.of(serverPlayer);
+        trinketInventory.clone(state.getTrinketInventory());
 
         serverPlayer.changeGameMode(GameMode.byId(state.getGameMode()));
         this.setHealth(state.getHealth());

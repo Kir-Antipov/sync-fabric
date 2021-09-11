@@ -1,5 +1,6 @@
 package me.kirantipov.mods.sync.api.core;
 
+import me.kirantipov.mods.sync.compat.trinkets.TrinketInventory;
 import me.kirantipov.mods.sync.entity.ShellEntity;
 import me.kirantipov.mods.sync.util.WorldUtil;
 import me.kirantipov.mods.sync.util.math.Radians;
@@ -8,6 +9,7 @@ import me.kirantipov.mods.sync.util.nbt.NbtSerializerFactory;
 import me.kirantipov.mods.sync.util.nbt.NbtSerializerFactoryBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -48,6 +50,7 @@ public class ShellState {
     private float health;
     private int gameMode;
     private PlayerInventory inventory;
+    private TrinketInventory trinketInventory;
 
     private int foodLevel;
     private float saturationLevel;
@@ -105,6 +108,10 @@ public class ShellState {
 
     public PlayerInventory getInventory() {
         return this.inventory;
+    }
+
+    public TrinketInventory getTrinketInventory() {
+        return this.trinketInventory;
     }
 
     public int getFoodLevel() {
@@ -217,10 +224,12 @@ public class ShellState {
         shell.ownerName = player.getName().asString();
         shell.gameMode = player.interactionManager.getGameMode().getId();
         shell.inventory = new PlayerInventory(null);
+        shell.trinketInventory = TrinketInventory.empty(EntityType.PLAYER);
 
         if (copyPlayerState) {
             shell.health = player.getHealth();
             shell.inventory.clone(player.getInventory());
+            shell.trinketInventory.clone(TrinketInventory.of(player));
 
             shell.foodLevel = player.getHungerManager().getFoodLevel();
             shell.saturationLevel = player.getHungerManager().getSaturationLevel();
@@ -248,7 +257,7 @@ public class ShellState {
 
     public void dropInventory(ServerWorld world, BlockPos pos) {
         Stream
-            .of(this.inventory.main, this.inventory.armor, this.inventory.offHand)
+            .of(this.inventory.main, this.inventory.armor, this.inventory.offHand, this.trinketInventory.getItems())
             .flatMap(Collection::stream)
             .forEach(x -> this.dropItemStack(world, pos, x));
     }
@@ -321,6 +330,7 @@ public class ShellState {
             .add(Float.class, "health", x -> x.health, (x, health) -> x.health = health)
             .add(Integer.class, "gameMode", x -> x.gameMode, (x, gameMode) -> x.gameMode = gameMode)
             .add(NbtList.class, "inventory", x -> x.inventory.writeNbt(new NbtList()), (x, inventory) -> { x.inventory = new PlayerInventory(null); x.inventory.readNbt(inventory); })
+            .add(NbtCompound.class, "trinketInventory", x -> x.trinketInventory.writeNbt(new NbtCompound()), (x, trinketInventory) -> { x.trinketInventory = TrinketInventory.empty(EntityType.PLAYER); if (trinketInventory != null) { x.trinketInventory.readNbt(trinketInventory); } })
 
             .add(Integer.class, "foodLevel", x -> x.foodLevel, (x, foodLevel) -> x.foodLevel = foodLevel)
             .add(Float.class, "saturationLevel", x -> x.saturationLevel, (x, saturationLevel) -> x.saturationLevel = saturationLevel)

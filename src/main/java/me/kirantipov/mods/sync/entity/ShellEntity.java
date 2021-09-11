@@ -28,6 +28,7 @@ public class ShellEntity extends AbstractClientPlayerEntity {
     public boolean isActive;
     public float pitchProgress;
     private final ShellState state;
+    private Runnable onInitialized;
     private final PlayerListEntry playerEntry;
 
     public ShellEntity(ShellState state) {
@@ -41,6 +42,19 @@ public class ShellEntity extends AbstractClientPlayerEntity {
         this.state = state;
         this.playerEntry = getPlayerEntry(state);
         this.refreshPositionAndAngles(state.getPos(), 0, 0);
+
+        if (this.onInitialized != null) {
+            this.onInitialized.run();
+            this.onInitialized = null;
+        }
+    }
+
+    public void onInitialized(Runnable runnable) {
+        if (this.state == null) {
+            this.onInitialized = runnable;
+        } else if (runnable != null) {
+            runnable.run();
+        }
     }
 
     public ShellState getState() {
