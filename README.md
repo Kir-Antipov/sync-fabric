@@ -76,7 +76,7 @@ P.S. - If you aren't brave enough to fight the Wither in Hardcore, you can use [
 Requirements:
  - Minecraft `1.17.x`
  - Fabric Loader `>=0.11.3`
- - Fabric API `>=0.35.0`
+ - Fabric API `>=0.39.0`
 
 You can download the mod from:
 

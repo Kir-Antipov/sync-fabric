@@ -17,7 +17,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -103,23 +102,8 @@ public class ShellEntity extends AbstractClientPlayerEntity {
     }
 
     @Override
-    public String getModel() {
-        return this.playerEntry.getModel();
-    }
-
-    @Override
-    public Identifier getSkinTexture() {
-        return this.playerEntry.getSkinTexture();
-    }
-
-    @Override
-    public Identifier getElytraTexture() {
-        return this.playerEntry.getElytraTexture();
-    }
-
-    @Override
-    public Identifier getCapeTexture() {
-        return this.playerEntry.getCapeTexture();
+    protected PlayerListEntry getPlayerListEntry() {
+        return this.playerEntry;
     }
 
     private static PlayerListEntry getPlayerEntry(ShellState state) {

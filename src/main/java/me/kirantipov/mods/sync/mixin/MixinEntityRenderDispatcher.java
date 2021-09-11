@@ -5,6 +5,9 @@ import me.kirantipov.mods.sync.client.render.entity.ShellEntityRenderer;
 import me.kirantipov.mods.sync.entity.ShellEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.impl.client.rendering.RegistrationHelperImpl;
+import net.fabricmc.fabric.mixin.client.rendering.LivingEntityRendererAccessor;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -12,6 +15,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.model.EntityModelLoader;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.ResourceManager;
 import org.spongepowered.asm.mixin.Final;
@@ -58,8 +62,16 @@ public class MixinEntityRenderDispatcher {
     private void reload(ResourceManager manager, CallbackInfo ci) {
         EntityRendererFactory.Context context = new EntityRendererFactory.Context((EntityRenderDispatcher)(Object)this, this.itemRenderer, manager, this.modelLoader, this.textRenderer);
         this.shellRenderers = ImmutableMap.of(
-            "default", new ShellEntityRenderer(context, false),
-            "slim", new ShellEntityRenderer(context, true)
+            "default", createShellEntityRenderer(context, false),
+            "slim", createShellEntityRenderer(context, true)
         );
+    }
+
+    @SuppressWarnings({"unchecked", "ConstantConditions", "rawtypes"})
+    private static ShellEntityRenderer createShellEntityRenderer(EntityRendererFactory.Context context, boolean slim) {
+        ShellEntityRenderer shellEntityRenderer = new ShellEntityRenderer(context, slim);
+        LivingEntityRendererAccessor accessor = (LivingEntityRendererAccessor)shellEntityRenderer;
+        LivingEntityFeatureRendererRegistrationCallback.EVENT.invoker().registerRenderers(EntityType.PLAYER, shellEntityRenderer, new RegistrationHelperImpl(accessor::callAddFeature), context);
+        return shellEntityRenderer;
     }
 }
