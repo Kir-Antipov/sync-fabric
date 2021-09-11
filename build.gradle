@@ -35,11 +35,10 @@ repositories {
         url = "https://ladysnake.jfrog.io/artifactory/mods"
     }
     maven {
-        name = "Smart Recipes"
-        url = "https://maven.pkg.github.com/Kir-Antipov/smart-recipes"
-        credentials {
-            username = project.findProperty("GITHUB_ACTOR") ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("GITHUB_TOKEN") ?: System.getenv("GITHUB_TOKEN")
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
         }
     }
 }
@@ -55,8 +54,8 @@ dependencies {
     modImplementation "dev.technici4n:FastTransferLib:${project.ftl_version}"
     include "dev.technici4n:FastTransferLib:${project.ftl_version}"
 
-    modImplementation "dev.kirantipov:smartrecipes:${project.smartrecipes_version}"
-    include "dev.kirantipov:smartrecipes:${project.smartrecipes_version}"
+    modImplementation "maven.modrinth:smart-recipes:${project.smartrecipes_version}"
+    include "maven.modrinth:smart-recipes:${project.smartrecipes_version}"
 
     modImplementation "dev.emi:trinkets:${project.trinkets_version}"
 

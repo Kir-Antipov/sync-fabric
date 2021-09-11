@@ -20,8 +20,6 @@ jobs:
 
       - name: Build artifacts
         run: ./gradlew clean build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2.2.3

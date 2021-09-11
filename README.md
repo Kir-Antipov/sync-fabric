@@ -89,8 +89,6 @@ You can download the mod from:
 
 Requirements:
  - JDK `16`
- - `GITHUB_ACTOR` *(GitHub login)* project property/environment variable
- - `GITHUB_TOKEN` project property/environment variable. Required scopes: `read:packages`
 
 ### Linux/MacOS
 
