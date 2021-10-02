@@ -41,7 +41,7 @@ public class GhostShellsCommand implements Command {
     @Override
     public boolean hasPermissions(ServerCommandSource commandSource) {
         final int OP_LEVEL = 2;
-        return commandSource.hasPermissionLevel(OP_LEVEL) || commandSource.getMinecraftServer().isSinglePlayer();
+        return commandSource.hasPermissionLevel(OP_LEVEL) || commandSource.getServer().isSingleplayer();
     }
 
     @Override

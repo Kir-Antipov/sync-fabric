@@ -140,7 +140,7 @@ public class ShellSelectorButtonWidget extends AbstractWidget {
         if (world.getBlockEntity(pos) instanceof ShellStorageBlockEntity shellStorage) {
             shellStorage.entityState = ShellStorageBlockEntity.EntityState.CHILLING;
         }
-        client.openScreen(null);
+        client.setScreen(null);
     }
 
     @Override

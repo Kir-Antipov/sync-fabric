@@ -84,7 +84,7 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
         }
 
         if (this.entityState == EntityState.ENTERING && client.player == entity && client.currentScreen == null && BlockPosUtil.isEntityInside(entity, this.pos)) {
-            client.openScreen(new ShellSelectorGUI(() -> this.entityState = EntityState.LEAVING));
+            client.setScreen(new ShellSelectorGUI(() -> this.entityState = EntityState.LEAVING));
         }
     }
 
