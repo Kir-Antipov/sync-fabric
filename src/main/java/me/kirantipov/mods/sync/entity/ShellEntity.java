@@ -12,9 +12,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.server.world.ServerWorld;
 
@@ -40,6 +37,7 @@ public class ShellEntity extends AbstractClientPlayerEntity {
         this.isActive = false;
         this.pitchProgress = 0;
         this.state = state;
+        state.getInventory().copyTo(this.getInventory());
         this.playerEntry = getPlayerEntry(state);
         this.refreshPositionAndAngles(state.getPos(), 0, 0);
 
@@ -62,11 +60,6 @@ public class ShellEntity extends AbstractClientPlayerEntity {
     }
 
     @Override
-    public PlayerInventory getInventory() {
-        return this.state == null ? super.getInventory() : this.state.getInventory();
-    }
-
-    @Override
     protected void dropInventory() {
         if (this.world instanceof ServerWorld serverWorld) {
             this.state.dropInventory(serverWorld, this.getBlockPos());
@@ -78,21 +71,6 @@ public class ShellEntity extends AbstractClientPlayerEntity {
         if (this.world instanceof ServerWorld serverWorld) {
             this.state.dropXp(serverWorld, this.getBlockPos());
         }
-    }
-
-    @Override
-    public Iterable<ItemStack> getArmorItems() {
-        return this.getInventory().armor;
-    }
-
-    @Override
-    public ItemStack getEquippedStack(EquipmentSlot slot) {
-        PlayerInventory inventory = this.getInventory();
-        return switch (slot) {
-            case MAINHAND -> inventory.getMainHandStack();
-            case OFFHAND -> inventory.offHand.get(0);
-            default -> slot.getType() == EquipmentSlot.Type.ARMOR ? inventory.armor.get(slot.getEntitySlotId()) : ItemStack.EMPTY;
-        };
     }
 
     @Override

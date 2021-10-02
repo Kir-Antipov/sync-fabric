@@ -3,10 +3,10 @@ package me.kirantipov.mods.sync.compat.trinkets;
 import dev.emi.trinkets.api.SlotGroup;
 import dev.emi.trinkets.api.SlotType;
 import dev.emi.trinkets.api.TrinketsApi;
+import me.kirantipov.mods.sync.item.SimpleInventory;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -27,7 +27,7 @@ class TrinketInventoryWrapper extends TrinketInventory {
         for (Map.Entry<String, SlotGroup> groupEntry : TrinketsApi.getEntitySlots(entityType).entrySet()) {
             Map<String, Inventory> group = this.inventory.computeIfAbsent(groupEntry.getKey(), x -> new HashMap<>());
             for (Map.Entry<String, SlotType> slotEntry : groupEntry.getValue().getSlots().entrySet()) {
-                group.put(slotEntry.getKey(), new PlayerInventory(null));
+                group.put(slotEntry.getKey(), new SimpleInventory());
             }
         }
     }

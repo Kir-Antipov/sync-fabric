@@ -2,6 +2,7 @@ package me.kirantipov.mods.sync.api.core;
 
 import me.kirantipov.mods.sync.compat.trinkets.TrinketInventory;
 import me.kirantipov.mods.sync.entity.ShellEntity;
+import me.kirantipov.mods.sync.item.SimpleInventory;
 import me.kirantipov.mods.sync.util.WorldUtil;
 import me.kirantipov.mods.sync.util.math.Radians;
 import me.kirantipov.mods.sync.util.nbt.NbtSerializer;
@@ -12,7 +13,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -49,7 +49,7 @@ public class ShellState {
     private String ownerName;
     private float health;
     private int gameMode;
-    private PlayerInventory inventory;
+    private SimpleInventory inventory;
     private TrinketInventory trinketInventory;
 
     private int foodLevel;
@@ -106,7 +106,7 @@ public class ShellState {
         return this.gameMode;
     }
 
-    public PlayerInventory getInventory() {
+    public SimpleInventory getInventory() {
         return this.inventory;
     }
 
@@ -223,7 +223,7 @@ public class ShellState {
         shell.ownerUuid = player.getUuid();
         shell.ownerName = player.getName().asString();
         shell.gameMode = player.interactionManager.getGameMode().getId();
-        shell.inventory = new PlayerInventory(null);
+        shell.inventory = new SimpleInventory();
         shell.trinketInventory = TrinketInventory.empty(EntityType.PLAYER);
 
         if (copyPlayerState) {
@@ -329,7 +329,7 @@ public class ShellState {
             .add(String.class, "ownerName", x -> x.ownerName, (x, ownerName) -> x.ownerName = ownerName)
             .add(Float.class, "health", x -> x.health, (x, health) -> x.health = health)
             .add(Integer.class, "gameMode", x -> x.gameMode, (x, gameMode) -> x.gameMode = gameMode)
-            .add(NbtList.class, "inventory", x -> x.inventory.writeNbt(new NbtList()), (x, inventory) -> { x.inventory = new PlayerInventory(null); x.inventory.readNbt(inventory); })
+            .add(NbtList.class, "inventory", x -> x.inventory.writeNbt(new NbtList()), (x, inventory) -> { x.inventory = new SimpleInventory(); x.inventory.readNbt(inventory); })
             .add(NbtCompound.class, "trinketInventory", x -> x.trinketInventory.writeNbt(new NbtCompound()), (x, trinketInventory) -> { x.trinketInventory = TrinketInventory.empty(EntityType.PLAYER); if (trinketInventory != null) { x.trinketInventory.readNbt(trinketInventory); } })
 
             .add(Integer.class, "foodLevel", x -> x.foodLevel, (x, foodLevel) -> x.foodLevel = foodLevel)

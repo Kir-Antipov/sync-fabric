@@ -130,7 +130,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements Sh
 
         PlayerInventory inventory = this.getInventory();
         int selectedSlot = inventory.selectedSlot;
-        inventory.clone(state.getInventory());
+        state.getInventory().copyTo(inventory);
         inventory.selectedSlot = selectedSlot;
 
         TrinketInventory trinketInventory = TrinketInventory.of(serverPlayer);
