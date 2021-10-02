@@ -8,6 +8,7 @@
     "MixinServerPlayerEntity"
   ],
   "client": [
+    "LivingEntityRendererAccessor",
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
     "MixinEntityRenderDispatcher",

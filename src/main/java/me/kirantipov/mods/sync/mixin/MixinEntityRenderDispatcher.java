@@ -7,7 +7,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.impl.client.rendering.RegistrationHelperImpl;
-import net.fabricmc.fabric.mixin.client.rendering.LivingEntityRendererAccessor;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -71,7 +70,7 @@ public class MixinEntityRenderDispatcher {
     private static ShellEntityRenderer createShellEntityRenderer(EntityRendererFactory.Context context, boolean slim) {
         ShellEntityRenderer shellEntityRenderer = new ShellEntityRenderer(context, slim);
         LivingEntityRendererAccessor accessor = (LivingEntityRendererAccessor)shellEntityRenderer;
-        LivingEntityFeatureRendererRegistrationCallback.EVENT.invoker().registerRenderers(EntityType.PLAYER, shellEntityRenderer, new RegistrationHelperImpl(accessor::callAddFeature), context);
+        LivingEntityFeatureRendererRegistrationCallback.EVENT.invoker().registerRenderers(EntityType.PLAYER, shellEntityRenderer, new RegistrationHelperImpl(accessor::executeAddFeature), context);
         return shellEntityRenderer;
     }
 }
