@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class MixinServerPlayerEntity extends PlayerEntity implements Shell {
+public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Shell {
     @Shadow
     private int syncedExperience;
 
@@ -78,7 +78,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements Sh
     private Map<UUID, Pair<ShellStateUpdateType, ShellState>> shellStateChanges = new ConcurrentHashMap<>();
 
 
-    private MixinServerPlayerEntity(World world, BlockPos pos, float yaw, GameProfile profile) {
+    private ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
     }
 

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Environment(EnvType.CLIENT)
 @Mixin(value = MinecraftClient.class, priority = 1001)
-public class MixinMinecraftClient {
+public class MinecraftClientMixin {
     /**
      * `setScreen(null)` opens DeathScreen when the player is dead.
      * This method can prevent this from happening.

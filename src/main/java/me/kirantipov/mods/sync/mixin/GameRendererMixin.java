@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 @Mixin(GameRenderer.class)
-public class MixinGameRenderer {
+public class GameRendererMixin {
     @Unique
     private static final ImmutableList<Triplet<String, VertexFormat, Consumer<Shader>>> CUSTOM_SHADERS = ImmutableList.of(
         new Triplet<String, VertexFormat, Consumer<Shader>>("rendertype_entity_translucent_partially_textured", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, CustomGameRenderer::setRenderTypeEntityTranslucentPartiallyTexturedShader),

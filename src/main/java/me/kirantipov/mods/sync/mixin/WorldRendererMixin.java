@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(value = WorldRenderer.class, priority = 1001)
-public class MixinWorldRenderer {
+public class WorldRendererMixin {
     @Final
     @Shadow
     private MinecraftClient client;

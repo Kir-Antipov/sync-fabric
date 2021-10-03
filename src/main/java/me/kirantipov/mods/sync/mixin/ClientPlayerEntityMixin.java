@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientPlayerEntity.class)
-public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity implements Shell {
+public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity implements Shell {
     @Final
     @Shadow
     protected MinecraftClient client;
@@ -45,7 +45,7 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity
     private ConcurrentMap<UUID, ShellState> shellsById = new ConcurrentHashMap<>();
 
 
-    private MixinClientPlayerEntity(ClientWorld world, GameProfile profile) {
+    private ClientPlayerEntityMixin(ClientWorld world, GameProfile profile) {
         super(world, profile);
     }
 

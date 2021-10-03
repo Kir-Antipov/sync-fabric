@@ -4,18 +4,18 @@
   "package": "me.kirantipov.mods.sync.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "MixinMinecraftServer",
-    "MixinServerPlayerEntity"
+    "MinecraftServerMixin",
+    "ServerPlayerEntityMixin"
   ],
   "client": [
     "LivingEntityRendererAccessor",
-    "MixinClientPlayerEntity",
-    "MixinClientPlayerInteractionManager",
-    "MixinEntityRenderDispatcher",
-    "MixinGameRenderer",
-    "MixinMinecraftClient",
-    "MixinPlayerEntityModel",
-    "MixinWorldRenderer"
+    "ClientPlayerEntityMixin",
+    "ClientPlayerInteractionManagerMixin",
+    "EntityRenderDispatcherMixin",
+    "GameRendererMixin",
+    "MinecraftClientMixin",
+    "PlayerEntityModelMixin",
+    "WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

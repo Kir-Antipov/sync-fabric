@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mixin(MinecraftServer.class)
-public class MixinMinecraftServer implements ShellStateManager {
+public class MinecraftServerMixin implements ShellStateManager {
     @Shadow
     private PlayerManager playerManager;
 

@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 @Mixin(PlayerEntityModel.class)
-public abstract class MixinPlayerEntityModel implements VoxelProvider {
+public abstract class PlayerEntityModelMixin implements VoxelProvider {
     @Final
     @Shadow
     private boolean thinArms;
