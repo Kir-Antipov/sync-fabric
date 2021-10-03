@@ -148,6 +148,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements Sh
         this.undead = false;
         this.dead = false;
         this.deathTime = 0;
+        this.fallDistance = 0;
         this.syncedExperience = -1;
         this.syncedHealth = -1;
         this.syncedFoodLevel = -1;
