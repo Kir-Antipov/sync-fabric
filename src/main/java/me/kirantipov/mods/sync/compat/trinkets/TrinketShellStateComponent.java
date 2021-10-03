@@ -3,6 +3,7 @@ package me.kirantipov.mods.sync.compat.trinkets;
 import dev.emi.trinkets.api.SlotGroup;
 import dev.emi.trinkets.api.SlotType;
 import dev.emi.trinkets.api.TrinketsApi;
+import me.kirantipov.mods.sync.api.core.ShellStateComponent;
 import me.kirantipov.mods.sync.item.SimpleInventory;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.entity.EntityType;
@@ -14,15 +15,15 @@ import net.minecraft.nbt.NbtList;
 
 import java.util.*;
 
-class TrinketInventoryWrapper extends TrinketInventory {
+class TrinketShellStateComponent extends ShellStateComponent {
     final Map<String, Map<String, Inventory>> inventory;
 
     @SuppressWarnings("unchecked")
-    public TrinketInventoryWrapper(LivingEntity entity) {
+    public TrinketShellStateComponent(LivingEntity entity) {
         this.inventory = TrinketsApi.getTrinketComponent(entity).map(x -> (Map<String, Map<String, Inventory>>)(Object)x.getInventory()).orElseGet(HashMap::new);
     }
 
-    public TrinketInventoryWrapper(EntityType<?> entityType) {
+    public TrinketShellStateComponent(EntityType<?> entityType) {
         this.inventory = new HashMap<>();
         for (Map.Entry<String, SlotGroup> groupEntry : TrinketsApi.getEntitySlots(entityType).entrySet()) {
             Map<String, Inventory> group = this.inventory.computeIfAbsent(groupEntry.getKey(), x -> new HashMap<>());
@@ -52,13 +53,14 @@ class TrinketInventoryWrapper extends TrinketInventory {
     }
 
     @Override
-    public void clone(TrinketInventory inventory) {
+    public void clone(ShellStateComponent component) {
         this.clear();
-        if (!(inventory instanceof TrinketInventoryWrapper wrapper)) {
+        TrinketShellStateComponent trinketComponent = component.as(TrinketShellStateComponent.class);
+        if (trinketComponent == null) {
             return;
         }
 
-        for (Map.Entry<String, Map<String, Inventory>> sourceGroupEntry : wrapper.inventory.entrySet()) {
+        for (Map.Entry<String, Map<String, Inventory>> sourceGroupEntry : trinketComponent.inventory.entrySet()) {
             Map<String, Inventory> targetGroup = this.inventory.get(sourceGroupEntry.getKey());
             if (targetGroup == null) {
                 continue;
@@ -81,6 +83,7 @@ class TrinketInventoryWrapper extends TrinketInventory {
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
+        NbtCompound trinketNbt = new NbtCompound();
         for (Map.Entry<String, Map<String, Inventory>> group : this.inventory.entrySet()) {
             NbtCompound groupTag = new NbtCompound();
             for (Map.Entry<String, Inventory> slot : group.getValue().entrySet()) {
@@ -93,15 +96,17 @@ class TrinketInventoryWrapper extends TrinketInventory {
                 slotTag.put("Items", list);
                 groupTag.put(slot.getKey(), slotTag);
             }
-            nbt.put(group.getKey(), groupTag);
+            trinketNbt.put(group.getKey(), groupTag);
         }
+        nbt.put("trinket", trinketNbt);
         return nbt;
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        for (String groupKey : nbt.getKeys()) {
-            NbtCompound groupTag = nbt.getCompound(groupKey);
+        NbtCompound trinketNbt = nbt.getCompound("trinket");
+        for (String groupKey : trinketNbt.getKeys()) {
+            NbtCompound groupTag = trinketNbt.getCompound(groupKey);
             Map<String, Inventory> groupSlots = this.inventory.get(groupKey);
             if (groupTag == null || groupSlots == null) {
                 continue;

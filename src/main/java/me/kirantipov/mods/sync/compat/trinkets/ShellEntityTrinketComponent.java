@@ -25,11 +25,12 @@ class ShellEntityTrinketComponent extends LivingEntityTrinketComponent {
         }
 
         super.update();
-        if (!(shellEntity.getState().getTrinketInventory() instanceof TrinketInventoryWrapper wrapper)) {
+        TrinketShellStateComponent trinketComponent = shellEntity.getState().getComponent().as(TrinketShellStateComponent.class);
+        if (trinketComponent == null) {
             return;
         }
 
-        for (Map.Entry<String, Map<String, Inventory>> groupEntry : wrapper.inventory.entrySet()) {
+        for (Map.Entry<String, Map<String, Inventory>> groupEntry : trinketComponent.inventory.entrySet()) {
             Map<String, TrinketInventory> targetGroup = this.inventory.get(groupEntry.getKey());
             if (targetGroup == null) {
                 continue;

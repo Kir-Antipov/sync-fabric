@@ -1,14 +1,10 @@
 package me.kirantipov.mods.sync.mixin;
 
 import com.mojang.authlib.GameProfile;
-import me.kirantipov.mods.sync.api.core.Shell;
-import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.core.ShellStateManager;
-import me.kirantipov.mods.sync.api.core.ShellStateUpdateType;
+import me.kirantipov.mods.sync.api.core.*;
 import me.kirantipov.mods.sync.api.networking.PlayerIsAlivePacket;
 import me.kirantipov.mods.sync.api.networking.ShellStateUpdatePacket;
 import me.kirantipov.mods.sync.api.networking.ShellUpdatePacket;
-import me.kirantipov.mods.sync.compat.trinkets.TrinketInventory;
 import me.kirantipov.mods.sync.util.BlockPosUtil;
 import me.kirantipov.mods.sync.util.WorldUtil;
 import net.minecraft.entity.damage.DamageSource;
@@ -133,8 +129,8 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements Sh
         state.getInventory().copyTo(inventory);
         inventory.selectedSlot = selectedSlot;
 
-        TrinketInventory trinketInventory = TrinketInventory.of(serverPlayer);
-        trinketInventory.clone(state.getTrinketInventory());
+        ShellStateComponent playerComponent = ShellStateComponentFactoryRegistry.getInstance().createOf(serverPlayer);
+        playerComponent.clone(state.getComponent());
 
         serverPlayer.changeGameMode(GameMode.byId(state.getGameMode()));
         this.setHealth(state.getHealth());
