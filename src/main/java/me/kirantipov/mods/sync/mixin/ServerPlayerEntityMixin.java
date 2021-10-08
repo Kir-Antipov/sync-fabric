@@ -103,9 +103,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sh
 
     @Override
     public void apply(ShellState state) {
-        if (!this.canBeApplied(state) || state.getProgress() < ShellState.PROGRESS_DONE) {
-            return;
-        }
+        Objects.requireNonNull(state);
 
         ServerPlayerEntity serverPlayer = (ServerPlayerEntity)(Object)this;
         MinecraftServer server = Objects.requireNonNull(this.world.getServer());
