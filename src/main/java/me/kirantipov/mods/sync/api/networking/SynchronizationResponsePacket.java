@@ -1,6 +1,8 @@
 package me.kirantipov.mods.sync.api.networking;
 
 import me.kirantipov.mods.sync.Sync;
+import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.client.gui.controller.DeathScreenController;
 import me.kirantipov.mods.sync.client.gui.controller.HudController;
 import me.kirantipov.mods.sync.entity.PersistentCameraEntity;
@@ -11,10 +13,12 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import org.jetbrains.annotations.Nullable;
 
 public class SynchronizationResponsePacket implements ClientPlayerPacket {
     private boolean enableCamera;
@@ -23,14 +27,16 @@ public class SynchronizationResponsePacket implements ClientPlayerPacket {
     private Direction startFacing;
     private BlockPos target;
     private Direction targetFacing;
+    private ShellState storedState;
 
-    public SynchronizationResponsePacket(boolean enableCamera, Identifier worldId, BlockPos start, Direction startFacing, BlockPos target, Direction targetFacing) {
+    public SynchronizationResponsePacket(boolean enableCamera, Identifier worldId, BlockPos start, Direction startFacing, BlockPos target, Direction targetFacing, @Nullable ShellState storedState) {
         this.enableCamera = enableCamera;
         this.worldId = worldId;
         this.start = start;
         this.startFacing = startFacing;
         this.target = target;
         this.targetFacing = targetFacing;
+        this.storedState = storedState;
     }
 
     @Override
@@ -46,6 +52,12 @@ public class SynchronizationResponsePacket implements ClientPlayerPacket {
         buffer.writeVarInt(this.startFacing.getId());
         buffer.writeBlockPos(this.target);
         buffer.writeVarInt(this.targetFacing.getId());
+        if (this.storedState == null) {
+            buffer.writeBoolean(false);
+        } else {
+            buffer.writeBoolean(true);
+            buffer.writeNbt(this.storedState.writeNbt(new NbtCompound()));
+        }
     }
 
     @Override
@@ -56,6 +68,7 @@ public class SynchronizationResponsePacket implements ClientPlayerPacket {
         this.startFacing = Direction.byId(buffer.readVarInt());
         this.target = buffer.readBlockPos();
         this.targetFacing = Direction.byId(buffer.readVarInt());
+        this.storedState = buffer.readBoolean() ? ShellState.fromNbt(buffer.readUnlimitedNbt()) : null;
     }
 
     @Override
@@ -81,19 +94,23 @@ public class SynchronizationResponsePacket implements ClientPlayerPacket {
         player.lastRenderPitch = player.renderPitch = 0;
         player.prevPitch = 0;
 
-        if (!this.enableCamera) {
-            restorePlayerState(client);
-            return;
+        if (this.enableCamera) {
+            PersistentCameraEntityGoal cameraGoal = PersistentCameraEntityGoal.highwayToHell(this.start, this.startFacing, this.target, this.targetFacing, x -> restorePlayerState(client, player));
+            PersistentCameraEntity.setup(client, cameraGoal);
+        } else {
+            restorePlayerState(client, player);
         }
-
-        PersistentCameraEntityGoal cameraGoal = PersistentCameraEntityGoal.highwayToHell(this.start, this.startFacing, this.target, this.targetFacing, x -> restorePlayerState(client));
-        PersistentCameraEntity.setup(client, cameraGoal);
     }
 
     @Environment(EnvType.CLIENT)
-    private static void restorePlayerState(MinecraftClient client) {
+    private void restorePlayerState(MinecraftClient client, ClientPlayerEntity player) {
         PersistentCameraEntity.unset(client);
         HudController.restore();
         DeathScreenController.restore();
+
+        boolean syncFailed = this.start.equals(this.target);
+        if (!syncFailed) {
+            PlayerSyncEvents.STOP_SYNCING.invoker().onStopSyncing(player, this.start, this.storedState);
+        }
     }
 }

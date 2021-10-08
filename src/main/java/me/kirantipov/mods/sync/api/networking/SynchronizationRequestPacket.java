@@ -3,6 +3,7 @@ package me.kirantipov.mods.sync.api.networking;
 import me.kirantipov.mods.sync.Sync;
 import me.kirantipov.mods.sync.api.core.Shell;
 import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.block.entity.AbstractShellContainerBlockEntity;
 import me.kirantipov.mods.sync.util.BlockPosUtil;
 import me.kirantipov.mods.sync.util.WorldUtil;
@@ -54,32 +55,33 @@ public class SynchronizationRequestPacket implements ServerPlayerPacket {
     @Override
     public void execute(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketSender responseSender) {
         if (this.shellUuid == null) {
-            reject(player, responseSender);
+            reject(PlayerSyncEvents.SyncFailureReason.INVALID_SHELL, player, Direction.fromRotation(player.getYaw()), responseSender);
             return;
         }
+
+        BlockPos currentPos = player.getBlockPos();
+        ServerWorld currentWorld = player.getServerWorld();
+        Chunk currentChunk = currentWorld.getChunk(currentPos);
+        Direction currentFacing = BlockPosUtil.getHorizontalFacing(currentPos, currentChunk).orElse(Direction.fromRotation(player.getYaw()).getOpposite());
 
         Shell shell = (Shell)player;
         ShellState state = shell.getShellStateByUuid(this.shellUuid);
         if (!shell.canBeApplied(state) || state.getProgress() < ShellState.PROGRESS_DONE) {
-            reject(player, responseSender);
+            reject(PlayerSyncEvents.SyncFailureReason.INVALID_SHELL, player, currentFacing, responseSender);
             return;
         }
 
         boolean isDead = player.isDead();
-        BlockPos currentPos = player.getBlockPos();
-        ServerWorld currentWorld = player.getServerWorld();
-        Chunk currentChunk = currentWorld.getChunk(currentPos);
         BlockEntity currentShellContainerBE = isDead ? null : currentChunk.getBlockEntity(currentPos);
-        Direction currentFacing = BlockPosUtil.getHorizontalFacing(currentPos, currentChunk).orElse(Direction.fromRotation(player.getYaw()).getOpposite());
         if (!isDead && (!(currentShellContainerBE instanceof AbstractShellContainerBlockEntity currentShellContainer) || currentShellContainer.getShell() != null)) {
-            reject(player, responseSender);
+            reject(PlayerSyncEvents.SyncFailureReason.INVALID_CURRENT_LOCATION, player, currentFacing, responseSender);
             return;
         }
 
         Identifier targetWorldId = state.getWorld();
         ServerWorld targetWorld = WorldUtil.findWorld(server.getWorlds(), targetWorldId).orElse(null);
         if (targetWorld == null) {
-            reject(player, responseSender);
+            reject(PlayerSyncEvents.SyncFailureReason.INVALID_TARGET_LOCATION, player, currentFacing, responseSender);
             return;
         }
 
@@ -87,19 +89,23 @@ public class SynchronizationRequestPacket implements ServerPlayerPacket {
         Chunk targetChunk = targetWorld.getChunk(targetPos);
         BlockEntity targetShellContainerBE = targetChunk == null ? null : targetChunk.getBlockEntity(targetPos);
         if (!(targetShellContainerBE instanceof AbstractShellContainerBlockEntity targetShellContainer)) {
-            reject(player, responseSender);
+            reject(PlayerSyncEvents.SyncFailureReason.INVALID_TARGET_LOCATION, player, currentFacing, responseSender);
             return;
         }
         Direction targetFacing = BlockPosUtil.getHorizontalFacing(targetPos, targetChunk).orElse(Direction.NORTH);
 
         state = targetShellContainer.getShell();
-        if (!shell.canBeApplied(state)) {
-            reject(player, responseSender);
+        PlayerSyncEvents.SyncFailureReason finalFailureReason = shell.canBeApplied(state) ? PlayerSyncEvents.ALLOW_SYNCING.invoker().allowSync(player, state) : PlayerSyncEvents.SyncFailureReason.INVALID_SHELL;
+        if (finalFailureReason != null) {
+            reject(finalFailureReason, player, currentFacing, responseSender);
             return;
         }
 
+        PlayerSyncEvents.START_SYNCING.invoker().onStartSyncing(player, state);
+
+        ShellState storedState = null;
         if (currentShellContainerBE instanceof AbstractShellContainerBlockEntity currentShellContainer) {
-            ShellState storedState = ShellState.of(player, currentPos, currentShellContainer.getColor());
+            storedState = ShellState.of(player, currentPos, currentShellContainer.getColor());
             currentShellContainer.setShell(storedState);
             shell.add(storedState);
         }
@@ -108,12 +114,14 @@ public class SynchronizationRequestPacket implements ServerPlayerPacket {
         shell.remove(state);
         shell.apply(state);
 
-        new SynchronizationResponsePacket(currentWorld == targetWorld, targetWorldId, currentPos, currentFacing, targetPos, targetFacing).send(responseSender);
+        new SynchronizationResponsePacket(currentWorld == targetWorld, targetWorldId, currentPos, currentFacing, targetPos, targetFacing, storedState).send(responseSender);
+
+        PlayerSyncEvents.STOP_SYNCING.invoker().onStopSyncing(player, currentPos, storedState);
     }
 
-    private static void reject(ServerPlayerEntity player, PacketSender responseSender) {
+    private static void reject(PlayerSyncEvents.SyncFailureReason reason, ServerPlayerEntity player, Direction facing, PacketSender responseSender) {
+        player.sendMessage(reason.toText(), false);
         BlockPos pos = player.getBlockPos();
-        Direction facing = Direction.fromRotation(player.getYaw());
-        new SynchronizationResponsePacket(true, WorldUtil.getId(player.world), pos, facing, pos, facing).send(responseSender);
+        new SynchronizationResponsePacket(true, WorldUtil.getId(player.world), pos, facing, pos, facing, null).send(responseSender);
     }
 }

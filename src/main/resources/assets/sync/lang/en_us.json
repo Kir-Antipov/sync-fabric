@@ -15,6 +15,10 @@
   "command.sync.ghostshells.failed": "%s's shell cannot be repaired at %s. There's no shell container at the given coords",
   "command.sync.ghostshells.removed": "Successfully removed shell (%2$s) from %1$s's radial menu",
 
+  "event.sync.request.fail.invalid.shell": "The selected shell is not owned by the current player",
+  "event.sync.request.fail.invalid.location.current": "The sync process cannot be started at the current location",
+  "event.sync.request.fail.invalid.location.target": "The selected shell cannot be found",
+
   "gui.sync.default.cross_button.title": "Close",
   "gui.sync.shell_selector.title": "Shell Selector",
   "gui.sync.shell_selector.up.title": "Previous world",

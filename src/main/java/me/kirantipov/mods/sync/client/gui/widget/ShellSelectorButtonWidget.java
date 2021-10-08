@@ -2,14 +2,11 @@ package me.kirantipov.mods.sync.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.networking.SynchronizationRequestPacket;
-import me.kirantipov.mods.sync.block.entity.ShellStorageBlockEntity;
+import me.kirantipov.mods.sync.api.core.SyncRequestHelper;
+import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.client.gl.MSAAFramebuffer;
 import me.kirantipov.mods.sync.client.render.MatrixStackStorage;
-import me.kirantipov.mods.sync.entity.PersistentCameraEntity;
-import me.kirantipov.mods.sync.entity.PersistentCameraEntityGoal;
 import me.kirantipov.mods.sync.entity.ShellEntity;
-import me.kirantipov.mods.sync.util.BlockPosUtil;
 import me.kirantipov.mods.sync.util.client.render.ColorUtil;
 import me.kirantipov.mods.sync.util.client.render.RenderSystemUtil;
 import me.kirantipov.mods.sync.util.math.Radians;
@@ -17,15 +14,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3f;
 
@@ -126,21 +120,15 @@ public class ShellSelectorButtonWidget extends AbstractWidget {
         }
 
         MinecraftClient client = MinecraftClient.getInstance();
-        ClientPlayerEntity player = client.player;
-        ClientWorld world = client.world;
-        if (player == null || world == null) {
-            return;
+        PlayerSyncEvents.SyncFailureReason failureReason = SyncRequestHelper.tryRequestSync(client, this.shell);
+        if (failureReason != null) {
+            if (client.currentScreen != null) {
+                client.currentScreen.onClose();
+            }
+            if (client.player != null) {
+                client.player.sendMessage(failureReason.toText(), true);
+            }
         }
-
-        BlockPos pos = player.getBlockPos();
-        Direction facing = BlockPosUtil.getHorizontalFacing(pos, world).orElse(Direction.NORTH);
-        PersistentCameraEntityGoal cameraGoal = PersistentCameraEntityGoal.stairwayToHeaven(pos, facing, shell.getPos(), x -> new SynchronizationRequestPacket(this.shell).send());
-        PersistentCameraEntity.setup(client, cameraGoal);
-
-        if (world.getBlockEntity(pos) instanceof ShellStorageBlockEntity shellStorage) {
-            shellStorage.entityState = ShellStorageBlockEntity.EntityState.CHILLING;
-        }
-        client.setScreen(null);
     }
 
     @Override

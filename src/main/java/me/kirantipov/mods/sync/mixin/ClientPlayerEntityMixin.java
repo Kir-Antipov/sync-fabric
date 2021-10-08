@@ -3,11 +3,7 @@ package me.kirantipov.mods.sync.mixin;
 import com.mojang.authlib.GameProfile;
 import me.kirantipov.mods.sync.api.core.Shell;
 import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.networking.SynchronizationRequestPacket;
-import me.kirantipov.mods.sync.client.gui.controller.DeathScreenController;
-import me.kirantipov.mods.sync.client.gui.controller.HudController;
-import me.kirantipov.mods.sync.entity.PersistentCameraEntity;
-import me.kirantipov.mods.sync.entity.PersistentCameraEntityGoal;
+import me.kirantipov.mods.sync.api.core.SyncRequestHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -15,7 +11,6 @@ import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -125,16 +120,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     private void onDeath() {
         boolean canRespawn = this.isArtificial() && this.shellsById.size() != 0;
         ShellState respawnShell = canRespawn ? this.shellsById.values().stream().filter(x -> this.canBeApplied(x) && x.getProgress() >= ShellState.PROGRESS_DONE).sorted((a, b) -> Boolean.compare(a.isArtificial(), b.isArtificial())).findAny().orElse(null) : null;
-        if (respawnShell == null) {
-            return;
+        if (respawnShell != null) {
+            SyncRequestHelper.tryRequestSync(this.client, respawnShell);
         }
-
-        Direction facing = Direction.fromRotation(this.getYaw()).getOpposite();
-        PersistentCameraEntityGoal cameraGoal = PersistentCameraEntityGoal.limbo(this.getBlockPos(), facing, respawnShell.getPos(), x -> new SynchronizationRequestPacket(respawnShell).send());
-
-        HudController.hide();
-        DeathScreenController.suspend();
-        PersistentCameraEntity.setup(this.client, cameraGoal);
     }
 
     @Inject(method = "updatePostDeath", at = @At("HEAD"), cancellable = true)
