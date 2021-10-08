@@ -34,6 +34,11 @@ class TrinketShellStateComponent extends ShellStateComponent {
     }
 
     @Override
+    public String getId() {
+        return "trinkets";
+    }
+
+    @Override
     public Collection<ItemStack> getItems() {
         List<ItemStack> items = new ArrayList<>();
         for (Inventory inv : (Iterable<Inventory>)this.inventory.values().stream().flatMap(x -> x.values().stream())::iterator) {
@@ -82,8 +87,7 @@ class TrinketShellStateComponent extends ShellStateComponent {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        NbtCompound trinketNbt = new NbtCompound();
+    public NbtCompound writeComponentNbt(NbtCompound nbt) {
         for (Map.Entry<String, Map<String, Inventory>> group : this.inventory.entrySet()) {
             NbtCompound groupTag = new NbtCompound();
             for (Map.Entry<String, Inventory> slot : group.getValue().entrySet()) {
@@ -96,17 +100,15 @@ class TrinketShellStateComponent extends ShellStateComponent {
                 slotTag.put("Items", list);
                 groupTag.put(slot.getKey(), slotTag);
             }
-            trinketNbt.put(group.getKey(), groupTag);
+            nbt.put(group.getKey(), groupTag);
         }
-        nbt.put("trinket", trinketNbt);
         return nbt;
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        NbtCompound trinketNbt = nbt.getCompound("trinket");
-        for (String groupKey : trinketNbt.getKeys()) {
-            NbtCompound groupTag = trinketNbt.getCompound(groupKey);
+    public void readComponentNbt(NbtCompound nbt) {
+        for (String groupKey : nbt.getKeys()) {
+            NbtCompound groupTag = nbt.getCompound(groupKey);
             Map<String, Inventory> groupSlots = this.inventory.get(groupKey);
             if (groupTag == null || groupSlots == null) {
                 continue;

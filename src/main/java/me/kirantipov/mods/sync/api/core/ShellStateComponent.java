@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class ShellStateComponent {
+    public abstract String getId();
+
     public Collection<ItemStack> getItems() {
         return List.of();
     }
@@ -20,13 +22,21 @@ public abstract class ShellStateComponent {
 
     public void clear() { }
 
-    public void clone(ShellStateComponent component) { }
+    public abstract void clone(ShellStateComponent component);
 
-    public void readNbt(NbtCompound nbt) { }
+    public void readNbt(NbtCompound nbt) {
+        this.readComponentNbt(nbt.getCompound(this.getId()));
+    }
+
+    protected abstract void readComponentNbt(NbtCompound nbt);
 
     public NbtCompound writeNbt(NbtCompound nbt) {
+        NbtCompound componentNbt = this.writeComponentNbt(new NbtCompound());
+        nbt.put(this.getId(), componentNbt);
         return nbt;
     }
+
+    protected abstract NbtCompound writeComponentNbt(NbtCompound nbt);
 
     @Nullable
     @SuppressWarnings("unchecked")
@@ -48,14 +58,11 @@ public abstract class ShellStateComponent {
     }
 
     public static ShellStateComponent combine(Collection<ShellStateComponent> components) {
-        int size = components.size();
-        if (size == 0) {
-            return EmptyShellStateComponent.INSTANCE;
-        } else if (size == 1) {
-            return components.iterator().next();
-        } else {
-            return new CombinedShellStateComponent(components);
-        }
+        return switch (components.size()) {
+            case 0 -> EmptyShellStateComponent.INSTANCE;
+            case 1 -> components.iterator().next();
+            default -> new CombinedShellStateComponent(components);
+        };
     }
 
 
@@ -63,8 +70,32 @@ public abstract class ShellStateComponent {
         public static final ShellStateComponent INSTANCE = new EmptyShellStateComponent();
 
         @Override
+        public String getId() {
+            return "sync:empty";
+        }
+
+        @Override
+        public void clone(ShellStateComponent component) { }
+
+        @Override
+        public void readNbt(NbtCompound nbt) { }
+
+        @Override
+        public NbtCompound writeNbt(NbtCompound nbt) {
+            return nbt;
+        }
+
+        @Override
         public <T extends ShellStateComponent> @Nullable T as(Class<T> type) {
             return null;
+        }
+
+        @Override
+        protected void readComponentNbt(NbtCompound nbt) { }
+
+        @Override
+        protected NbtCompound writeComponentNbt(NbtCompound nbt) {
+            return nbt;
         }
     }
 
@@ -73,6 +104,11 @@ public abstract class ShellStateComponent {
 
         public CombinedShellStateComponent(Collection<ShellStateComponent> components) {
             this.components = List.copyOf(components);
+        }
+
+        @Override
+        public String getId() {
+            return "sync:combined";
         }
 
         @Override
@@ -131,6 +167,14 @@ public abstract class ShellStateComponent {
             for (ShellStateComponent component : components) {
                 nbt = component.writeNbt(nbt);
             }
+            return nbt;
+        }
+
+        @Override
+        protected void readComponentNbt(NbtCompound nbt) { }
+
+        @Override
+        protected NbtCompound writeComponentNbt(NbtCompound nbt) {
             return nbt;
         }
     }
