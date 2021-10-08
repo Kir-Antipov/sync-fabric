@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
     private static final int MAX_TICKS_WITHOUT_POWER = 20;
 
-    public EntityState entityState;
+    private EntityState entityState;
     private int ticksWithoutPower;
     private final BooleanAnimator connectorAnimator;
 
@@ -84,7 +84,7 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
         }
 
         if (this.entityState == EntityState.ENTERING && client.player == entity && client.currentScreen == null && BlockPosUtil.isEntityInside(entity, this.pos)) {
-            client.setScreen(new ShellSelectorGUI(() -> this.entityState = EntityState.LEAVING));
+            client.setScreen(new ShellSelectorGUI(() -> this.entityState = EntityState.LEAVING, () -> this.entityState = EntityState.CHILLING));
         }
     }
 
@@ -102,7 +102,7 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
         }
     }
 
-    public enum EntityState {
+    private enum EntityState {
         NONE,
         ENTERING,
         CHILLING,

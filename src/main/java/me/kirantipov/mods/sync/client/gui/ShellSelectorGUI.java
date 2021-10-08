@@ -37,15 +37,18 @@ public class ShellSelectorGUI extends Screen {
     private static final Text TITLE = new TranslatableText("gui.sync.default.cross_button.title");
     private static final Collection<Text> ARROW_TITLES = List.of(new TranslatableText("gui.sync.shell_selector.up.title"), new TranslatableText("gui.sync.shell_selector.right.title"), new TranslatableText("gui.sync.shell_selector.down.title"), new TranslatableText("gui.sync.shell_selector.left.title"));
 
-    public Runnable onCloseCallback;
+    private final Runnable onCloseCallback;
+    private final Runnable onRemovedCallback;
+    private boolean wasClosed;
     private List<ShellSelectorButtonWidget> shellButtons;
     private List<ArrowButtonWidget> arrowButtons;
     private CrossButtonWidget crossButton;
     private PageDisplayWidget<Identifier, ShellState> pageDisplay;
 
-    public ShellSelectorGUI(Runnable onCloseCallback) {
+    public ShellSelectorGUI(Runnable onCloseCallback, Runnable onRemovedCallback) {
         super(TITLE);
         this.onCloseCallback = onCloseCallback;
+        this.onRemovedCallback = onRemovedCallback;
     }
 
     @Override
@@ -54,6 +57,7 @@ public class ShellSelectorGUI extends Screen {
         Stream<ShellState> data = ((Shell)player).getAvailableShellStates();
         Identifier selectedWorld = player.world.getRegistryKey().getValue();
 
+        this.wasClosed = false;
         this.arrowButtons = createArrowButtons(this.width, this.height, ARROW_TITLES, List.of(this::previousSection, this::nextPage, this::nextSection, this::previousPage));
         this.crossButton = createCrossButton(this.width, this.height, this::onClose);
         this.pageDisplay = createPageDisplay(this.width, this.height, data, selectedWorld, MAX_SLOTS, this::onPageChange);
@@ -236,6 +240,15 @@ public class ShellSelectorGUI extends Screen {
         if (this.onCloseCallback != null) {
             this.onCloseCallback.run();
         }
+        this.wasClosed = true;
         super.onClose();
+    }
+
+    @Override
+    public void removed() {
+        super.removed();
+        if (!this.wasClosed && this.onRemovedCallback != null) {
+            this.onRemovedCallback.run();
+        }
     }
 }
