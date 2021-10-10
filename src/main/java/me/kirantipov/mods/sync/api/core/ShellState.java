@@ -24,6 +24,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -301,6 +302,17 @@ public class ShellState {
 
     public void readNbt(NbtCompound nbt) {
         this.serializer.readNbt(nbt);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        return o == this || o instanceof ShellState state && Objects.equals(this.uuid, state.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.uuid);
     }
 
 

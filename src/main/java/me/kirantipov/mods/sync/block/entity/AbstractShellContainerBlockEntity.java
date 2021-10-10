@@ -1,6 +1,7 @@
 package me.kirantipov.mods.sync.block.entity;
 
 import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.core.ShellStateContainer;
 import me.kirantipov.mods.sync.api.core.ShellStateManager;
 import me.kirantipov.mods.sync.api.networking.ShellDestroyedPacket;
 import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
@@ -23,11 +24,12 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public abstract class AbstractShellContainerBlockEntity extends BlockEntity implements DoubleBlockEntity, TickableBlockEntity, BlockEntityClientSerializable {
+public abstract class AbstractShellContainerBlockEntity extends BlockEntity implements ShellStateContainer, DoubleBlockEntity, TickableBlockEntity, BlockEntityClientSerializable {
     private static final NbtSerializerFactory<AbstractShellContainerBlockEntity> NBT_SERIALIZER_FACTORY;
 
     protected final BooleanAnimator doorAnimator;
@@ -52,14 +54,18 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     }
 
 
-    public void setShell(ShellState shell) {
+    @Override
+    public void setShellState(ShellState shell) {
         this.shell = shell;
     }
 
-    public ShellState getShell() {
+    @Override
+    public ShellState getShellState() {
         return this.shell;
     }
 
+    @Override
+    @Nullable
     public DyeColor getColor() {
         return this.color;
     }

@@ -7,11 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.kirantipov.mods.sync.api.core.Shell;
 import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
-import me.kirantipov.mods.sync.block.entity.AbstractShellContainerBlockEntity;
+import me.kirantipov.mods.sync.api.core.ShellStateContainer;
 import me.kirantipov.mods.sync.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -133,23 +130,23 @@ public class GhostShellsCommand implements Command {
     }
 
     private static boolean shellExists(MinecraftServer server, ShellState shellState) {
-        return getShellContainer(server, shellState).map(x -> x.getShell() != null && x.getShell().getUuid().equals(shellState.getUuid())).orElse(Boolean.FALSE);
+        return getShellContainer(server, shellState).map(x -> shellState.equals(x.getShellState())).orElse(Boolean.FALSE);
     }
 
     private static boolean tryRepair(MinecraftServer server, ShellState shellState) {
-        AbstractShellContainerBlockEntity shellContainer = getShellContainer(server, shellState).orElse(null);
+        ShellStateContainer shellContainer = getShellContainer(server, shellState).orElse(null);
         if (shellContainer == null) {
             return false;
         }
 
-        if (shellContainer.getShell() == null) {
-            shellContainer.setShell(shellState);
+        if (shellContainer.getShellState() == null) {
+            shellContainer.setShellState(shellState);
         }
 
-        return shellContainer.getShell() != null && shellContainer.getShell().getUuid().equals(shellState.getUuid());
+        return shellState.equals(shellContainer.getShellState());
     }
 
-    private static Optional<AbstractShellContainerBlockEntity> getShellContainer(MinecraftServer server, ShellState shellState) {
+    private static Optional<ShellStateContainer> getShellContainer(MinecraftServer server, ShellState shellState) {
         ServerWorld world = WorldUtil.findWorld(server.getWorlds(), shellState.getWorld()).orElse(null);
         if (world == null) {
             return Optional.empty();
@@ -160,12 +157,6 @@ public class GhostShellsCommand implements Command {
             return Optional.empty();
         }
 
-        BlockEntity blockEntity = chunk.getBlockEntity(shellState.getPos());
-        BlockState blockState = chunk.getBlockState(shellState.getPos());
-        if (blockEntity instanceof AbstractShellContainerBlockEntity shellContainer && AbstractShellContainerBlock.isBottom(blockState)) {
-            return Optional.of(shellContainer);
-        }
-
-        return Optional.empty();
+        return Optional.ofNullable(ShellStateContainer.find(world, shellState));
     }
 }

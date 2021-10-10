@@ -30,7 +30,7 @@ public class ShellConstructorBlockEntityRenderer extends AbstractShellContainerB
 
     @Override
     protected AbstractShellContainerModel getShellContainerModel(ShellConstructorBlockEntity blockEntity, BlockState blockState, float tickDelta) {
-        this.model.buildProgress = blockEntity.getShell() == null ? 0F : blockEntity.getShell().getProgress();
+        this.model.buildProgress = blockEntity.getShellState() == null ? 0F : blockEntity.getShellState().getProgress();
         this.model.showInnerParts = blockEntity.hasWorld();
         return this.model;
     }

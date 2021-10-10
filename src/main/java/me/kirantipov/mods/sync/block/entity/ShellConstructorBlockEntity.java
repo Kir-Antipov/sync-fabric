@@ -3,6 +3,7 @@ package me.kirantipov.mods.sync.block.entity;
 import dev.technici4n.fasttransferlib.api.Simulation;
 import dev.technici4n.fasttransferlib.api.energy.EnergyIo;
 import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.core.ShellStateContainer;
 import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
 import me.kirantipov.mods.sync.block.ShellConstructorBlock;
 import me.kirantipov.mods.sync.entity.damage.FingerstickDamageSource;
@@ -75,5 +76,9 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
             this.shell.setProgress(this.shell.getProgress() + (float)amount / LF_AMOUNT);
         }
         return MathHelper.clamp(amount - maxEnergy, 0, amount);
+    }
+
+    static {
+        ShellStateContainer.LOOKUP.registerForBlockEntity((x, s) -> x.hasWorld() && AbstractShellContainerBlock.isBottom(x.getCachedState()) && (s == null || s.equals(x.getShellState())) ? x : null, SyncBlockEntities.SHELL_CONSTRUCTOR);
     }
 }

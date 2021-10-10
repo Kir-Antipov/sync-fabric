@@ -23,8 +23,8 @@ public abstract class AbstractShellContainerBlockEntityRenderer<T extends Abstra
     @Override
     public void render(T blockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         super.render(blockEntity, tickDelta, matrices, vertexConsumers, light, overlay);
-        if (blockEntity.getShell() != null) {
-            this.renderShell(blockEntity.getShell(), blockEntity, tickDelta, this.getBlockState(blockEntity), matrices, vertexConsumers, light);
+        if (blockEntity.getShellState() != null) {
+            this.renderShell(blockEntity.getShellState(), blockEntity, tickDelta, this.getBlockState(blockEntity), matrices, vertexConsumers, light);
         }
     }
 

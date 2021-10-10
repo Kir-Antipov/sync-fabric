@@ -1,5 +1,7 @@
 package me.kirantipov.mods.sync.block.entity;
 
+import me.kirantipov.mods.sync.api.core.ShellStateContainer;
+import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
 import me.kirantipov.mods.sync.block.ShellStorageBlock;
 import me.kirantipov.mods.sync.client.gui.ShellSelectorGUI;
 import me.kirantipov.mods.sync.util.BlockPosUtil;
@@ -107,5 +109,9 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
         ENTERING,
         CHILLING,
         LEAVING
+    }
+
+    static {
+        ShellStateContainer.LOOKUP.registerForBlockEntity((x, s) -> x.hasWorld() && AbstractShellContainerBlock.isBottom(x.getCachedState()) && (s == null || s.equals(x.getShellState())) ? x : null, SyncBlockEntities.SHELL_STORAGE);
     }
 }
