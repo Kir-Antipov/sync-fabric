@@ -223,12 +223,12 @@ public class ShellState {
         shell.ownerName = player.getName().asString();
         shell.gameMode = player.interactionManager.getGameMode().getId();
         shell.inventory = new SimpleInventory();
-        shell.component = ShellStateComponentFactoryRegistry.getInstance().createEmpty();
+        shell.component = ShellStateComponent.empty();
 
         if (copyPlayerState) {
             shell.health = player.getHealth();
             shell.inventory.clone(player.getInventory());
-            shell.component.clone(ShellStateComponentFactoryRegistry.getInstance().createOf(player));
+            shell.component.clone(ShellStateComponent.of(player));
 
             shell.foodLevel = player.getHungerManager().getFoodLevel();
             shell.saturationLevel = player.getHungerManager().getSaturationLevel();
@@ -340,7 +340,7 @@ public class ShellState {
             .add(Float.class, "health", x -> x.health, (x, health) -> x.health = health)
             .add(Integer.class, "gameMode", x -> x.gameMode, (x, gameMode) -> x.gameMode = gameMode)
             .add(NbtList.class, "inventory", x -> x.inventory.writeNbt(new NbtList()), (x, inventory) -> { x.inventory = new SimpleInventory(); x.inventory.readNbt(inventory); })
-            .add(NbtCompound.class, "components", x -> x.component.writeNbt(new NbtCompound()), (x, component) -> { x.component = ShellStateComponentFactoryRegistry.getInstance().createEmpty(); if (component != null) { x.component.readNbt(component); } })
+            .add(NbtCompound.class, "components", x -> x.component.writeNbt(new NbtCompound()), (x, component) -> { x.component = ShellStateComponent.empty(); if (component != null) { x.component.readNbt(component); } })
 
             .add(Integer.class, "foodLevel", x -> x.foodLevel, (x, foodLevel) -> x.foodLevel = foodLevel)
             .add(Float.class, "saturationLevel", x -> x.saturationLevel, (x, saturationLevel) -> x.saturationLevel = saturationLevel)

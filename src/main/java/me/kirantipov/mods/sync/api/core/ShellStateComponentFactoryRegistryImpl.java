@@ -8,7 +8,7 @@ class ShellStateComponentFactoryRegistryImpl implements ShellStateComponentFacto
     private final Set<ShellStateComponentFactory> factories = new HashSet<>(16);
 
     @Override
-    public Set<ShellStateComponentFactory> getValues() {
+    public Collection<ShellStateComponentFactory> getValues() {
         return Collections.unmodifiableSet(this.factories);
     }
 

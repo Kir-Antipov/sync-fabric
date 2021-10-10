@@ -127,7 +127,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sh
         state.getInventory().copyTo(inventory);
         inventory.selectedSlot = selectedSlot;
 
-        ShellStateComponent playerComponent = ShellStateComponentFactoryRegistry.getInstance().createOf(serverPlayer);
+        ShellStateComponent playerComponent = ShellStateComponent.of(serverPlayer);
         playerComponent.clone(state.getComponent());
 
         serverPlayer.changeGameMode(GameMode.byId(state.getGameMode()));
