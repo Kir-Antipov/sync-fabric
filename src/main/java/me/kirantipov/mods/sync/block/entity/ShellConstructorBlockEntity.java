@@ -4,6 +4,7 @@ import dev.technici4n.fasttransferlib.api.Simulation;
 import dev.technici4n.fasttransferlib.api.energy.EnergyIo;
 import me.kirantipov.mods.sync.api.core.ShellState;
 import me.kirantipov.mods.sync.api.core.ShellStateContainer;
+import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
 import me.kirantipov.mods.sync.block.ShellConstructorBlock;
 import me.kirantipov.mods.sync.entity.damage.FingerstickDamageSource;
@@ -11,10 +12,12 @@ import me.kirantipov.mods.sync.util.BlockPosUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEntity implements EnergyIo {
     private static final float LF_AMOUNT = 256000;
@@ -32,8 +35,27 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
     }
 
     @Override
-    public void onUse(World world, BlockPos pos, PlayerEntity player, Hand hand) {
-        if (this.shell == null && player instanceof ServerPlayerEntity serverPlayer) {
+    public ActionResult onUse(World world, BlockPos pos, PlayerEntity player, Hand hand) {
+        PlayerSyncEvents.ShellConstructionFailureReason failureReason = this.beginShellConstruction(player);
+        if (failureReason == null) {
+            return ActionResult.SUCCESS;
+        } else {
+            player.sendMessage(failureReason.toText(), true);
+            return ActionResult.CONSUME;
+        }
+    }
+
+    @Nullable
+    private PlayerSyncEvents.ShellConstructionFailureReason beginShellConstruction(PlayerEntity player) {
+        PlayerSyncEvents.ShellConstructionFailureReason failureReason = this.shell == null
+                ? PlayerSyncEvents.ALLOW_SHELL_CONSTRUCTION.invoker().allowShellConstruction(player, this)
+                : PlayerSyncEvents.ShellConstructionFailureReason.OCCUPIED;
+
+        if (failureReason != null) {
+            return failureReason;
+        }
+
+        if (player instanceof ServerPlayerEntity serverPlayer) {
             float damage = player.getMaxHealth();
             if (serverPlayer.server.isHardcore()) {
                 damage *= 2;
@@ -41,6 +63,7 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
             player.damage(FingerstickDamageSource.getInstance(), damage);
             this.shell = ShellState.empty(serverPlayer, pos);
         }
+        return null;
     }
 
     @Override

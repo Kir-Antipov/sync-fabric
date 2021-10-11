@@ -77,6 +77,12 @@ public class SynchronizationRequestPacket implements ServerPlayerPacket {
             return;
         }
 
+        PlayerSyncEvents.ShellSelectionFailureReason selectionFailureReason = PlayerSyncEvents.ALLOW_SHELL_SELECTION.invoker().allowShellSelection(player, currentShellContainer);
+        if (selectionFailureReason != null) {
+            reject(selectionFailureReason::toText, player, currentFacing, responseSender);
+            return;
+        }
+
         Identifier targetWorldId = state.getWorld();
         ServerWorld targetWorld = WorldUtil.findWorld(server.getWorlds(), targetWorldId).orElse(null);
         if (targetWorld == null) {

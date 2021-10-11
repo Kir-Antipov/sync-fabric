@@ -141,8 +141,7 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
             state = world.getBlockState(pos);
         }
         if (world.getBlockEntity(pos) instanceof AbstractShellContainerBlockEntity shellContainer) {
-            shellContainer.onUse(world, pos, player, hand);
-            return ActionResult.SUCCESS;
+            return shellContainer.onUse(world, pos, player, hand);
         }
         return super.onUse(state, world, pos, player, hand, hit);
     }

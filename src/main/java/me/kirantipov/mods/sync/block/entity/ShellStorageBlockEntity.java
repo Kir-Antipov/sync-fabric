@@ -1,6 +1,7 @@
 package me.kirantipov.mods.sync.block.entity;
 
 import me.kirantipov.mods.sync.api.core.ShellStateContainer;
+import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
 import me.kirantipov.mods.sync.block.ShellStorageBlock;
 import me.kirantipov.mods.sync.client.gui.ShellSelectorGUI;
@@ -15,6 +16,7 @@ import net.minecraft.item.DyeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -79,8 +81,17 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
     @Environment(EnvType.CLIENT)
     public void onEntityCollisionClient(Entity entity, BlockState state) {
         MinecraftClient client = MinecraftClient.getInstance();
+        if (!(entity instanceof PlayerEntity player)) {
+            return;
+        }
+
         if (this.entityState == EntityState.NONE) {
-            this.entityState = BlockPosUtil.isEntityInside(entity, this.pos) ? EntityState.CHILLING : EntityState.ENTERING;
+            boolean isInside = BlockPosUtil.isEntityInside(entity, this.pos);
+            PlayerSyncEvents.ShellSelectionFailureReason failureReason = !isInside && client.player == entity ? PlayerSyncEvents.ALLOW_SHELL_SELECTION.invoker().allowShellSelection(player, this) : null;
+            this.entityState = isInside || failureReason != null ? EntityState.CHILLING : EntityState.ENTERING;
+            if (failureReason != null) {
+                player.sendMessage(failureReason.toText(), true);
+            }
         } else if (this.entityState != EntityState.CHILLING && client.currentScreen == null) {
             BlockPosUtil.moveEntity(entity, this.pos, state.get(ShellStorageBlock.FACING), this.entityState == EntityState.ENTERING);
         }
@@ -91,17 +102,18 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
     }
 
     @Override
-    public void onUse(World world, BlockPos pos, PlayerEntity player, Hand hand) {
-        if (world.isClient) {
-            return;
-        }
-
+    public ActionResult onUse(World world, BlockPos pos, PlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
         Item item = stack.getItem();
-        if (stack.getCount() > 0 && item instanceof DyeItem dye) {
+        if (stack.getCount() < 1 || !(item instanceof DyeItem dye)) {
+            return ActionResult.SUCCESS;
+        }
+
+        if (!world.isClient) {
             stack.decrement(1);
             this.color = dye.getColor();
         }
+        return ActionResult.SUCCESS;
     }
 
     private enum EntityState {
