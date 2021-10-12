@@ -35,6 +35,10 @@ repositories {
         url = "https://ladysnake.jfrog.io/artifactory/mods"
     }
     maven {
+        name = 'Nexus OSS Repository'
+        url = 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+    maven {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
         content {
@@ -58,6 +62,7 @@ dependencies {
     include "maven.modrinth:smart-recipes:${project.smartrecipes_version}"
 
     modImplementation "dev.emi:trinkets:${project.trinkets_version}"
+    modImplementation "io.github.ladysnake:requiem-api:${requiem_version}"
 
     // Minecraft 1.17 is slow as heck
     modRuntime("supercoder79:databreaker:${project.databreaker_version}") {

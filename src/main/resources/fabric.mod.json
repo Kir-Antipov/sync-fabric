@@ -17,7 +17,8 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.kirantipov.mods.sync.Sync"
+      "me.kirantipov.mods.sync.Sync",
+      "me.kirantipov.mods.sync.compat.requiem.RequiemCompat"
     ],
     "client": [
       "me.kirantipov.mods.sync.Sync"

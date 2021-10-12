@@ -21,6 +21,8 @@
 
   "event.sync.construction.fail.occupied": "This shell container is already occupied",
 
+  "event.sync.any.fail.undead": "This operation cannot be performed by an undead player",
+
   "gui.sync.default.cross_button.title": "Close",
   "gui.sync.shell_selector.title": "Shell Selector",
   "gui.sync.shell_selector.up.title": "Previous world",
