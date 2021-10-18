@@ -3,7 +3,6 @@ package me.kirantipov.mods.sync.block;
 import me.kirantipov.mods.sync.block.entity.SyncBlockEntities;
 import me.kirantipov.mods.sync.block.entity.TickableBlockEntity;
 import me.kirantipov.mods.sync.block.entity.TreadmillBlockEntity;
-import me.kirantipov.mods.sync.block.enums.TreadmillPart;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.*;
@@ -18,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -31,7 +31,7 @@ import java.util.Random;
 
 @SuppressWarnings("deprecation")
 public class TreadmillBlock extends HorizontalFacingBlock implements BlockEntityProvider {
-    public static final EnumProperty<TreadmillPart> PART = EnumProperty.of("treadmill_part", TreadmillPart.class);
+    public static final EnumProperty<Part> PART = EnumProperty.of("treadmill_part", Part.class);
 
     private static final VoxelShape NORTH_SHAPE_BACK;
     private static final VoxelShape NORTH_SHAPE_FRONT;
@@ -44,17 +44,17 @@ public class TreadmillBlock extends HorizontalFacingBlock implements BlockEntity
 
     public TreadmillBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState().with(PART, TreadmillPart.BACK));
+        this.setDefaultState(this.stateManager.getDefaultState().with(PART, Part.BACK));
     }
 
     public static boolean isBack(BlockState state) {
-        TreadmillPart part = state.get(PART);
-        return part == TreadmillPart.BACK;
+        Part part = state.get(PART);
+        return part == Part.BACK;
     }
 
     public static DoubleBlockProperties.Type getTreadmillPart(BlockState state) {
-        TreadmillPart part = state.get(PART);
-        return part == TreadmillPart.BACK ? DoubleBlockProperties.Type.FIRST : DoubleBlockProperties.Type.SECOND;
+        Part part = state.get(PART);
+        return part == Part.BACK ? DoubleBlockProperties.Type.FIRST : DoubleBlockProperties.Type.SECOND;
     }
 
     @Override
@@ -70,15 +70,15 @@ public class TreadmillBlock extends HorizontalFacingBlock implements BlockEntity
     @Override
     @Environment(EnvType.CLIENT)
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
-        TreadmillPart part = state.get(PART);
+        Part part = state.get(PART);
         Direction facing = state.get(FACING);
         BlockEntity first = world.getBlockEntity(pos);
         BlockEntity second = world.getBlockEntity(pos.offset(getDirectionTowardsOtherPart(part, facing)));
         if (!(first instanceof TreadmillBlockEntity firstTreadmill) || !(second instanceof TreadmillBlockEntity secondTreadmill)) {
             return;
         }
-        TreadmillBlockEntity front = part == TreadmillPart.BACK ? secondTreadmill : firstTreadmill;
-        TreadmillBlockEntity back = part == TreadmillPart.BACK ? firstTreadmill : secondTreadmill;
+        TreadmillBlockEntity front = part == Part.BACK ? secondTreadmill : firstTreadmill;
+        TreadmillBlockEntity back = part == Part.BACK ? firstTreadmill : secondTreadmill;
 
         if (back.isOverheated()) {
             double x = front.getPos().getX() + random.nextDouble();
@@ -115,7 +115,7 @@ public class TreadmillBlock extends HorizontalFacingBlock implements BlockEntity
         super.onPlaced(world, pos, state, placer, itemStack);
         if (!world.isClient) {
             BlockPos blockPos = pos.offset(state.get(FACING));
-            world.setBlockState(blockPos, state.with(PART, TreadmillPart.FRONT), 3);
+            world.setBlockState(blockPos, state.with(PART, Part.FRONT), 3);
             world.updateNeighbors(pos, Blocks.AIR);
             state.updateNeighbors(world, pos, 3);
         }
@@ -124,11 +124,11 @@ public class TreadmillBlock extends HorizontalFacingBlock implements BlockEntity
     @Override
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (!world.isClient && player.isCreative()) {
-            TreadmillPart part = state.get(PART);
-            if (part == TreadmillPart.FRONT) {
+            Part part = state.get(PART);
+            if (part == Part.FRONT) {
                 BlockPos blockPos = pos.offset(getDirectionTowardsOtherPart(part, state.get(FACING)));
                 BlockState blockState = world.getBlockState(blockPos);
-                if (blockState.getBlock() == this && blockState.get(PART) == TreadmillPart.BACK) {
+                if (blockState.getBlock() == this && blockState.get(PART) == Part.BACK) {
                     world.setBlockState(blockPos, Blocks.AIR.getDefaultState(), 35);
                     world.syncWorldEvent(player, 2001, blockPos, Block.getRawIdFromState(blockState));
                 }
@@ -165,8 +165,29 @@ public class TreadmillBlock extends HorizontalFacingBlock implements BlockEntity
         return world.isClient ? TickableBlockEntity::clientTicker : TickableBlockEntity::serverTicker;
     }
 
-    public static Direction getDirectionTowardsOtherPart(TreadmillPart part, Direction direction) {
-        return part == TreadmillPart.BACK ? direction : direction.getOpposite();
+    public static Direction getDirectionTowardsOtherPart(Part part, Direction direction) {
+        return part == Part.BACK ? direction : direction.getOpposite();
+    }
+
+    public enum Part implements StringIdentifiable {
+        FRONT("front"),
+        BACK("back");
+
+        private final String name;
+
+        Part(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+
+        @Override
+        public String asString() {
+            return this.name;
+        }
     }
 
     static {

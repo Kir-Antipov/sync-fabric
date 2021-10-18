@@ -4,7 +4,6 @@ import me.kirantipov.mods.sync.Sync;
 import me.kirantipov.mods.sync.block.SyncBlocks;
 import me.kirantipov.mods.sync.block.TreadmillBlock;
 import me.kirantipov.mods.sync.block.entity.TreadmillBlockEntity;
-import me.kirantipov.mods.sync.block.enums.TreadmillPart;
 import me.kirantipov.mods.sync.client.model.DoubleBlockModel;
 import me.kirantipov.mods.sync.client.model.TreadmillModel;
 import net.fabricmc.api.EnvType;
@@ -17,7 +16,7 @@ import net.minecraft.util.math.Direction;
 @Environment(EnvType.CLIENT)
 public class TreadmillBlockEntityRenderer extends DoubleBlockEntityRenderer<TreadmillBlockEntity> {
     private static final Identifier TREADMILL_TEXTURE_ID = Sync.locate("textures/block/treadmill.png");
-    private static final BlockState DEFAULT_STATE = SyncBlocks.TREADMILL.getDefaultState().with(TreadmillBlock.PART, TreadmillPart.FRONT).with(TreadmillBlock.FACING, Direction.SOUTH);
+    private static final BlockState DEFAULT_STATE = SyncBlocks.TREADMILL.getDefaultState().with(TreadmillBlock.PART, TreadmillBlock.Part.FRONT).with(TreadmillBlock.FACING, Direction.SOUTH);
 
     private final DoubleBlockModel model;
 
