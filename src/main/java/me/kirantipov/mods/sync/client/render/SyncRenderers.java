@@ -6,7 +6,7 @@ import me.kirantipov.mods.sync.client.render.block.entity.ShellStorageBlockEntit
 import me.kirantipov.mods.sync.client.render.block.entity.TreadmillBlockEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
@@ -27,7 +27,7 @@ public final class SyncRenderers {
     }
 
     private static <E extends BlockEntity> void register(BlockEntityRendererFactory<? super E> rendererFactory, BlockEntityType<E> blockEntityType) {
-        BlockEntityRendererRegistry.INSTANCE.register(blockEntityType, rendererFactory);
+        BlockEntityRendererRegistry.register(blockEntityType, rendererFactory);
 
         Identifier id = Registry.BLOCK_ENTITY_TYPE.getId(blockEntityType);
         Block block = Registry.BLOCK.get(id);
