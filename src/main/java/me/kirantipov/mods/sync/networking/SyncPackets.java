@@ -1,5 +1,6 @@
-package me.kirantipov.mods.sync.api.networking;
+package me.kirantipov.mods.sync.networking;
 
+import me.kirantipov.mods.sync.api.networking.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 

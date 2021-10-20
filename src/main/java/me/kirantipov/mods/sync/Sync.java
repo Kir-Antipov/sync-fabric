@@ -1,7 +1,7 @@
 package me.kirantipov.mods.sync;
 
-import me.kirantipov.mods.sync.api.enery.EnergyRegistry;
-import me.kirantipov.mods.sync.api.networking.SyncPackets;
+import me.kirantipov.mods.sync.enery.EnergyRegistry;
+import me.kirantipov.mods.sync.networking.SyncPackets;
 import me.kirantipov.mods.sync.block.SyncBlocks;
 import me.kirantipov.mods.sync.block.entity.SyncBlockEntities;
 import me.kirantipov.mods.sync.client.render.SyncRenderers;
