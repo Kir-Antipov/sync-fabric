@@ -9,6 +9,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -152,8 +153,15 @@ public class TreadmillBlock extends HorizontalFacingBlock implements BlockEntity
             case SOUTH -> isBack ? SOUTH_SHAPE_BACK : SOUTH_SHAPE_FRONT;
             case EAST -> isBack ? EAST_SHAPE_BACK : EAST_SHAPE_FRONT;
             case WEST -> isBack ? WEST_SHAPE_BACK : WEST_SHAPE_FRONT;
-            default -> throw new IllegalArgumentException();
+            default -> NORTH_SHAPE_FRONT;
         };
+    }
+
+    @Override
+    public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
+        if (!world.isClient && world.getBlockEntity(pos) instanceof TreadmillBlockEntity treadmillBlockEntity) {
+            treadmillBlockEntity.onSteppedOn(pos, state, entity);
+        }
     }
 
     @Override
