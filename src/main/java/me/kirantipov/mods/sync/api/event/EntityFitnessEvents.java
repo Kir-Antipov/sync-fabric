@@ -1,10 +1,10 @@
 package me.kirantipov.mods.sync.api.event;
 
-import dev.technici4n.fasttransferlib.api.energy.EnergyIo;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
+import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Events about the workout of {@linkplain Entity entities}.
@@ -60,7 +60,7 @@ public final class EntityFitnessEvents {
          * @return Amount of energy that will be produced by the entity every tick, or null if the given entity cannot use treadmills.
          */
         @Nullable
-        Double modifyOutputEnergyQuantity(Entity entity, EnergyIo energyStorage, @Nullable Double outputEnergyQuantity);
+        Long modifyOutputEnergyQuantity(Entity entity, EnergyStorage energyStorage, @Nullable Long outputEnergyQuantity);
     }
 
     @FunctionalInterface
@@ -71,7 +71,7 @@ public final class EntityFitnessEvents {
          * @param entity The running entity.
          * @param energyStorage The energy storage that stores energy being produced by the entity.
          */
-        void onStartRunning(Entity entity, EnergyIo energyStorage);
+        void onStartRunning(Entity entity, EnergyStorage energyStorage);
     }
 
     @FunctionalInterface
@@ -82,7 +82,7 @@ public final class EntityFitnessEvents {
          * @param entity The running entity.
          * @param energyStorage The energy storage that stores energy being produced by the entity.
          */
-        void onStopRunning(Entity entity, EnergyIo energyStorage);
+        void onStopRunning(Entity entity, EnergyStorage energyStorage);
     }
 
 

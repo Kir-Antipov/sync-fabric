@@ -1,12 +1,9 @@
 package me.kirantipov.mods.sync.block.entity;
 
-import dev.technici4n.fasttransferlib.api.Simulation;
-import dev.technici4n.fasttransferlib.api.energy.EnergyApi;
-import dev.technici4n.fasttransferlib.api.energy.EnergyIo;
-import dev.technici4n.fasttransferlib.api.energy.EnergyMovement;
 import me.kirantipov.mods.sync.api.event.EntityFitnessEvents;
 import me.kirantipov.mods.sync.block.TreadmillBlock;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoubleBlockProperties;
 import net.minecraft.block.entity.BlockEntity;
@@ -26,21 +23,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import team.reborn.energy.api.EnergyStorage;
+import team.reborn.energy.api.EnergyStorageUtil;
 
 import java.util.Map;
 import java.util.UUID;
 
-public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEntity, TickableBlockEntity, EnergyIo, BlockEntityClientSerializable {
+@SuppressWarnings({"deprecation", "UnstableApiUsage"})
+public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEntity, TickableBlockEntity, EnergyStorage, BlockEntityClientSerializable {
     private static final int MAX_RUNNING_TIME = 20 * 60 * 15; // ticks -> seconds -> minutes
     private static final double MAX_SQUARED_DISTANCE = 0.5;
-    private static final Map<Class<? extends Entity>, Double> ENERGY_MAP;
+    private static final Map<Class<? extends Entity>, Long> ENERGY_MAP;
 
     private UUID runnerUUID;
     private Integer runnerId;
     private Entity runner;
     private int runningTime;
-    private double storedEnergy;
-    private double producibleEnergyQuantity;
+    private long storedEnergy;
+    private long producibleEnergyQuantity;
     private TreadmillBlockEntity cachedBackPart;
 
 
@@ -121,7 +121,7 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
         if (this.runner instanceof LivingEntity livingEntity) {
             livingEntity.setDespawnCounter(0);
         }
-        this.storedEnergy = this.producibleEnergyQuantity * (1.0 + 0.5 * this.runningTime / MAX_RUNNING_TIME);
+        this.storedEnergy = this.producibleEnergyQuantity * (long)(1.0 + 0.5 * this.runningTime / MAX_RUNNING_TIME);
         this.transferEnergy(world, pos);
         if (this.runningTime < MAX_RUNNING_TIME) {
             ++this.runningTime;
@@ -137,7 +137,7 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
             return;
         }
 
-        Double energy = isValidEntity(entity) ? getOutputEnergyQuantityForEntity(entity, this) : null;
+        Long energy = isValidEntity(entity) ? getOutputEnergyQuantityForEntity(entity, this) : null;
         if (energy != null) {
             this.setRunner(entity);
             this.producibleEnergyQuantity = energy;
@@ -149,18 +149,18 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
     }
 
     @Override
-    public double getEnergy() {
+    public long getAmount() {
         TreadmillBlockEntity back = this.getBackPart();
         return back == null ? 0 : back.storedEnergy;
     }
 
     @Override
-    public double getEnergyCapacity() {
+    public long getCapacity() {
         TreadmillBlockEntity back = this.getBackPart();
         if (back == null || back.runner == null) {
             return 0;
         }
-        return back.producibleEnergyQuantity * (1.0 + 0.5 * back.runningTime / MAX_RUNNING_TIME);
+        return back.producibleEnergyQuantity * (long)(1.0 + 0.5 * back.runningTime / MAX_RUNNING_TIME);
     }
 
     @Override
@@ -174,16 +174,23 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
     }
 
     @Override
-    public double extract(double maxAmount, Simulation simulation) {
+    public long insert(long maxAmount, TransactionContext context) {
+        return 0;
+    }
+
+    @Override
+    public long extract(long maxAmount, TransactionContext context) {
         TreadmillBlockEntity back = this.getBackPart();
         if (back == null) {
             return 0;
         }
 
-        double extracted = Math.min(back.storedEnergy, maxAmount);
-        if (simulation.isActing()) {
-            back.storedEnergy -= extracted;
-        }
+        long extracted = Math.min(back.storedEnergy, maxAmount);
+        context.addCloseCallback((ctx, result) -> {
+            if (result.wasCommitted()) {
+                back.storedEnergy -= extracted;
+            }
+        });
         return extracted;
     }
 
@@ -195,9 +202,9 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
 
         for (int i = 0; i < 2; ++i) {
             for (Direction direction : Direction.values()) {
-                EnergyIo target = EnergyApi.SIDED.find(world, pos.offset(direction), direction);
-                if (target != null) {
-                    EnergyMovement.move(back, target, Double.MAX_VALUE);
+                EnergyStorage target = EnergyStorage.SIDED.find(world, pos.offset(direction), direction);
+                if (target != null && target.supportsInsertion()) {
+                    EnergyStorageUtil.move(back, target, Long.MAX_VALUE, null);
                     if (back.storedEnergy <= 0) {
                         return;
                     }
@@ -230,7 +237,7 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         this.runnerUUID = nbt.containsUuid("runner") ? nbt.getUuid("runner") : null;
-        this.producibleEnergyQuantity = nbt.getDouble("energy");
+        this.producibleEnergyQuantity = nbt.getLong("energy");
         this.runningTime = nbt.getInt("time");
     }
 
@@ -241,7 +248,7 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
         if (runnerId != null) {
             nbt.putUuid("runner", runnerId);
         }
-        nbt.putDouble("energy", this.producibleEnergyQuantity);
+        nbt.putLong("energy", this.producibleEnergyQuantity);
         nbt.putInt("time", this.runningTime);
         return nbt;
     }
@@ -262,7 +269,7 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
         return nbt;
     }
 
-    private static Double getOutputEnergyQuantityForEntity(Entity entity, EnergyIo energyStorage) {
+    private static Long getOutputEnergyQuantityForEntity(Entity entity, EnergyStorage energyStorage) {
         return EntityFitnessEvents.MODIFY_OUTPUT_ENERGY_QUANTITY.invoker().modifyOutputEnergyQuantity(entity, energyStorage, ENERGY_MAP.get(entity.getClass()));
     }
 
@@ -300,12 +307,12 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
 
     static {
         ENERGY_MAP = Map.of(
-            ChickenEntity.class, 1.6,
-            PigEntity.class, 16.0,
-            ServerPlayerEntity.class, 20.0,
-            WolfEntity.class, 24.0,
-            CreeperEntity.class, 80.0,
-            EndermanEntity.class, 160.0
+            ChickenEntity.class, 2L,
+            PigEntity.class, 16L,
+            ServerPlayerEntity.class, 20L,
+            WolfEntity.class, 24L,
+            CreeperEntity.class, 80L,
+            EndermanEntity.class, 160L
         );
     }
 }

@@ -23,10 +23,6 @@ repositories {
         url = "https://maven.gegy.dev/"
     }
     maven {
-        name = "Fast Transfer Lib"
-        url = "https://raw.githubusercontent.com/Technici4n/Technici4n-maven/master/"
-    }
-    maven {
         name = "TerraformersMC"
         url = "https://maven.terraformersmc.com/"
     }
@@ -55,8 +51,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation "dev.technici4n:FastTransferLib:${project.ftl_version}"
-    include "dev.technici4n:FastTransferLib:${project.ftl_version}"
+    modImplementation "teamreborn:energy:${project.tr_energy_version}"
+    include "teamreborn:energy:${project.tr_energy_version}"
 
     modImplementation "maven.modrinth:smart-recipes:${project.smartrecipes_version}"
     include "maven.modrinth:smart-recipes:${project.smartrecipes_version}"

@@ -1,14 +1,13 @@
 package me.kirantipov.mods.sync.enery;
 
-import dev.technici4n.fasttransferlib.api.energy.EnergyApi;
-import dev.technici4n.fasttransferlib.api.energy.EnergyIo;
 import me.kirantipov.mods.sync.block.entity.SyncBlockEntities;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import team.reborn.energy.api.EnergyStorage;
 
 public class EnergyRegistry {
-    private static <T extends BlockEntity & EnergyIo> void register(BlockEntityType<T> blockEntityType) {
-        EnergyApi.SIDED.registerForBlockEntities((be, __) -> (EnergyIo)be, blockEntityType);
+    private static <T extends BlockEntity & EnergyStorage> void register(BlockEntityType<T> blockEntityType) {
+        EnergyStorage.SIDED.registerForBlockEntities((be, __) -> (EnergyStorage)be, blockEntityType);
     }
 
     public static void init() {
