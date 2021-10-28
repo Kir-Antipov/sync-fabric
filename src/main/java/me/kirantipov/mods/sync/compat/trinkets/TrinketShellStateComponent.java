@@ -52,7 +52,6 @@ class TrinketShellStateComponent extends ShellStateComponent {
         return items;
     }
 
-    @Override
     public void clear() {
         this.inventory.values().forEach(x -> x.values().forEach(Inventory::clear));
     }

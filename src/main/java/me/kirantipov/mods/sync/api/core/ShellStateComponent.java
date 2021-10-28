@@ -32,11 +32,6 @@ public abstract class ShellStateComponent {
     }
 
     /**
-     * Clears the state of the component.
-     */
-    public abstract void clear();
-
-    /**
      * Clones state of the given component.
      * @param component The component.
      */
@@ -167,9 +162,6 @@ public abstract class ShellStateComponent {
         }
 
         @Override
-        public void clear() { }
-
-        @Override
         public void clone(ShellStateComponent component) { }
 
         @Override
@@ -222,13 +214,6 @@ public abstract class ShellStateComponent {
                 xp += component.getXp();
             }
             return xp;
-        }
-
-        @Override
-        public void clear() {
-            for (ShellStateComponent component : this.components) {
-                component.clear();
-            }
         }
 
         @Override
