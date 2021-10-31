@@ -1,9 +1,15 @@
 package me.kirantipov.mods.sync.mixin;
 
 import com.mojang.authlib.GameProfile;
-import me.kirantipov.mods.sync.api.core.Shell;
+import me.kirantipov.mods.sync.api.core.ClientShell;
 import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.core.SyncRequestHelper;
+import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
+import me.kirantipov.mods.sync.api.networking.SynchronizationRequestPacket;
+import me.kirantipov.mods.sync.client.gui.controller.DeathScreenController;
+import me.kirantipov.mods.sync.client.gui.controller.HudController;
+import me.kirantipov.mods.sync.entity.PersistentCameraEntity;
+import me.kirantipov.mods.sync.entity.PersistentCameraEntityGoal;
+import me.kirantipov.mods.sync.util.BlockPosUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -11,7 +17,11 @@ import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -28,7 +39,7 @@ import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientPlayerEntity.class)
-public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity implements Shell {
+public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity implements ClientShell {
     @Final
     @Shadow
     protected MinecraftClient client;
@@ -46,6 +57,80 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 
 
     @Override
+    public @Nullable PlayerSyncEvents.SyncFailureReason beginSync(ShellState state) {
+        ClientWorld world = this.clientWorld;
+        if (world == null) {
+            return PlayerSyncEvents.SyncFailureReason.OTHER_PROBLEM;
+        }
+
+        PlayerSyncEvents.SyncFailureReason failureReason =
+                this.canBeApplied(state) && state.getProgress() >= ShellState.PROGRESS_DONE
+                        ? PlayerSyncEvents.ALLOW_SYNCING.invoker().allowSync(this, state)
+                        : PlayerSyncEvents.SyncFailureReason.INVALID_SHELL;
+
+        if (failureReason != null) {
+            return failureReason;
+        }
+
+        PlayerSyncEvents.START_SYNCING.invoker().onStartSyncing(this, state);
+
+        BlockPos pos = this.getBlockPos();
+        Direction facing = BlockPosUtil.getHorizontalFacing(pos, world).orElse(this.getHorizontalFacing().getOpposite());
+        SynchronizationRequestPacket request = new SynchronizationRequestPacket(state);
+        PersistentCameraEntityGoal cameraGoal = this.isDead()
+                ? PersistentCameraEntityGoal.limbo(pos, facing, state.getPos(), __ -> request.send())
+                : PersistentCameraEntityGoal.stairwayToHeaven(pos, facing, state.getPos(), __ -> request.send());
+
+        HudController.hide();
+        if (this.isDead()) {
+            DeathScreenController.suspend();
+        }
+        this.client.setScreen(null);
+        PersistentCameraEntity.setup(this.client, cameraGoal);
+        return null;
+    }
+
+    @Override
+    public void endSync(Identifier startWorld, BlockPos startPos, Direction startFacing, Identifier targetWorld, BlockPos targetPos, Direction targetFacing, @Nullable ShellState storedState) {
+        ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
+
+        if (this.getHealth() <= 0) {
+            this.setHealth(0.01F);
+        }
+        this.deathTime = 0;
+
+        float yaw = targetFacing.getOpposite().asRotation();
+        this.setYaw(yaw);
+        this.prevYaw = yaw;
+        this.prevBodyYaw = this.bodyYaw = yaw;
+        this.prevHeadYaw = this.headYaw = yaw;
+        player.lastRenderYaw = player.renderYaw = yaw;
+
+        this.setPitch(0);
+        this.prevPitch = 0;
+        player.lastRenderPitch = player.renderPitch = 0;
+
+        Runnable restore = () -> {
+            PersistentCameraEntity.unset(this.client);
+            HudController.restore();
+            DeathScreenController.restore();
+
+            boolean syncFailed = Objects.equals(startPos, targetPos);
+            if (!syncFailed) {
+                PlayerSyncEvents.STOP_SYNCING.invoker().onStopSyncing(this, startPos, storedState);
+            }
+        };
+
+        boolean enableCamera = Objects.equals(startWorld, targetWorld);
+        if (enableCamera) {
+            PersistentCameraEntityGoal cameraGoal = PersistentCameraEntityGoal.highwayToHell(startPos, startFacing, targetPos, targetFacing, __ -> restore.run());
+            PersistentCameraEntity.setup(this.client, cameraGoal);
+        } else {
+            restore.run();
+        }
+    }
+
+    @Override
     public UUID getShellOwnerUuid() {
         return this.getGameProfile().getId();
     }
@@ -61,11 +146,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     }
 
     @Override
-    public void apply(ShellState state) {
-        throw new IllegalStateException("We're not supposed to do this");
-    }
-
-    @Override
     public void setAvailableShellStates(Stream<ShellState> states) {
         this.shellsById = states.collect(Collectors.toConcurrentMap(ShellState::getUuid, x -> x));
     }
@@ -77,7 +157,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 
     @Override
     public ShellState getShellStateByUuid(UUID uuid) {
-        return this.shellsById.get(uuid);
+        return uuid == null ? null : this.shellsById.get(uuid);
     }
 
     @Override
@@ -121,7 +201,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
         boolean canRespawn = this.isArtificial() && this.shellsById.size() != 0;
         ShellState respawnShell = canRespawn ? this.shellsById.values().stream().filter(x -> this.canBeApplied(x) && x.getProgress() >= ShellState.PROGRESS_DONE).sorted((a, b) -> Boolean.compare(a.isArtificial(), b.isArtificial())).findAny().orElse(null) : null;
         if (respawnShell != null) {
-            SyncRequestHelper.tryRequestSync(this.client, respawnShell);
+            this.beginSync(respawnShell);
         }
     }
 

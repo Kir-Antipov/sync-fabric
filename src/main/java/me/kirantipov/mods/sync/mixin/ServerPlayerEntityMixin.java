@@ -1,7 +1,9 @@
 package me.kirantipov.mods.sync.mixin;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.datafixers.util.Either;
 import me.kirantipov.mods.sync.api.core.*;
+import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.api.networking.PlayerIsAlivePacket;
 import me.kirantipov.mods.sync.api.networking.ShellStateUpdatePacket;
 import me.kirantipov.mods.sync.api.networking.ShellUpdatePacket;
@@ -23,6 +25,7 @@ import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
@@ -48,7 +51,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Shell {
+public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ServerShell {
     @Shadow
     private int syncedExperience;
 
@@ -99,6 +102,65 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sh
             this.isArtificial = isArtificial;
             this.shellDirty = true;
         }
+    }
+
+    @Override
+    public Either<ShellState, PlayerSyncEvents.SyncFailureReason> sync(ShellState state) {
+        ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
+        BlockPos currentPos = this.getBlockPos();
+        ServerWorld currentWorld = player.getServerWorld();
+
+        if (!this.canBeApplied(state) || state.getProgress() < ShellState.PROGRESS_DONE) {
+            return Either.right(PlayerSyncEvents.SyncFailureReason.INVALID_SHELL);
+        }
+
+        boolean isDead = this.isDead();
+        ShellStateContainer currentShellContainer = isDead ? null : ShellStateContainer.find(currentWorld, currentPos);
+        if (!isDead && (currentShellContainer == null || currentShellContainer.getShellState() != null)) {
+            return Either.right(PlayerSyncEvents.SyncFailureReason.INVALID_CURRENT_LOCATION);
+        }
+
+        PlayerSyncEvents.ShellSelectionFailureReason selectionFailureReason = PlayerSyncEvents.ALLOW_SHELL_SELECTION.invoker().allowShellSelection(player, currentShellContainer);
+        if (selectionFailureReason != null) {
+            return Either.right(selectionFailureReason::toText);
+        }
+
+        Identifier targetWorldId = state.getWorld();
+        ServerWorld targetWorld = WorldUtil.findWorld(this.server.getWorlds(), targetWorldId).orElse(null);
+        if (targetWorld == null) {
+            return Either.right(PlayerSyncEvents.SyncFailureReason.INVALID_TARGET_LOCATION);
+        }
+
+        BlockPos targetPos = state.getPos();
+        Chunk targetChunk = targetWorld.getChunk(targetPos);
+        ShellStateContainer targetShellContainer = targetChunk == null ? null : ShellStateContainer.find(targetWorld, state);
+        if (targetShellContainer == null) {
+            return Either.right(PlayerSyncEvents.SyncFailureReason.INVALID_TARGET_LOCATION);
+        }
+
+        state = targetShellContainer.getShellState();
+        PlayerSyncEvents.SyncFailureReason finalFailureReason = this.canBeApplied(state) ? PlayerSyncEvents.ALLOW_SYNCING.invoker().allowSync(this, state) : PlayerSyncEvents.SyncFailureReason.INVALID_SHELL;
+        if (finalFailureReason != null) {
+            return Either.right(finalFailureReason);
+        }
+
+        PlayerSyncEvents.START_SYNCING.invoker().onStartSyncing(this, state);
+
+        ShellState storedState = null;
+        if (currentShellContainer != null) {
+            storedState = ShellState.of(player, currentPos, currentShellContainer.getColor());
+            currentShellContainer.setShellState(storedState);
+            if (currentShellContainer.isRemotelyAccessible()) {
+                this.add(storedState);
+            }
+        }
+
+        targetShellContainer.setShellState(null);
+        this.remove(state);
+        this.apply(state);
+
+        PlayerSyncEvents.STOP_SYNCING.invoker().onStopSyncing(player, currentPos, storedState);
+        return Either.left(storedState);
     }
 
     @Override
@@ -162,7 +224,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sh
 
     @Override
     public ShellState getShellStateByUuid(UUID uuid) {
-        return this.shellsById.get(uuid);
+        return uuid == null ? null : this.shellsById.get(uuid);
     }
 
     @Override

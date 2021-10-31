@@ -14,6 +14,11 @@ import java.util.stream.Stream;
  */
 public interface Shell extends ShellStateManager {
     /**
+     * @return true if the shell exists at the client-side; otherwise, false.
+     */
+    boolean isClient();
+
+    /**
      * @return UUID of the owner of this shell.
      */
     UUID getShellOwnerUuid();
@@ -28,12 +33,6 @@ public interface Shell extends ShellStateManager {
      * @param isArtificial Indicates whether this shell is artificial.
      */
     void changeArtificialStatus(boolean isArtificial);
-
-    /**
-     * Modifies the internal state of the shell to match the specified one.
-     * @param state Target state.
-     */
-    void apply(ShellState state);
 
     @Override
     default boolean isValidShellOwnerUuid(UUID uuid) {

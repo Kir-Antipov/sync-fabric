@@ -1,8 +1,8 @@
 package me.kirantipov.mods.sync.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.kirantipov.mods.sync.api.core.ClientShell;
 import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.core.SyncRequestHelper;
 import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.client.gl.MSAAFramebuffer;
 import me.kirantipov.mods.sync.client.render.MatrixStackStorage;
@@ -115,19 +115,17 @@ public class ShellSelectorButtonWidget extends AbstractWidget {
 
     @Override
     protected void onMouseClick(double mouseX, double mouseY, int button) {
-        if (this.shell == null || this.shell.getProgress() < ShellState.PROGRESS_DONE) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null || this.shell == null || this.shell.getProgress() < ShellState.PROGRESS_DONE) {
             return;
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        PlayerSyncEvents.SyncFailureReason failureReason = SyncRequestHelper.tryRequestSync(client, this.shell);
+        PlayerSyncEvents.SyncFailureReason failureReason = ((ClientShell)client.player).beginSync(this.shell);
         if (failureReason != null) {
             if (client.currentScreen != null) {
                 client.currentScreen.onClose();
             }
-            if (client.player != null) {
-                client.player.sendMessage(failureReason.toText(), true);
-            }
+            client.player.sendMessage(failureReason.toText(), true);
         }
     }
 
