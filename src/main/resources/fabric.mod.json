@@ -17,14 +17,14 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.kirantipov.mods.sync.Sync",
-      "me.kirantipov.mods.sync.compat.requiem.RequiemCompat"
+      "dev.kir.sync.Sync",
+      "dev.kir.sync.compat.requiem.RequiemCompat"
     ],
     "client": [
-      "me.kirantipov.mods.sync.Sync"
+      "dev.kir.sync.Sync"
     ],
     "cardinal-components-entity": [
-      "me.kirantipov.mods.sync.compat.trinkets.TrinketsCompat"
+      "dev.kir.sync.compat.trinkets.TrinketsCompat"
     ]
   },
   "mixins": [
