@@ -3,7 +3,7 @@ package me.kirantipov.mods.sync.compat.trinkets;
 import dev.emi.trinkets.api.SlotGroup;
 import dev.emi.trinkets.api.SlotType;
 import dev.emi.trinkets.api.TrinketsApi;
-import me.kirantipov.mods.sync.api.core.ShellStateComponent;
+import me.kirantipov.mods.sync.api.shell.ShellStateComponent;
 import me.kirantipov.mods.sync.item.SimpleInventory;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.entity.EntityType;

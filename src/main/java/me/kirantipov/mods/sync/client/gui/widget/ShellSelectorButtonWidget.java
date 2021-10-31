@@ -1,8 +1,8 @@
 package me.kirantipov.mods.sync.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.kirantipov.mods.sync.api.core.ClientShell;
-import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.shell.ClientShell;
+import me.kirantipov.mods.sync.api.shell.ShellState;
 import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.client.gl.MSAAFramebuffer;
 import me.kirantipov.mods.sync.client.render.MatrixStackStorage;

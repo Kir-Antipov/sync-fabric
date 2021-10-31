@@ -1,4 +1,4 @@
-package me.kirantipov.mods.sync.api.core;
+package me.kirantipov.mods.sync.api.shell;
 
 import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import net.fabricmc.api.EnvType;

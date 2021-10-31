@@ -1,6 +1,6 @@
 package me.kirantipov.mods.sync.client.render.block.entity;
 
-import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.shell.ShellState;
 import me.kirantipov.mods.sync.block.entity.AbstractShellContainerBlockEntity;
 import me.kirantipov.mods.sync.client.model.AbstractShellContainerModel;
 import me.kirantipov.mods.sync.client.model.DoubleBlockModel;

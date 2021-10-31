@@ -1,7 +1,7 @@
 package me.kirantipov.mods.sync.client.render.block.entity;
 
 import me.kirantipov.mods.sync.Sync;
-import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.shell.ShellState;
 import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
 import me.kirantipov.mods.sync.block.SyncBlocks;
 import me.kirantipov.mods.sync.block.entity.ShellStorageBlockEntity;

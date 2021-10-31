@@ -1,9 +1,9 @@
 package me.kirantipov.mods.sync.mixin;
 
-import me.kirantipov.mods.sync.api.core.Shell;
-import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.core.ShellStateManager;
-import me.kirantipov.mods.sync.api.core.ShellStateUpdateType;
+import me.kirantipov.mods.sync.api.shell.Shell;
+import me.kirantipov.mods.sync.api.shell.ShellState;
+import me.kirantipov.mods.sync.api.shell.ShellStateManager;
+import me.kirantipov.mods.sync.api.shell.ShellStateUpdateType;
 import me.kirantipov.mods.sync.util.nbt.OfflinePlayerNbtManager;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;

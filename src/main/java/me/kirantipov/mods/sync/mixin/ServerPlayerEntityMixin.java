@@ -2,7 +2,7 @@ package me.kirantipov.mods.sync.mixin;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
-import me.kirantipov.mods.sync.api.core.*;
+import me.kirantipov.mods.sync.api.shell.*;
 import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.api.networking.PlayerIsAlivePacket;
 import me.kirantipov.mods.sync.api.networking.ShellStateUpdatePacket;

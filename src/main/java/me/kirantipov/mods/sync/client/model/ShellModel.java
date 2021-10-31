@@ -1,6 +1,6 @@
 package me.kirantipov.mods.sync.client.model;
 
-import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.shell.ShellState;
 import me.kirantipov.mods.sync.client.render.CustomRenderLayer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -1,4 +1,4 @@
-package me.kirantipov.mods.sync.api.core;
+package me.kirantipov.mods.sync.api.shell;
 
 import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;

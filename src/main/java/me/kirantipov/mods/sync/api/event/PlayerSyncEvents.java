@@ -1,7 +1,7 @@
 package me.kirantipov.mods.sync.api.event;
 
-import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.core.ShellStateContainer;
+import me.kirantipov.mods.sync.api.shell.ShellState;
+import me.kirantipov.mods.sync.api.shell.ShellStateContainer;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.player.PlayerEntity;

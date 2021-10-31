@@ -1,8 +1,8 @@
 package me.kirantipov.mods.sync.block.entity;
 
-import me.kirantipov.mods.sync.api.core.ShellState;
-import me.kirantipov.mods.sync.api.core.ShellStateContainer;
-import me.kirantipov.mods.sync.api.core.ShellStateManager;
+import me.kirantipov.mods.sync.api.shell.ShellState;
+import me.kirantipov.mods.sync.api.shell.ShellStateContainer;
+import me.kirantipov.mods.sync.api.shell.ShellStateManager;
 import me.kirantipov.mods.sync.api.networking.ShellDestroyedPacket;
 import me.kirantipov.mods.sync.block.AbstractShellContainerBlock;
 import me.kirantipov.mods.sync.util.nbt.NbtSerializer;

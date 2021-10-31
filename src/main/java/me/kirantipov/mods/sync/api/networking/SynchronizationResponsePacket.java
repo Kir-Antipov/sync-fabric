@@ -1,8 +1,8 @@
 package me.kirantipov.mods.sync.api.networking;
 
 import me.kirantipov.mods.sync.Sync;
-import me.kirantipov.mods.sync.api.core.ClientShell;
-import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.shell.ClientShell;
+import me.kirantipov.mods.sync.api.shell.ShellState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;

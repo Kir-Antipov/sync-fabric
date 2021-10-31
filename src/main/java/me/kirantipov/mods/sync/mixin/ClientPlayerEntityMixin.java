@@ -1,8 +1,8 @@
 package me.kirantipov.mods.sync.mixin;
 
 import com.mojang.authlib.GameProfile;
-import me.kirantipov.mods.sync.api.core.ClientShell;
-import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.shell.ClientShell;
+import me.kirantipov.mods.sync.api.shell.ShellState;
 import me.kirantipov.mods.sync.api.event.PlayerSyncEvents;
 import me.kirantipov.mods.sync.api.networking.SynchronizationRequestPacket;
 import me.kirantipov.mods.sync.client.gui.controller.DeathScreenController;

@@ -1,7 +1,7 @@
 package me.kirantipov.mods.sync.client.gui;
 
-import me.kirantipov.mods.sync.api.core.Shell;
-import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.shell.Shell;
+import me.kirantipov.mods.sync.api.shell.ShellState;
 import me.kirantipov.mods.sync.client.gl.MSAAFramebuffer;
 import me.kirantipov.mods.sync.client.gui.controller.HudController;
 import me.kirantipov.mods.sync.client.gui.widget.ArrowButtonWidget;

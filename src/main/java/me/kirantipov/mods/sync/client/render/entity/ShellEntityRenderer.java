@@ -1,6 +1,6 @@
 package me.kirantipov.mods.sync.client.render.entity;
 
-import me.kirantipov.mods.sync.api.core.ShellState;
+import me.kirantipov.mods.sync.api.shell.ShellState;
 import me.kirantipov.mods.sync.client.model.ShellModel;
 import me.kirantipov.mods.sync.entity.ShellEntity;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
