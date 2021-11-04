@@ -1,5 +1,6 @@
 package dev.kir.sync;
 
+import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
 import dev.kir.sync.enery.EnergyRegistry;
 import dev.kir.sync.networking.SyncPackets;
 import dev.kir.sync.block.SyncBlocks;
@@ -15,6 +16,7 @@ import net.minecraft.util.Identifier;
 
 public class Sync implements ModInitializer, ClientModInitializer {
     public static final String MOD_ID = "sync";
+    public static final String PROJECT_ID = MOD_ID + "-fabric";
 
     public static Identifier locate(String location) {
         return new Identifier(MOD_ID, location);
@@ -33,6 +35,7 @@ public class Sync implements ModInitializer, ClientModInitializer {
     @Override
     @Environment(EnvType.CLIENT)
     public void onInitializeClient() {
+        CrowdinTranslate.downloadTranslations(PROJECT_ID, MOD_ID);
         SyncRenderers.initClient();
         SyncPackets.initClient();
     }

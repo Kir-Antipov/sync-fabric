@@ -26,6 +26,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Update translations
+        run: ./gradlew downloadTranslations
+
       - name: Build artifacts
         run: ./gradlew clean build
 

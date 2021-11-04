@@ -1,7 +1,24 @@
+buildscript {
+    dependencies {
+        classpath "de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"
+    }
+    repositories {
+        maven {
+            name = "CrowdinTranslate"
+            url = "https://minecraft.guntram.de/maven/"
+        }
+    }
+}
+
 plugins {
     id "fabric-loom" version "0.9-SNAPSHOT"
     id "org.ajoberstar.grgit" version "4.1.0"
 }
+
+apply plugin: "de.guntram.mcmod.crowdin-translate"
+crowdintranslate.crowdinProjectname = "sync-fabric"
+crowdintranslate.minecraftProjectName = "sync"
+crowdintranslate.verbose = true
 
 sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
@@ -41,6 +58,10 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+    maven {
+        name = "CrowdinTranslate"
+        url = "https://minecraft.guntram.de/maven/"
+    }
 }
 
 // To change the versions see the gradle.properties file
@@ -50,6 +71,8 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modImplementation(include("de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"))
 
     modImplementation "teamreborn:energy:${project.tr_energy_version}"
     include "teamreborn:energy:${project.tr_energy_version}"
