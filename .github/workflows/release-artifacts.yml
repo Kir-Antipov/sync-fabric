@@ -20,7 +20,7 @@ jobs:
       - name: Set up JDK 16
         uses: actions/setup-java@v2.1.0
         with:
-          distribution: 'adopt'
+          distribution: adopt
           java-version: 16
 
       - name: Make gradlew executable
@@ -29,8 +29,12 @@ jobs:
       - name: Build artifacts
         run: ./gradlew clean build
 
-      - name: Upload assets to GitHub
-        uses: AButler/upload-release-assets@v2.0
+      - name: Upload assets to GitHub, Modrinth and CurseForge
+        uses: Kir-Antipov/mc-publish@v1.1
         with:
-          files: 'build/libs/*'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ""
+          modrinth-id: OrJTMhHF
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: 515365
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
