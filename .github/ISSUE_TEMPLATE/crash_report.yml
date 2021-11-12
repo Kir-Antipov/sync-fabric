@@ -1,0 +1,103 @@
+name: 🚨 Crash Report
+description: Report a crash
+title: "[Crash] "
+labels: ["crash"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What were you doing when the crash occured?
+      placeholder: It's simple, I was trying to crash my game...
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Have any relevant screenshots? Share them!
+
+  - type: dropdown
+    id: side
+    attributes:
+      label: Did the crash occur client-side or server-side?
+      description: If you don't know what this means, pick "Not sure".
+      options:
+        - Client
+        - Server
+        - Both
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of the mod are you running?
+      placeholder: ex. mc1.17.x-1.2
+    validations:
+      required: true
+
+  - type: input
+    id: mc-version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft are you playing?
+      placeholder: ex. 1.17.1
+    validations:
+      required: true
+
+  - type: input
+    id: fapi-version
+    attributes:
+      label: Fabric API Version
+      description: What version of Fabric API are you using?
+      placeholder: ex. 0.39.0+1.17
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sources
+    attributes:
+      label: Installation Source
+      description: Where did you get the mod from?
+      multiple: true
+      options:
+        - CurseForge
+        - Modrinth
+        - GitHub Releases
+        - GitHub Actions (unstable builds)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Please copy and paste the crash report here.
+      render: shell
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        - The latest crash report can be found in .minecraft/crash-reports/crash-*.txt
+        - The latest log can be found in .minecraft/logs/latest.log
+
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other Mods
+      description: Crashes often occur due to mod incompatibility, so share other mods that you use here, please.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: other
+    attributes:
+      label: Additional Information
+      description: Is there anything else we should know?
+      placeholder: ex. I'm using a third party launcher
+    validations:
+      required: false

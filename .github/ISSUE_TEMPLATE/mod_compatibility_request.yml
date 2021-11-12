@@ -1,0 +1,62 @@
+name: 🔧 Mod Compatibility Request
+description: Suggest an idea for deeper integration with other mods
+title: "[Compatibility] "
+labels: ["enhancement", "mod compatibility"]
+body:
+  - type: textarea
+    id: projects
+    attributes:
+      label: Related Project(s)
+      description: What project(s) do you think our mod should integrate with?
+      placeholder: ex. - [Trinkets](https://github.com/emilyploszaj/trinkets)
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Is your feature related to a problem?
+      placeholder: ex. I'm always frustrated when...
+    validations:
+      required: false
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature
+      description: What solution did you come up with?
+      placeholder: ex. There should be a...
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Have any relevant screenshots or concept arts? Share them!
+
+  - type: textarea
+    id: other-solutions
+    attributes:
+      label: Other Solutions
+      description: Did you come up with any other solutions?
+      placeholder: ex. You could also...
+    validations:
+      required: false
+
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justification
+      description: Why do you think this feature should be implemented on our side?
+      placeholder: ex. Trinkets is a widely used library, therefore deeper integration with it will help improve compatibility with hundreds of other mods that use it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: other
+    attributes:
+      label: Additional Information
+      description: Is there anything else we should know?
+      placeholder: ex. I'm using several other mods...
+    validations:
+      required: false

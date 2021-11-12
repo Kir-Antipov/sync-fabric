@@ -1,0 +1,44 @@
+name: 🚀 Feature Request
+description: Suggest an idea for this project
+title: "[Feature Request] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Is your feature related to a problem?
+      placeholder: ex. I'm always frustrated when...
+    validations:
+      required: false
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature
+      description: What solution did you come up with?
+      placeholder: ex. There should be a...
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Have any relevant screenshots or concept arts? Share them!
+
+  - type: textarea
+    id: other-solutions
+    attributes:
+      label: Other Solutions
+      description: Did you come up with any other solutions?
+      placeholder: ex. You could also...
+    validations:
+      required: false
+
+  - type: textarea
+    id: other
+    attributes:
+      label: Additional Information
+      description: Is there anything else we should know?
+      placeholder: ex. I'm using several other mods...
+    validations:
+      required: false

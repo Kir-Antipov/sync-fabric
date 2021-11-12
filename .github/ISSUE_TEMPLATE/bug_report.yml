@@ -1,0 +1,91 @@
+name: 🐞 Bug Report
+description: Report a problem encountered while using the mod
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us what you expected to happen.
+      placeholder: Something's wrong, I can feel it...
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Have any relevant screenshots? Share them!
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of the mod are you running?
+      placeholder: ex. mc1.17.x-1.2
+    validations:
+      required: true
+
+  - type: input
+    id: mc-version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft are you playing?
+      placeholder: ex. 1.17.1
+    validations:
+      required: true
+
+  - type: input
+    id: fapi-version
+    attributes:
+      label: Fabric API Version
+      description: What version of Fabric API are you using?
+      placeholder: ex. 0.39.0+1.17
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sources
+    attributes:
+      label: Installation Source
+      description: Where did you get the mod from?
+      multiple: true
+      options:
+        - CurseForge
+        - Modrinth
+        - GitHub Releases
+        - GitHub Actions (unstable builds)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Please copy and paste the logs from the event of the bug.
+      render: shell
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        - The latest log can be found in .minecraft/logs/latest.log
+        - The latest crash report can be found in .minecraft/crash-reports/crash-*.txt
+
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other Mods
+      description: If you're using other mods, please share them here.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: other
+    attributes:
+      label: Additional Information
+      description: Is there anything else we should know?
+      placeholder: ex. I'm using a third party launcher
+    validations:
+      required: false
