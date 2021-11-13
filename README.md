@@ -7,7 +7,7 @@
 [![CurseForge](https://img.shields.io/badge/dynamic/json?color=%23f16436&label=CurseForge&query=title&url=https%3A%2F%2Fapi.cfwidget.com%2F515365&cacheSeconds=3600)](https://www.curseforge.com/minecraft/mc-mods/sync-fabric)
 [![GitHub license](https://img.shields.io/github/license/Kir-Antipov/sync-fabric.svg?cacheSeconds=36000)](https://github.com/Kir-Antipov/sync-fabric#readme)
 
-[Sync (Fabric)](https://github.com/Kir-Antipov/sync-fabric) is an unofficial reimplementation of the original [Sync](https://github.com/iChun/Sync) mod, developed by [iChun](https://github.com/iChun).
+[Sync (Fabric)](https://github.com/Kir-Antipov/sync-fabric) is an unofficial reimplementation of the [Sync](https://github.com/iChun/Sync) mod, that was originally developed by [iChun](https://github.com/iChun).
 
 As for the brief description of the mod, I think the original one says it all:
 
@@ -71,6 +71,16 @@ P.S. - If you aren't brave enough to fight the Wither in Hardcore, you can use [
 
 ----
 
+## Translations
+
+[![Crowdin](https://badges.crowdin.net/sync-fabric/localized.svg)](https://crowdin.com/project/sync-fabric)
+
+[Sync (Fabric)](https://github.com/Kir-Antipov/sync-fabric) makes use of crowd sourced translations.
+
+You can help translate the mod to additional languages here: [crowdin.com](https://crowdin.com/project/sync-fabric).
+
+----
+
 ## Installation
 
 Requirements:
@@ -84,6 +94,34 @@ You can download the mod from:
  - [Modrinth](https://modrinth.com/mod/sync-fabric)
  - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/sync-fabric)
  - [GitHub Actions](https://github.com/Kir-Antipov/sync-fabric/actions/workflows/build-artifacts.yml) *(these builds may be unstable, but they represent the actual state of the development)*
+
+## Developers
+
+`build.gradle`:
+
+```groovy
+repositories {
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    modImplementation "maven.modrinth:sync-fabric:${project.sync_version}"
+}
+```
+
+`gradle.properties`:
+
+```properties
+sync_version=/* latest version goes here */
+```
+
+There's [no documentation](https://www.commitstrip.com/en/2021/11/10/no-documentation/) for the project's [api](https://github.com/Kir-Antipov/sync-fabric/tree/1.17.x/dev/src/main/java/stable/kir/sync/api) yet, but you can find some useful examples in the [`compat` package](https://github.com/Kir-Antipov/sync-fabric/tree/1.17.x/stable/src/main/java/dev/kir/sync/compat).
 
 ## Building from sources
 
