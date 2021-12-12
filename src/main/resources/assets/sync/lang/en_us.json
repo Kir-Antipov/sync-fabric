@@ -33,6 +33,7 @@
 
   "text.autoconfig.sync.title": "Sync (Fabric)",
   "text.autoconfig.sync.category.shell_construction": "Shell Construction",
+  "text.autoconfig.sync.option.enableInstantShellConstruction": "Enable instant shell construction",
   "text.autoconfig.sync.option.warnPlayerInsteadOfKilling": "Warn players instead of killing them",
   "text.autoconfig.sync.option.fingerstickDamage": "Fingerstick damage amount",
   "text.autoconfig.sync.option.hardcoreFingerstickDamage": "Hardcore fingerstick damage amount",

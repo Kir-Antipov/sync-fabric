@@ -8,6 +8,9 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 @Config(name = Sync.MOD_ID)
 public class SyncConfig implements ConfigData {
     @ConfigEntry.Category(value = "shell_construction")
+    public boolean enableInstantShellConstruction = false;
+
+    @ConfigEntry.Category(value = "shell_construction")
     public boolean warnPlayerInsteadOfKilling = false;
 
     @ConfigEntry.Category(value = "shell_construction")
