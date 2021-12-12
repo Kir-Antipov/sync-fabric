@@ -7,7 +7,10 @@ import dev.kir.sync.block.SyncBlocks;
 import dev.kir.sync.block.entity.SyncBlockEntities;
 import dev.kir.sync.client.render.SyncRenderers;
 import dev.kir.sync.command.SyncCommands;
+import dev.kir.sync.config.SyncConfig;
 import dev.kir.sync.item.SyncItems;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -22,8 +25,13 @@ public class Sync implements ModInitializer, ClientModInitializer {
         return new Identifier(MOD_ID, location);
     }
 
+    public static SyncConfig getConfig() {
+        return AutoConfig.getConfigHolder(SyncConfig.class).getConfig();
+    }
+
     @Override
     public void onInitialize() {
+        AutoConfig.register(SyncConfig.class, GsonConfigSerializer::new);
         SyncBlocks.init();
         SyncBlockEntities.init();
         SyncItems.init();
