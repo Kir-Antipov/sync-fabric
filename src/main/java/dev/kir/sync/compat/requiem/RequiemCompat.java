@@ -12,7 +12,7 @@ import net.minecraft.text.TranslatableText;
 public class RequiemCompat implements ModInitializer {
     @Override
     public void onInitialize() {
-        if (!FabricLoader.getInstance().isModLoaded("requiemapi")) {
+        if (!FabricLoader.getInstance().isModLoaded("requiem")) {
             return;
         }
 
