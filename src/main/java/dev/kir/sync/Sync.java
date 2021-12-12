@@ -43,8 +43,11 @@ public class Sync implements ModInitializer, ClientModInitializer {
     @Override
     @Environment(EnvType.CLIENT)
     public void onInitializeClient() {
-        CrowdinTranslate.downloadTranslations(PROJECT_ID, MOD_ID);
         SyncRenderers.initClient();
         SyncPackets.initClient();
+
+        if (getConfig().updateTranslationsAutomatically) {
+            CrowdinTranslate.downloadTranslations(PROJECT_ID, MOD_ID);
+        }
     }
 }

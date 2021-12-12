@@ -31,4 +31,6 @@
   "gui.sync.shell_selector.right.title": "Next page",
 
   "text.autoconfig.sync.title": "Sync (Fabric)",
+  "text.autoconfig.sync.category.misc": "Miscellaneous",
+  "text.autoconfig.sync.option.updateTranslationsAutomatically": "Update translations automatically",
 }
