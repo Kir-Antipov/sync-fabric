@@ -9,10 +9,10 @@
   ],
   "contact": {
     "website": "https://github.com/Kir-Antipov/sync-fabric",
-    "repo": "https://github.com/Kir-Antipov/sync-fabric",
+    "sources": "https://github.com/Kir-Antipov/sync-fabric",
     "issues": "https://github.com/Kir-Antipov/sync-fabric/issues/new/choose"
   },
-  "license": "LGPL-3.0",
+  "license": "MIT",
   "icon": "assets/sync/icon.png",
   "environment": "*",
   "entrypoints": {
