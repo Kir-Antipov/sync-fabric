@@ -73,12 +73,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     modImplementation(include("de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"))
-
-    modImplementation "teamreborn:energy:${project.tr_energy_version}"
-    include "teamreborn:energy:${project.tr_energy_version}"
-
-    modImplementation "maven.modrinth:smart-recipes:${project.smartrecipes_version}"
-    include "maven.modrinth:smart-recipes:${project.smartrecipes_version}"
+    modImplementation(include("teamreborn:energy:${project.tr_energy_version}"))
+    modImplementation(include("maven.modrinth:smart-recipes:${project.smartrecipes_version}"))
 
     modImplementation "dev.emi:trinkets:${project.trinkets_version}"
     modImplementation "io.github.ladysnake:requiem-api:${project.requiem_version}"
