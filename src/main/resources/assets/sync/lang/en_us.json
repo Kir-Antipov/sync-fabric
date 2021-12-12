@@ -18,6 +18,7 @@
   "event.sync.request.fail.invalid.shell": "The selected shell is not owned by the current player",
   "event.sync.request.fail.invalid.location.current": "The sync process cannot be started at the current location",
   "event.sync.request.fail.invalid.location.target": "The selected shell cannot be found",
+  "event.sync.construction.fail.health": "You don't have enough health to perform this operation",
 
   "event.sync.construction.fail.occupied": "This shell container is already occupied",
 
@@ -31,6 +32,10 @@
   "gui.sync.shell_selector.right.title": "Next page",
 
   "text.autoconfig.sync.title": "Sync (Fabric)",
+  "text.autoconfig.sync.category.shell_construction": "Shell Construction",
+  "text.autoconfig.sync.option.warnPlayerInsteadOfKilling": "Warn players instead of killing them",
+  "text.autoconfig.sync.option.fingerstickDamage": "Fingerstick damage amount",
+  "text.autoconfig.sync.option.hardcoreFingerstickDamage": "Hardcore fingerstick damage amount",
   "text.autoconfig.sync.category.misc": "Miscellaneous",
   "text.autoconfig.sync.option.updateTranslationsAutomatically": "Update translations automatically",
 }

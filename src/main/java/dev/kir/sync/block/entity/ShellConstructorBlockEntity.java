@@ -6,10 +6,13 @@ import dev.kir.sync.api.shell.ShellStateContainer;
 import dev.kir.sync.api.event.PlayerSyncEvents;
 import dev.kir.sync.block.AbstractShellContainerBlock;
 import dev.kir.sync.block.ShellConstructorBlock;
+import dev.kir.sync.config.SyncConfig;
 import dev.kir.sync.entity.damage.FingerstickDamageSource;
+import dev.kir.sync.Sync;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -57,10 +60,17 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
         }
 
         if (player instanceof ServerPlayerEntity serverPlayer) {
-            float damage = player.getMaxHealth();
-            if (serverPlayer.server.isHardcore()) {
-                damage *= 2;
+            SyncConfig config = Sync.getConfig();
+
+            float damage = serverPlayer.server.isHardcore() ? config.hardcoreFingerstickDamage : config.fingerstickDamage;
+
+            boolean isCreative = !serverPlayer.interactionManager.getGameMode().isSurvivalLike();
+            boolean isLowOnHealth = (player.getHealth() + player.getAbsorptionAmount()) <= damage;
+            boolean hasTotemOfUndying = player.getMainHandStack().isOf(Items.TOTEM_OF_UNDYING) || player.getOffHandStack().isOf(Items.TOTEM_OF_UNDYING);
+            if (isLowOnHealth && !isCreative && !hasTotemOfUndying && config.warnPlayerInsteadOfKilling) {
+                return PlayerSyncEvents.ShellConstructionFailureReason.NOT_ENOUGH_HEALTH;
             }
+
             player.damage(FingerstickDamageSource.getInstance(), damage);
             this.shell = ShellState.empty(serverPlayer, pos);
         }

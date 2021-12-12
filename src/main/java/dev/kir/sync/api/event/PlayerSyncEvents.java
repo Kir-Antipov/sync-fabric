@@ -118,6 +118,7 @@ public final class PlayerSyncEvents {
     public interface ShellConstructionFailureReason {
         ShellConstructionFailureReason OTHER_PROBLEM = () -> null;
         ShellConstructionFailureReason OCCUPIED = create(new TranslatableText("event.sync.construction.fail.occupied"));
+        ShellConstructionFailureReason NOT_ENOUGH_HEALTH = create(new TranslatableText("event.sync.construction.fail.health"));
 
         @Nullable
         Text toText();
