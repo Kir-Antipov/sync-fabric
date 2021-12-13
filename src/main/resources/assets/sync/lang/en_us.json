@@ -37,6 +37,10 @@
   "text.autoconfig.sync.option.warnPlayerInsteadOfKilling": "Warn players instead of killing them",
   "text.autoconfig.sync.option.fingerstickDamage": "Fingerstick damage amount",
   "text.autoconfig.sync.option.hardcoreFingerstickDamage": "Hardcore fingerstick damage amount",
+  "text.autoconfig.sync.category.sync": "Sync",
+  "text.autoconfig.sync.option.syncPriority": "Shell priority during auto synchronization",
+  "text.autoconfig.sync.option.ShellPriorityWrapper": "Priority rule",
+  "text.autoconfig.sync.option.ShellPriorityWrapper.priority": "Prefer",
   "text.autoconfig.sync.category.misc": "Miscellaneous",
   "text.autoconfig.sync.option.updateTranslationsAutomatically": "Update translations automatically",
 }

@@ -1,15 +1,18 @@
 package dev.kir.sync.mixin;
 
 import com.mojang.authlib.GameProfile;
+import dev.kir.sync.Sync;
 import dev.kir.sync.api.event.PlayerSyncEvents;
 import dev.kir.sync.api.networking.SynchronizationRequestPacket;
 import dev.kir.sync.api.shell.ClientShell;
 import dev.kir.sync.api.shell.ShellState;
 import dev.kir.sync.client.gui.controller.DeathScreenController;
 import dev.kir.sync.client.gui.controller.HudController;
+import dev.kir.sync.api.shell.ShellPriority;
 import dev.kir.sync.util.BlockPosUtil;
 import dev.kir.sync.entity.PersistentCameraEntity;
 import dev.kir.sync.entity.PersistentCameraEntityGoal;
+import dev.kir.sync.util.WorldUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -30,6 +33,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -199,7 +203,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     @Unique
     private void onDeath() {
         boolean canRespawn = this.isArtificial() && this.shellsById.size() != 0;
-        ShellState respawnShell = canRespawn ? this.shellsById.values().stream().filter(x -> this.canBeApplied(x) && x.getProgress() >= ShellState.PROGRESS_DONE).sorted((a, b) -> Boolean.compare(a.isArtificial(), b.isArtificial())).findAny().orElse(null) : null;
+        BlockPos pos = this.getBlockPos();
+        Identifier world = WorldUtil.getId(this.world);
+        Comparator<ShellState> comparator = ShellPriority.asComparator(world, pos, Sync.getConfig().syncPriority.stream().map(x -> x.priority));
+        ShellState respawnShell = canRespawn ? this.shellsById.values().stream().filter(x -> this.canBeApplied(x) && x.getProgress() >= ShellState.PROGRESS_DONE).min(comparator).orElse(null) : null;
         if (respawnShell != null) {
             this.beginSync(respawnShell);
         }
