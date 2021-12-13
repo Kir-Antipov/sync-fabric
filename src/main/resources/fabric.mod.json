@@ -45,5 +45,16 @@
     "fabricloader": "${fabric}",
     "minecraft": "${minecraft}",
     "java": ">=16"
+  },
+  "includes": {
+    "smart-recipes": "${smart_recipes}",
+    "cloth-config": "${cloth_config}",
+    "crowdin-translate": "${crowdin_translate}",
+    "team_reborn_energy": "${team_reborn_energy}"
+  },
+  "suggests": {
+    "modmenu": "${modmenu}",
+    "trinkets": "${trinkets}",
+    "requiem": "${requiem}"
   }
 }

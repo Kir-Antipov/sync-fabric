@@ -100,7 +100,14 @@ processResources {
     def fabricModProperties = [
         "version": version,
         "fabric": ">=${loaderDependencyVersion}",
-        "minecraft": minecraftDependencyVersion.replaceFirst(/^(\d+\.\d+)(\.\d+|)$/, '$1.x')
+        "minecraft": minecraftDependencyVersion.replaceFirst(/^(\d+\.\d+)(\.\d+|)$/, '$1.x'),
+        "smart_recipes": project.smartrecipes_version,
+        "cloth_config": project.cloth_version,
+        "crowdin_translate": project.crowdin_translate_version,
+        "team_reborn_energy": project.tr_energy_version,
+        "modmenu": ">=${project.modmenu_version}",
+        "trinkets": ">=${project.trinkets_version}",
+        "requiem": ">=${project.requiem_version}"
     ]
 
     filesMatching("fabric.mod.json") {
