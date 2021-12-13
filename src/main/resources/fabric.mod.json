@@ -31,6 +31,12 @@
     "sync.mixins.json"
   ],
   "accessWidener": "sync.accesswidener",
+  "custom": {
+    "modmanager": {
+      "modrinth": "OrJTMhHF",
+      "curseforge": 515365
+    }
+  },
   "depends": {
     "fabric": "*",
     "fabricloader": "${fabric}",
