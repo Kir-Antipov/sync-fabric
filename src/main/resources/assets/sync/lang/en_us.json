@@ -43,4 +43,6 @@
   "text.autoconfig.sync.option.ShellPriorityWrapper.priority": "Prefer",
   "text.autoconfig.sync.category.misc": "Miscellaneous",
   "text.autoconfig.sync.option.updateTranslationsAutomatically": "Update translations automatically",
+
+  "modmenu.descriptionTranslation.sync": "One mind. Many bodies."
 }

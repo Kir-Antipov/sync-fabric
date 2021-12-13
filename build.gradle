@@ -86,6 +86,7 @@ dependencies {
         exclude group: "net.fabricmc.fabric-api"
     })
 
+    modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
     modImplementation "dev.emi:trinkets:${project.trinkets_version}"
     modImplementation "io.github.ladysnake:requiem-api:${project.requiem_version}"
 
