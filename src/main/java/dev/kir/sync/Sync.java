@@ -1,7 +1,6 @@
 package dev.kir.sync;
 
 import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
-import dev.kir.sync.enery.EnergyRegistry;
 import dev.kir.sync.networking.SyncPackets;
 import dev.kir.sync.block.SyncBlocks;
 import dev.kir.sync.block.entity.SyncBlockEntities;
@@ -35,7 +34,6 @@ public class Sync implements ModInitializer, ClientModInitializer {
         SyncBlocks.init();
         SyncBlockEntities.init();
         SyncItems.init();
-        EnergyRegistry.init();
         SyncPackets.init();
         SyncCommands.init();
     }

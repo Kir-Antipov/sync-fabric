@@ -128,5 +128,6 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
 
     static {
         ShellStateContainer.LOOKUP.registerForBlockEntity((x, s) -> x.hasWorld() && AbstractShellContainerBlock.isBottom(x.getCachedState()) && (s == null || s.equals(x.getShellState())) ? x : null, SyncBlockEntities.SHELL_CONSTRUCTOR);
+        EnergyStorage.SIDED.registerForBlockEntities((x, __) -> (EnergyStorage)x, SyncBlockEntities.SHELL_CONSTRUCTOR);
     }
 }
