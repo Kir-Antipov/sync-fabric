@@ -2,22 +2,19 @@ package dev.kir.sync.block.entity;
 
 import dev.kir.sync.block.TreadmillBlock;
 import dev.kir.sync.api.event.EntityFitnessEvents;
+import dev.kir.sync.config.SyncConfig;
+import dev.kir.sync.Sync;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoubleBlockProperties;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.ChickenEntity;
-import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -28,12 +25,13 @@ import team.reborn.energy.api.EnergyStorageUtil;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @SuppressWarnings({"deprecation", "UnstableApiUsage"})
 public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEntity, TickableBlockEntity, EnergyStorage, BlockEntityClientSerializable {
     private static final int MAX_RUNNING_TIME = 20 * 60 * 15; // ticks -> seconds -> minutes
     private static final double MAX_SQUARED_DISTANCE = 0.5;
-    private static final Map<Class<? extends Entity>, Long> ENERGY_MAP;
+    private static final Map<EntityType<? extends Entity>, Long> ENERGY_MAP;
 
     private UUID runnerUUID;
     private Integer runnerId;
@@ -270,7 +268,7 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
     }
 
     private static Long getOutputEnergyQuantityForEntity(Entity entity, EnergyStorage energyStorage) {
-        return EntityFitnessEvents.MODIFY_OUTPUT_ENERGY_QUANTITY.invoker().modifyOutputEnergyQuantity(entity, energyStorage, ENERGY_MAP.get(entity.getClass()));
+        return EntityFitnessEvents.MODIFY_OUTPUT_ENERGY_QUANTITY.invoker().modifyOutputEnergyQuantity(entity, energyStorage, ENERGY_MAP.get(entity.getType()));
     }
 
     private static boolean isValidEntity(Entity entity) {
@@ -306,13 +304,6 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
     }
 
     static {
-        ENERGY_MAP = Map.of(
-            ChickenEntity.class, 2L,
-            PigEntity.class, 16L,
-            ServerPlayerEntity.class, 20L,
-            WolfEntity.class, 24L,
-            CreeperEntity.class, 80L,
-            EndermanEntity.class, 160L
-        );
+        ENERGY_MAP = Sync.getConfig().energyMap.stream().collect(Collectors.toUnmodifiableMap(SyncConfig.EnergyMapEntry::getEntityType, x -> x.outputEnergyQuantity, (a, b) -> a));
     }
 }
