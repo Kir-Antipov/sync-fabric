@@ -24,8 +24,6 @@ import team.reborn.energy.api.EnergyStorage;
 
 @SuppressWarnings({"deprecation", "UnstableApiUsage"})
 public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEntity implements EnergyStorage {
-    private static final float LF_AMOUNT = 256000;
-
     public ShellConstructorBlockEntity(BlockPos pos, BlockState state) {
         super(SyncBlockEntities.SHELL_CONSTRUCTOR, pos, state);
     }
@@ -113,10 +111,11 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
             return 0;
         }
 
-        long maxEnergy = (long)((ShellState.PROGRESS_DONE - this.shell.getProgress()) * LF_AMOUNT);
+        long requiredEnergyAmount = Sync.getConfig().shellConstructorCapacity;
+        long maxEnergy = (long)((ShellState.PROGRESS_DONE - this.shell.getProgress()) * requiredEnergyAmount);
         context.addCloseCallback((ctx, result) -> {
             if (result.wasCommitted()) {
-                this.shell.setProgress(this.shell.getProgress() + (float)amount / LF_AMOUNT);
+                this.shell.setProgress(this.shell.getProgress() + (float)amount / requiredEnergyAmount);
             }
         });
         return MathHelper.clamp(amount, 0, maxEnergy);

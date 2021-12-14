@@ -27,6 +27,10 @@ public class SyncConfig implements ConfigData {
     public float hardcoreFingerstickDamage = 40;
 
     @ConfigEntry.Category(value = "energy")
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public long shellConstructorCapacity = 256000;
+
+    @ConfigEntry.Category(value = "energy")
     @ConfigEntry.Gui.RequiresRestart
     public List<EnergyMapEntry> energyMap = new ArrayList<>(List.of(
         new EnergyMapEntry(EntityType.CHICKEN, 2),
