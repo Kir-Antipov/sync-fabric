@@ -38,6 +38,7 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     protected DyeColor color;
     protected int comparatorOutput;
     private AbstractShellContainerBlockEntity secondPart;
+    private AbstractShellContainerBlockEntity bottomPart;
 
     private ShellState syncedShell;
     private BlockPos syncedShellPos;
@@ -83,9 +84,19 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
         return this.secondPart == null ? Optional.ofNullable(this.updateSecondPart(this.world, this.pos, this.world == null ? null : this.getCachedState())) : Optional.of(this.secondPart);
     }
 
+    protected Optional<AbstractShellContainerBlockEntity> getBottomPart() {
+        if (this.bottomPart == null && this.world != null) {
+            this.bottomPart = AbstractShellContainerBlock.isBottom(this.getCachedState()) ? this : this.getSecondPart().orElse(null);
+        }
+        return Optional.ofNullable(this.bottomPart);
+    }
+
     @Override
     public void onServerTick(World world, BlockPos pos, BlockState state) {
         this.updateSecondPart(world, pos, state);
+        if (!AbstractShellContainerBlock.isBottom(state)) {
+            return;
+        }
 
         if (this.shell != null && this.shell.getColor() != this.color) {
             this.shell.setColor(this.color);

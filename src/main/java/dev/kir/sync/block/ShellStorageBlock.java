@@ -18,14 +18,25 @@ import java.util.Random;
 @SuppressWarnings("deprecation")
 public class ShellStorageBlock extends AbstractShellContainerBlock {
     public static final BooleanProperty ENABLED = Properties.ENABLED;
+    public static final BooleanProperty POWERED = Properties.POWERED;
 
     public ShellStorageBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(OPEN, false).with(ENABLED, false));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(OPEN, false).with(ENABLED, false).with(POWERED, false));
     }
 
     public static boolean isEnabled(BlockState state) {
         return state.get(ENABLED);
+    }
+
+    public static boolean isPowered(BlockState state) {
+        return state.get(POWERED);
+    }
+
+    public static void setPowered(BlockState state, World world, BlockPos pos, boolean powered) {
+        if (state.get(POWERED) != powered) {
+            world.setBlockState(pos, state.with(POWERED, powered), 10);
+        }
     }
 
     @Override
@@ -76,6 +87,7 @@ public class ShellStorageBlock extends AbstractShellContainerBlock {
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
         builder.add(ENABLED);
+        builder.add(POWERED);
     }
 
     private static boolean shouldBeEnabled(BlockState state, World world, BlockPos pos) {

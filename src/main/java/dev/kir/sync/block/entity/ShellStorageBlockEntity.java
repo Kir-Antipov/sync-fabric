@@ -1,13 +1,16 @@
 package dev.kir.sync.block.entity;
 
-import dev.kir.sync.util.BlockPosUtil;
-import dev.kir.sync.api.shell.ShellStateContainer;
+import dev.kir.sync.Sync;
 import dev.kir.sync.api.event.PlayerSyncEvents;
+import dev.kir.sync.api.shell.ShellStateContainer;
 import dev.kir.sync.block.AbstractShellContainerBlock;
 import dev.kir.sync.block.ShellStorageBlock;
 import dev.kir.sync.client.gui.ShellSelectorGUI;
+import dev.kir.sync.config.SyncConfig;
+import dev.kir.sync.util.BlockPosUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -20,13 +23,16 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import team.reborn.energy.api.EnergyStorage;
 
-public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
-    private static final int MAX_TICKS_WITHOUT_POWER = 20;
-
+@SuppressWarnings({"deprecation", "UnstableApiUsage"})
+public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity implements EnergyStorage {
     private EntityState entityState;
     private int ticksWithoutPower;
+    private long storedEnergy;
     private final BooleanAnimator connectorAnimator;
 
     public ShellStorageBlockEntity(BlockPos pos, BlockState state) {
@@ -36,7 +42,7 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
     }
 
     public DyeColor getIndicatorColor() {
-        if (this.world != null && ShellStorageBlock.isEnabled(this.getCachedState())) {
+        if (this.world != null && ShellStorageBlock.isPowered(this.getCachedState())) {
             return this.color == null ? DyeColor.LIME : this.color;
         }
 
@@ -53,18 +59,36 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
     @Override
     public void onServerTick(World world, BlockPos pos, BlockState state) {
         super.onServerTick(world, pos, state);
+        if (!ShellStorageBlock.isBottom(state)) {
+            return;
+        }
 
-        boolean isEnabled = ShellStorageBlock.isEnabled(state);
-        boolean shouldBeOpen = this.shell == null && this.getSecondPart().map(x -> x.shell == null).orElse(true) && isEnabled;
+        SyncConfig config = Sync.getConfig();
+        boolean isReceivingRedstonePower = config.shellStorageAcceptsRedstone && ShellStorageBlock.isEnabled(state);
+        boolean hasEnergy = this.storedEnergy > 0;
+        boolean isPowered = isReceivingRedstonePower || hasEnergy;
+        boolean shouldBeOpen = isPowered && this.getBottomPart().map(x -> x.shell == null).orElse(true);
+        BlockPos topPos = pos.offset(Direction.UP);
+        BlockState topState = world.getBlockState(topPos);
+
+        ShellStorageBlock.setPowered(state, world, pos, isPowered);
         ShellStorageBlock.setOpen(state, world, pos, shouldBeOpen);
+        if (topState != null) {
+            ShellStorageBlock.setPowered(topState, world, topPos, isPowered);
+            ShellStorageBlock.setOpen(topState, world, topPos, shouldBeOpen);
+        }
 
-        if (this.shell != null && !isEnabled) {
+        if (this.shell != null && !isPowered) {
             ++this.ticksWithoutPower;
-            if (this.ticksWithoutPower >= MAX_TICKS_WITHOUT_POWER) {
+            if (this.ticksWithoutPower >= config.shellStorageMaxUnpoweredLifespan) {
                 this.destroyShell((ServerWorld)world, pos);
             }
         } else {
             this.ticksWithoutPower = 0;
+        }
+
+        if (!isReceivingRedstonePower && hasEnergy) {
+            this.storedEnergy = MathHelper.clamp(this.storedEnergy - config.shellStorageConsumption, 0, config.shellStorageCapacity);
         }
     }
 
@@ -103,17 +127,60 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
 
     @Override
     public ActionResult onUse(World world, BlockPos pos, PlayerEntity player, Hand hand) {
-        ItemStack stack = player.getStackInHand(hand);
-        Item item = stack.getItem();
-        if (stack.getCount() < 1 || !(item instanceof DyeItem dye)) {
+        if (world.isClient) {
             return ActionResult.SUCCESS;
         }
 
-        if (!world.isClient) {
+        ItemStack stack = player.getStackInHand(hand);
+        Item item = stack.getItem();
+        if (stack.getCount() > 0 && item instanceof DyeItem dye) {
             stack.decrement(1);
             this.color = dye.getColor();
         }
         return ActionResult.SUCCESS;
+    }
+
+    @Override
+    public boolean supportsInsertion() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsExtraction() {
+        return false;
+    }
+
+    @Override
+    public long insert(long amount, TransactionContext context) {
+        ShellStorageBlockEntity bottom = (ShellStorageBlockEntity)this.getBottomPart().orElse(null);
+        if (bottom == null) {
+            return 0;
+        }
+
+        long capacity = bottom.getCapacity();
+        long maxEnergy = MathHelper.clamp(capacity - bottom.storedEnergy, 0, capacity);
+        long inserted = MathHelper.clamp(amount, 0, maxEnergy);
+        context.addCloseCallback((ctx, result) -> {
+            if (result.wasCommitted()) {
+                bottom.storedEnergy += inserted;
+            }
+        });
+        return inserted;
+    }
+
+    @Override
+    public long extract(long amount, TransactionContext context) {
+        return 0;
+    }
+
+    @Override
+    public long getAmount() {
+        return 0;
+    }
+
+    @Override
+    public long getCapacity() {
+        return Sync.getConfig().shellStorageCapacity;
     }
 
     private enum EntityState {
@@ -125,5 +192,6 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity {
 
     static {
         ShellStateContainer.LOOKUP.registerForBlockEntity((x, s) -> x.hasWorld() && AbstractShellContainerBlock.isBottom(x.getCachedState()) && (s == null || s.equals(x.getShellState())) ? x : null, SyncBlockEntities.SHELL_STORAGE);
+        EnergyStorage.SIDED.registerForBlockEntities((x, __) -> (EnergyStorage)x, SyncBlockEntities.SHELL_STORAGE);
     }
 }
