@@ -60,6 +60,12 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
     public static void setOpen(BlockState state, World world, BlockPos pos, boolean open) {
         if (state.get(OPEN) != open) {
             world.setBlockState(pos, state.with(OPEN, open), 10);
+
+            BlockPos secondPos = pos.offset(getDirectionTowardsAnotherPart(state));
+            BlockState secondState = world.getBlockState(secondPos);
+            if (secondState != null) {
+                world.setBlockState(secondPos, secondState.with(OPEN, open), 10);
+            }
         }
     }
 
@@ -110,7 +116,7 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
     @Override
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
         super.onEntityCollision(state, world, pos, entity);
-        if (!world.isClient && entity instanceof PlayerEntity) {
+        if (!world.isClient && entity instanceof PlayerEntity && isBottom(state)) {
             setOpen(state, world, pos, true);
         }
     }
@@ -183,6 +189,9 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        if (!isBottom(state)) {
+            return null;
+        }
         return world.isClient ? TickableBlockEntity::clientTicker : TickableBlockEntity::serverTicker;
     }
 

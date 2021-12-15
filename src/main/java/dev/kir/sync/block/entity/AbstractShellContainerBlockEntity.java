@@ -23,6 +23,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +38,6 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     protected ShellState shell;
     protected DyeColor color;
     protected int comparatorOutput;
-    private AbstractShellContainerBlockEntity secondPart;
     private AbstractShellContainerBlockEntity bottomPart;
 
     private ShellState syncedShell;
@@ -73,31 +73,22 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     }
 
     public int getComparatorOutput() {
-        return Math.max(this.comparatorOutput, this.getSecondPart().map(x -> x.comparatorOutput).orElse(0));
+        return this.getBottomPart().map(x -> x.comparatorOutput).orElse(0);
     }
 
     protected ShellStateManager getShellStateManager() {
         return (ShellStateManager)Objects.requireNonNull(this.world).getServer();
     }
 
-    protected Optional<AbstractShellContainerBlockEntity> getSecondPart() {
-        return this.secondPart == null ? Optional.ofNullable(this.updateSecondPart(this.world, this.pos, this.world == null ? null : this.getCachedState())) : Optional.of(this.secondPart);
-    }
-
     protected Optional<AbstractShellContainerBlockEntity> getBottomPart() {
         if (this.bottomPart == null && this.world != null) {
-            this.bottomPart = AbstractShellContainerBlock.isBottom(this.getCachedState()) ? this : this.getSecondPart().orElse(null);
+            this.bottomPart = AbstractShellContainerBlock.isBottom(this.getCachedState()) ? this : (this.world.getBlockEntity(this.pos.offset(Direction.DOWN)) instanceof AbstractShellContainerBlockEntity x ? x : null);
         }
         return Optional.ofNullable(this.bottomPart);
     }
 
     @Override
     public void onServerTick(World world, BlockPos pos, BlockState state) {
-        this.updateSecondPart(world, pos, state);
-        if (!AbstractShellContainerBlock.isBottom(state)) {
-            return;
-        }
-
         if (this.shell != null && this.shell.getColor() != this.color) {
             this.shell.setColor(this.color);
         }
@@ -132,21 +123,8 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
 
     @Override
     public void onClientTick(World world, BlockPos pos, BlockState state) {
-        this.updateSecondPart(world, pos, state);
         this.doorAnimator.setValue(AbstractShellContainerBlock.isOpen(state));
         this.doorAnimator.step();
-    }
-
-    private AbstractShellContainerBlockEntity updateSecondPart(World world, BlockPos pos, BlockState state) {
-        if (world == null) {
-            return null;
-        }
-
-        BlockPos secondPartPos = pos.offset(AbstractShellContainerBlock.getDirectionTowardsAnotherPart(state));
-        if (this.secondPart == null || !this.secondPart.pos.equals(secondPartPos)) {
-            this.secondPart = world.getBlockEntity(secondPartPos) instanceof AbstractShellContainerBlockEntity shellContainer ? shellContainer : null;
-        }
-        return this.secondPart;
     }
 
     public void onBreak(World world, BlockPos pos) {
@@ -168,9 +146,7 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
 
     @Environment(EnvType.CLIENT)
     public float getDoorOpenProgress(float tickDelta) {
-        float progress = this.doorAnimator.getProgress(tickDelta);
-        float secondProgress = this.getSecondPart().map(second -> second.doorAnimator.getProgress(tickDelta)).orElse(Float.MAX_VALUE);
-        return Math.min(progress, secondProgress);
+        return this.getBottomPart().map(x -> x.doorAnimator.getProgress(tickDelta)).orElse(0f);
     }
 
     @Override

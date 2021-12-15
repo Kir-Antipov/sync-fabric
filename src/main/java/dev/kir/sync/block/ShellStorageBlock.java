@@ -36,6 +36,12 @@ public class ShellStorageBlock extends AbstractShellContainerBlock {
     public static void setPowered(BlockState state, World world, BlockPos pos, boolean powered) {
         if (state.get(POWERED) != powered) {
             world.setBlockState(pos, state.with(POWERED, powered), 10);
+
+            BlockPos secondPos = pos.offset(getDirectionTowardsAnotherPart(state));
+            BlockState secondState = world.getBlockState(secondPos);
+            if (secondState != null) {
+                world.setBlockState(secondPos, secondState.with(POWERED, powered), 10);
+            }
         }
     }
 

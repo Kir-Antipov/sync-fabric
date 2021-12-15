@@ -100,22 +100,16 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
 
     @Override
     public long insert(long amount, TransactionContext context) {
-        if (!AbstractShellContainerBlock.isBottom(this.getCachedState())) {
-            if (this.getSecondPart().orElse(null) instanceof EnergyStorage energyStorage) {
-                return energyStorage.insert(amount, context);
-            }
-            return 0;
-        }
-
-        if (this.shell == null || this.shell.getProgress() >= ShellState.PROGRESS_DONE) {
+        ShellConstructorBlockEntity bottom = (ShellConstructorBlockEntity)this.getBottomPart().orElse(null);
+        if (bottom == null || bottom.shell == null || bottom.shell.getProgress() >= ShellState.PROGRESS_DONE) {
             return 0;
         }
 
         long requiredEnergyAmount = Sync.getConfig().shellConstructorCapacity;
-        long maxEnergy = (long)((ShellState.PROGRESS_DONE - this.shell.getProgress()) * requiredEnergyAmount);
+        long maxEnergy = (long)((ShellState.PROGRESS_DONE - bottom.shell.getProgress()) * requiredEnergyAmount);
         context.addCloseCallback((ctx, result) -> {
             if (result.wasCommitted()) {
-                this.shell.setProgress(this.shell.getProgress() + (float)amount / requiredEnergyAmount);
+                bottom.shell.setProgress(bottom.shell.getProgress() + (float)amount / requiredEnergyAmount);
             }
         });
         return MathHelper.clamp(amount, 0, maxEnergy);

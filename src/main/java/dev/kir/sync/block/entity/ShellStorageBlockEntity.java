@@ -23,7 +23,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import team.reborn.energy.api.EnergyStorage;
@@ -51,32 +50,21 @@ public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity i
 
     @Environment(EnvType.CLIENT)
     public float getConnectorProgress(float tickDelta) {
-        float progress = this.connectorAnimator.getProgress(tickDelta);
-        float secondProgress = this.getSecondPart().map(x -> x instanceof ShellStorageBlockEntity shellStorage ? shellStorage.connectorAnimator.getProgress(tickDelta) : 0).orElse(0F);
-        return Math.max(progress, secondProgress);
+        return this.getBottomPart().map(x -> ((ShellStorageBlockEntity)x).connectorAnimator.getProgress(tickDelta)).orElse(0f);
     }
 
     @Override
     public void onServerTick(World world, BlockPos pos, BlockState state) {
         super.onServerTick(world, pos, state);
-        if (!ShellStorageBlock.isBottom(state)) {
-            return;
-        }
 
         SyncConfig config = Sync.getConfig();
         boolean isReceivingRedstonePower = config.shellStorageAcceptsRedstone && ShellStorageBlock.isEnabled(state);
         boolean hasEnergy = this.storedEnergy > 0;
         boolean isPowered = isReceivingRedstonePower || hasEnergy;
         boolean shouldBeOpen = isPowered && this.getBottomPart().map(x -> x.shell == null).orElse(true);
-        BlockPos topPos = pos.offset(Direction.UP);
-        BlockState topState = world.getBlockState(topPos);
 
         ShellStorageBlock.setPowered(state, world, pos, isPowered);
         ShellStorageBlock.setOpen(state, world, pos, shouldBeOpen);
-        if (topState != null) {
-            ShellStorageBlock.setPowered(topState, world, topPos, isPowered);
-            ShellStorageBlock.setOpen(topState, world, topPos, shouldBeOpen);
-        }
 
         if (this.shell != null && !isPowered) {
             ++this.ticksWithoutPower;
