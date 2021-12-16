@@ -1,10 +1,12 @@
 package dev.kir.sync.block.entity;
 
+import dev.kir.sync.api.networking.ShellDestroyedPacket;
 import dev.kir.sync.api.shell.ShellState;
 import dev.kir.sync.api.shell.ShellStateContainer;
 import dev.kir.sync.api.shell.ShellStateManager;
-import dev.kir.sync.api.networking.ShellDestroyedPacket;
 import dev.kir.sync.block.AbstractShellContainerBlock;
+import dev.kir.sync.item.SimpleInventory;
+import dev.kir.sync.util.ItemUtil;
 import dev.kir.sync.util.nbt.NbtSerializer;
 import dev.kir.sync.util.nbt.NbtSerializerFactory;
 import dev.kir.sync.util.nbt.NbtSerializerFactoryBuilder;
@@ -16,7 +18,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.DoubleBlockProperties;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -31,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
-public abstract class AbstractShellContainerBlockEntity extends BlockEntity implements ShellStateContainer, DoubleBlockEntity, TickableBlockEntity, BlockEntityClientSerializable {
+public abstract class AbstractShellContainerBlockEntity extends BlockEntity implements ShellStateContainer, DoubleBlockEntity, TickableBlockEntity, BlockEntityClientSerializable, Inventory {
     private static final NbtSerializerFactory<AbstractShellContainerBlockEntity> NBT_SERIALIZER_FACTORY;
 
     protected final BooleanAnimator doorAnimator;
@@ -45,6 +50,7 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     private DyeColor syncedShellColor;
     private float syncedShellProgress;
     private DyeColor syncedColor;
+    private boolean inventoryDirty;
 
     private final NbtSerializer<AbstractShellContainerBlockEntity> serializer;
 
@@ -93,13 +99,15 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
             this.shell.setColor(this.color);
         }
 
-        if (this.syncedShell != this.shell || this.syncedColor != this.color || this.shell != null && (!this.shell.getPos().equals(this.syncedShellPos) || !Objects.equals(this.shell.getColor(), this.syncedShellColor) || this.shell.getProgress() != this.syncedShellProgress)) {
+        if (this.inventoryDirty || this.syncedShell != this.shell || this.syncedColor != this.color || this.shell != null && (!this.shell.getPos().equals(this.syncedShellPos) || !Objects.equals(this.shell.getColor(), this.syncedShellColor) || this.shell.getProgress() != this.syncedShellProgress)) {
             this.sync();
             world.markDirty(pos);
 
             ShellStateManager shellManager = this.getShellStateManager();
             if (this.syncedShell != this.shell) {
                 shellManager.remove(this.syncedShell);
+                shellManager.add(this.shell);
+            } else if (this.inventoryDirty) {
                 shellManager.add(this.shell);
             } else {
                 shellManager.update(this.shell);
@@ -118,6 +126,7 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
             this.syncedShellProgress = this.shell == null ? -1 : this.shell.getProgress();
             this.syncedShell = this.shell;
             this.syncedColor = this.color;
+            this.inventoryDirty = false;
         }
     }
 
@@ -173,6 +182,123 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         this.serializer.readNbt(nbt);
+    }
+
+    private static int reorderSlotIndex(int slot, SimpleInventory inventory) {
+        final int mainSize = inventory.main.size();
+        final int armorSize = inventory.armor.size();
+        final int offHandSize = inventory.offHand.size();
+        return (
+            slot >= 0 && slot < armorSize
+                ? (slot + mainSize)
+                : slot >= armorSize && slot < (armorSize + offHandSize)
+                    ? (slot + mainSize)
+                    : (slot - armorSize - offHandSize)
+        );
+    }
+
+    private static boolean isVisibleSlot(int slot, SimpleInventory inventory) {
+        final int armorSize = inventory.armor.size();
+        final int offHandSize = inventory.offHand.size();
+        return slot >= 0 && slot <= (armorSize + offHandSize);
+    }
+
+    @Override
+    public boolean isValid(int slot, ItemStack stack) {
+        AbstractShellContainerBlockEntity bottom = this.getBottomPart().orElse(null);
+        if (bottom == null || bottom.shell == null) {
+            return false;
+        }
+
+        SimpleInventory inventory = bottom.shell.getInventory();
+        final int armorSize = inventory.armor.size();
+        boolean isArmorSlot = slot >= 0 && slot < armorSize;
+        if (isArmorSlot) {
+            EquipmentSlot equipmentSlot = ItemUtil.getPreferredEquipmentSlot(stack);
+            return ItemUtil.isArmor(stack) && equipmentSlot.getType() == EquipmentSlot.Type.ARMOR && slot == equipmentSlot.getEntitySlotId();
+        }
+
+        boolean isOffHandSlot = slot >= armorSize && slot < (armorSize + inventory.offHand.size());
+        if (isOffHandSlot) {
+            return ItemUtil.getPreferredEquipmentSlot(stack) == EquipmentSlot.OFFHAND || inventory.main.stream().noneMatch(x -> x.isEmpty() || (x.getCount() + stack.getCount()) <= x.getMaxCount() && ItemStack.canCombine(x, stack));
+        }
+
+        return true;
+    }
+
+    @Override
+    public ItemStack getStack(int slot) {
+        return this.getBottomPart().filter(x -> x.shell != null).map(x -> x.shell.getInventory().getStack(reorderSlotIndex(slot, x.shell.getInventory()))).orElse(ItemStack.EMPTY);
+    }
+
+    @Override
+    public void setStack(int slot, ItemStack stack) {
+        AbstractShellContainerBlockEntity bottom = this.getBottomPart().orElse(null);
+        if (bottom == null || bottom.shell == null || bottom.shell.getProgress() < ShellState.PROGRESS_DONE) {
+            return;
+        }
+
+        SimpleInventory inventory = bottom.shell.getInventory();
+        inventory.setStack(reorderSlotIndex(slot, inventory), stack);
+        if (isVisibleSlot(slot, inventory)) {
+            bottom.inventoryDirty = true;
+        }
+    }
+
+    @Override
+    public ItemStack removeStack(int slot, int amount) {
+        AbstractShellContainerBlockEntity bottom = this.getBottomPart().orElse(null);
+        if (bottom == null || bottom.shell == null) {
+            return ItemStack.EMPTY;
+        }
+
+        SimpleInventory inventory = bottom.shell.getInventory();
+        ItemStack removed = inventory.removeStack(reorderSlotIndex(slot, inventory), amount);
+        if (!removed.isEmpty() && isVisibleSlot(slot, inventory)) {
+            bottom.inventoryDirty = true;
+        }
+        return removed;
+    }
+
+    @Override
+    public ItemStack removeStack(int slot) {
+        AbstractShellContainerBlockEntity bottom = this.getBottomPart().orElse(null);
+        if (bottom == null || bottom.shell == null) {
+            return ItemStack.EMPTY;
+        }
+
+        SimpleInventory inventory = bottom.shell.getInventory();
+        ItemStack removed = inventory.removeStack(reorderSlotIndex(slot, inventory));
+        if (!removed.isEmpty() && isVisibleSlot(slot, inventory)) {
+            bottom.inventoryDirty = true;
+        }
+        return removed;
+    }
+
+    @Override
+    public void clear() {
+        AbstractShellContainerBlockEntity bottom = this.getBottomPart().orElse(null);
+        if (bottom == null || bottom.shell == null) {
+            return;
+        }
+
+        bottom.shell.getInventory().clear();
+        bottom.inventoryDirty = true;
+    }
+
+    @Override
+    public int size() {
+        return this.getBottomPart().map(x -> x.shell == null || x.shell.getProgress() < ShellState.PROGRESS_DONE ? 0 : x.shell.getInventory().size()).orElse(0);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.getBottomPart().map(x -> x.shell == null || x.shell.getInventory().isEmpty()).orElse(true);
+    }
+
+    @Override
+    public boolean canPlayerUse(PlayerEntity player) {
+        return false;
     }
 
     static {

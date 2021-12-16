@@ -229,7 +229,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
 
     @Override
     public void add(ShellState state) {
-        if (!this.canBeApplied(state) || this.shellsById.get(state.getUuid()) == state) {
+        if (!this.canBeApplied(state)) {
             return;
         }
 

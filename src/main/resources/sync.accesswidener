@@ -2,6 +2,8 @@ accessWidener v1 named
 
 accessible class net/minecraft/block/entity/BlockEntityType$BlockEntityFactory
 
+accessible field net/minecraft/block/DispenserBlock BEHAVIORS Ljava/util/Map;
+
 accessible field net/minecraft/client/model/ModelPart cuboids Ljava/util/List;
 accessible field net/minecraft/client/model/ModelPart children Ljava/util/Map;
 

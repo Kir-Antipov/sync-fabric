@@ -9,6 +9,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.model.AnimalModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
@@ -41,6 +42,11 @@ public class ShellEntityRenderer extends PlayerEntityRenderer {
             RenderLayer layer = this.shellModel.getLayer(player.getSkinTexture());
             VertexConsumer consumer = vertexConsumers.getBuffer(layer);
             this.shellModel.render(matrices, consumer, light, getOverlay(player, tickDelta), 1F, 1F, 1F, 1F);
+            if (shell.getState().getProgress() >= ShellState.PROGRESS_DONE) {
+                for (FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> feature : this.features) {
+                    feature.render(matrices, vertexConsumers, light, player, 0, 0, tickDelta, 0, 0, 0);
+                }
+            }
         } else {
             Direction direction = Direction.fromRotation(yaw);
             matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(yaw));
