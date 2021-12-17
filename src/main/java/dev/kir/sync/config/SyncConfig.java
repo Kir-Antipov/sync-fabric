@@ -61,6 +61,10 @@ public class SyncConfig implements ConfigData {
     public List<ShellPriorityWrapper> syncPriority = new ArrayList<>(List.of(new ShellPriorityWrapper()));
 
     @ConfigEntry.Category(value = "misc")
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public String wrench = "minecraft:stick";
+
+    @ConfigEntry.Category(value = "misc")
     public boolean updateTranslationsAutomatically = false;
 
     public static class ShellPriorityWrapper {

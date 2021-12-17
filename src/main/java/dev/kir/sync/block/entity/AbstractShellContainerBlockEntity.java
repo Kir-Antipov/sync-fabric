@@ -23,6 +23,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -42,7 +43,8 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     protected final BooleanAnimator doorAnimator;
     protected ShellState shell;
     protected DyeColor color;
-    protected int comparatorOutput;
+    protected int progressComparatorOutput;
+    protected int inventoryComparatorOutput;
     private AbstractShellContainerBlockEntity bottomPart;
 
     private ShellState syncedShell;
@@ -51,6 +53,7 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     private float syncedShellProgress;
     private DyeColor syncedColor;
     private boolean inventoryDirty;
+    private boolean visibleInventoryDirty;
 
     private final NbtSerializer<AbstractShellContainerBlockEntity> serializer;
 
@@ -78,8 +81,12 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
         return this.color;
     }
 
-    public int getComparatorOutput() {
-        return this.getBottomPart().map(x -> x.comparatorOutput).orElse(0);
+    public int getProgressComparatorOutput() {
+        return this.getBottomPart().map(x -> x.progressComparatorOutput).orElse(0);
+    }
+
+    public int getInventoryComparatorOutput() {
+        return this.getBottomPart().map(x -> x.inventoryComparatorOutput).orElse(0);
     }
 
     protected ShellStateManager getShellStateManager() {
@@ -99,27 +106,9 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
             this.shell.setColor(this.color);
         }
 
-        if (this.inventoryDirty || this.syncedShell != this.shell || this.syncedColor != this.color || this.shell != null && (!this.shell.getPos().equals(this.syncedShellPos) || !Objects.equals(this.shell.getColor(), this.syncedShellColor) || this.shell.getProgress() != this.syncedShellProgress)) {
-            this.sync();
-            world.markDirty(pos);
-
-            ShellStateManager shellManager = this.getShellStateManager();
-            if (this.syncedShell != this.shell) {
-                shellManager.remove(this.syncedShell);
-                shellManager.add(this.shell);
-            } else if (this.inventoryDirty) {
-                shellManager.add(this.shell);
-            } else {
-                shellManager.update(this.shell);
-            }
-
-            int currentOutput = this.shell == null ? 0 : MathHelper.clamp((int)(this.shell.getProgress() * 15), 1, 15);
-            if (this.comparatorOutput != currentOutput) {
-                this.comparatorOutput = currentOutput;
-                world.updateComparators(pos, state.getBlock());
-                BlockPos anotherPartPos = pos.offset(AbstractShellContainerBlock.getDirectionTowardsAnotherPart(state));
-                world.updateComparators(anotherPartPos, world.getBlockState(anotherPartPos).getBlock());
-            }
+        if (this.requiresSync()) {
+            this.updateShell(this.shell != this.syncedShell, !this.visibleInventoryDirty);
+            this.updateComparatorOutput(world, pos, state);
 
             this.syncedShellPos = this.shell == null ? null : this.shell.getPos();
             this.syncedShellColor = this.shell == null ? null : this.shell.getColor();
@@ -127,6 +116,66 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
             this.syncedShell = this.shell;
             this.syncedColor = this.color;
             this.inventoryDirty = false;
+            this.visibleInventoryDirty = false;
+
+            this.sync();
+            world.markDirty(pos);
+        }
+
+        if (this.inventoryDirty) {
+            this.updateComparatorOutput(world, pos, state);
+            this.inventoryDirty = false;
+            world.markDirty(pos);
+        }
+    }
+
+    private boolean requiresSync() {
+        return (
+            this.visibleInventoryDirty ||
+            this.syncedShell != this.shell ||
+            this.syncedColor != this.color ||
+            this.shell != null && (
+                !this.shell.getPos().equals(this.syncedShellPos) ||
+                !Objects.equals(this.shell.getColor(), this.syncedShellColor) ||
+                this.shell.getProgress() != this.syncedShellProgress
+            )
+        );
+    }
+
+    private void updateShell(boolean isNew, boolean partialUpdate) {
+        ShellStateManager shellManager = this.getShellStateManager();
+        if (isNew) {
+            shellManager.remove(this.syncedShell);
+            shellManager.add(this.shell);
+        } else if (partialUpdate) {
+            shellManager.update(this.shell);
+        } else {
+            shellManager.add(this.shell);
+        }
+    }
+
+    private void updateComparatorOutput(World world, BlockPos pos, BlockState state) {
+        int currentProgressOutput = this.shell == null ? 0 : MathHelper.clamp((int)(this.shell.getProgress() * 15), 1, 15);
+        int currentInventoryOutput = this.shell == null ? 0 : ScreenHandler.calculateComparatorOutput(this.shell.getInventory());
+        BlockPos topPartPos = pos.offset(AbstractShellContainerBlock.getDirectionTowardsAnotherPart(state));
+        BlockState topPartState = world.getBlockState(topPartPos);
+        if (this.progressComparatorOutput != currentProgressOutput) {
+            this.progressComparatorOutput = currentProgressOutput;
+            if (state.get(AbstractShellContainerBlock.OUTPUT) == AbstractShellContainerBlock.ComparatorOutputType.PROGRESS) {
+                world.updateComparators(pos, state.getBlock());
+            }
+            if (topPartState.contains(AbstractShellContainerBlock.OUTPUT) && topPartState.get(AbstractShellContainerBlock.OUTPUT) == AbstractShellContainerBlock.ComparatorOutputType.PROGRESS) {
+                world.updateComparators(topPartPos, topPartState.getBlock());
+            }
+        }
+        if (this.inventoryComparatorOutput != currentInventoryOutput) {
+            this.inventoryComparatorOutput = currentInventoryOutput;
+            if (state.get(AbstractShellContainerBlock.OUTPUT) == AbstractShellContainerBlock.ComparatorOutputType.INVENTORY) {
+                world.updateComparators(pos, state.getBlock());
+            }
+            if (topPartState.contains(AbstractShellContainerBlock.OUTPUT) && topPartState.get(AbstractShellContainerBlock.OUTPUT) == AbstractShellContainerBlock.ComparatorOutputType.INVENTORY) {
+                world.updateComparators(topPartPos, topPartState.getBlock());
+            }
         }
     }
 
@@ -240,9 +289,8 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
 
         SimpleInventory inventory = bottom.shell.getInventory();
         inventory.setStack(reorderSlotIndex(slot, inventory), stack);
-        if (isVisibleSlot(slot, inventory)) {
-            bottom.inventoryDirty = true;
-        }
+        bottom.inventoryDirty = true;
+        bottom.visibleInventoryDirty |= isVisibleSlot(slot, inventory);
     }
 
     @Override
@@ -254,9 +302,8 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
 
         SimpleInventory inventory = bottom.shell.getInventory();
         ItemStack removed = inventory.removeStack(reorderSlotIndex(slot, inventory), amount);
-        if (!removed.isEmpty() && isVisibleSlot(slot, inventory)) {
-            bottom.inventoryDirty = true;
-        }
+        bottom.inventoryDirty = true;
+        bottom.visibleInventoryDirty |= !removed.isEmpty() && isVisibleSlot(slot, inventory);
         return removed;
     }
 
@@ -269,9 +316,8 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
 
         SimpleInventory inventory = bottom.shell.getInventory();
         ItemStack removed = inventory.removeStack(reorderSlotIndex(slot, inventory));
-        if (!removed.isEmpty() && isVisibleSlot(slot, inventory)) {
-            bottom.inventoryDirty = true;
-        }
+        bottom.inventoryDirty = true;
+        bottom.visibleInventoryDirty |= !removed.isEmpty() && isVisibleSlot(slot, inventory);
         return removed;
     }
 
@@ -284,6 +330,7 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
 
         bottom.shell.getInventory().clear();
         bottom.inventoryDirty = true;
+        bottom.visibleInventoryDirty = true;
     }
 
     @Override

@@ -2,6 +2,7 @@ package dev.kir.sync.block;
 
 import dev.kir.sync.block.entity.AbstractShellContainerBlockEntity;
 import dev.kir.sync.block.entity.TickableBlockEntity;
+import dev.kir.sync.util.ItemUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.*;
@@ -20,10 +21,7 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -39,6 +37,7 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
     public static final EnumProperty<DoubleBlockHalf> HALF = Properties.DOUBLE_BLOCK_HALF;
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty OPEN = Properties.OPEN;
+    public static final EnumProperty<ComparatorOutputType> OUTPUT = EnumProperty.of("output", ComparatorOutputType.class);
 
     private static final VoxelShape SOLID_SHAPE_TOP;
     private static final VoxelShape SOLID_SHAPE_BOTTOM;
@@ -53,7 +52,13 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
 
     protected AbstractShellContainerBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(OPEN, false).with(HALF, DoubleBlockHalf.LOWER).with(FACING, Direction.NORTH));
+        this.setDefaultState(
+            this.getStateManager().getDefaultState()
+                .with(OPEN, false)
+                .with(HALF, DoubleBlockHalf.LOWER)
+                .with(FACING, Direction.NORTH)
+                .with(OUTPUT, ComparatorOutputType.PROGRESS)
+        );
     }
 
 
@@ -142,6 +147,14 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (ItemUtil.isWrench(player.getStackInHand(hand))) {
+            if (!world.isClient) {
+                world.setBlockState(pos, state.cycle(OUTPUT), 10);
+                world.updateComparators(pos, state.getBlock());
+            }
+            return ActionResult.SUCCESS;
+        }
+
         if (!isBottom(state)) {
             pos = pos.down();
             state = world.getBlockState(pos);
@@ -164,7 +177,11 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
 
     @Override
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-        return world.getBlockEntity(pos) instanceof AbstractShellContainerBlockEntity shellContainer ? shellContainer.getComparatorOutput() : 0;
+        return world.getBlockEntity(pos) instanceof AbstractShellContainerBlockEntity shellContainer
+                ? state.get(OUTPUT) == ComparatorOutputType.PROGRESS
+                    ? shellContainer.getProgressComparatorOutput()
+                    : shellContainer.getInventoryComparatorOutput()
+                : 0;
     }
 
     @Override
@@ -184,7 +201,7 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(HALF, FACING, OPEN);
+        builder.add(HALF, FACING, OPEN, OUTPUT);
     }
 
     @Override
@@ -210,6 +227,21 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
             case WEST -> isBottom ? WEST_SHAPE_BOTTOM : WEST_SHAPE_TOP;
             default -> throw new IllegalArgumentException();
         };
+    }
+
+    public enum ComparatorOutputType implements StringIdentifiable {
+        PROGRESS,
+        INVENTORY;
+
+        @Override
+        public String asString() {
+            return this == PROGRESS ? "progress" : "inventory";
+        }
+
+        @Override
+        public String toString() {
+            return this.asString();
+        }
     }
 
     static {
