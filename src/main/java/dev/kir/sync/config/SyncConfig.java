@@ -15,15 +15,19 @@ import java.util.List;
 @Config(name = Sync.MOD_ID)
 public class SyncConfig implements ConfigData {
     @ConfigEntry.Category(value = "shell_construction")
+    @ConfigEntry.Gui.Tooltip(count = 2)
     public boolean enableInstantShellConstruction = false;
 
     @ConfigEntry.Category(value = "shell_construction")
+    @ConfigEntry.Gui.Tooltip(count = 2)
     public boolean warnPlayerInsteadOfKilling = false;
 
     @ConfigEntry.Category(value = "shell_construction")
+    @ConfigEntry.Gui.Tooltip(count = 2)
     public float fingerstickDamage = 20;
 
     @ConfigEntry.Category(value = "shell_construction")
+    @ConfigEntry.Gui.Tooltip(count = 2)
     public float hardcoreFingerstickDamage = 40;
 
     @ConfigEntry.Category(value = "energy")
@@ -47,6 +51,7 @@ public class SyncConfig implements ConfigData {
     public int shellStorageMaxUnpoweredLifespan = 20;
 
     @ConfigEntry.Category(value = "energy")
+    @ConfigEntry.Gui.Tooltip(count = 2)
     @ConfigEntry.Gui.RequiresRestart
     public List<EnergyMapEntry> energyMap = new ArrayList<>(List.of(
         new EnergyMapEntry(EntityType.CHICKEN, 2),
@@ -58,6 +63,7 @@ public class SyncConfig implements ConfigData {
     ));
 
     @ConfigEntry.Category(value = "sync")
+    @ConfigEntry.Gui.Tooltip(count = 2)
     public List<ShellPriorityWrapper> syncPriority = new ArrayList<>(List.of(new ShellPriorityWrapper()));
 
     @ConfigEntry.Category(value = "misc")
@@ -65,6 +71,7 @@ public class SyncConfig implements ConfigData {
     public String wrench = "minecraft:stick";
 
     @ConfigEntry.Category(value = "misc")
+    @ConfigEntry.Gui.Tooltip(count = 2)
     public boolean updateTranslationsAutomatically = false;
 
     public static class ShellPriorityWrapper {
