@@ -100,7 +100,7 @@ processResources {
     def fabricModProperties = [
         "version": version,
         "fabric": ">=${loaderDependencyVersion}",
-        "minecraft": minecraftDependencyVersion.replaceFirst(/^(\d+\.\d+)(\.\d+|)$/, '$1.x'),
+        "minecraft": ">=${minecraftDependencyVersion}",
         "smart_recipes": project.smartrecipes_version,
         "cloth_config": project.cloth_version,
         "crowdin_translate": project.crowdin_translate_version,
