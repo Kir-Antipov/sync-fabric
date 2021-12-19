@@ -1,7 +1,7 @@
 ![Logo](media/logo.png)
 
 # Sync (Fabric)
-[![GitHub tag](https://img.shields.io/github/tag/Kir-Antipov/sync-fabric.svg?cacheSeconds=3600)](https://github.com/Kir-Antipov/sync-fabric/releases/latest)
+[![GitHub tag](https://img.shields.io/github/v/tag/Kir-Antipov/sync-fabric.svg?cacheSeconds=3600&sort=date)](https://github.com/Kir-Antipov/sync-fabric/releases/latest)
 [![GitHub build status](https://img.shields.io/github/workflow/status/Kir-Antipov/sync-fabric/build-artifacts/1.17.x/dev?cacheSeconds=3600)](https://github.com/Kir-Antipov/sync-fabric/actions/workflows/build-artifacts.yml)
 [![Modrinth](https://img.shields.io/badge/dynamic/json?color=5da545&label=Modrinth&query=title&url=https://api.modrinth.com/api/v1/mod/sync-fabric&style=flat&cacheSeconds=3600&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMSAxMSIgd2lkdGg9IjE0LjY2NyIgaGVpZ2h0PSIxNC42NjciICB4bWxuczp2PSJodHRwczovL3ZlY3RhLmlvL25hbm8iPjxkZWZzPjxjbGlwUGF0aCBpZD0iQSI+PHBhdGggZD0iTTAgMGgxMXYxMUgweiIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNBKSI+PHBhdGggZD0iTTEuMzA5IDcuODU3YTQuNjQgNC42NCAwIDAgMS0uNDYxLTEuMDYzSDBDLjU5MSA5LjIwNiAyLjc5NiAxMSA1LjQyMiAxMWMxLjk4MSAwIDMuNzIyLTEuMDIgNC43MTEtMi41NTZoMGwtLjc1LS4zNDVjLS44NTQgMS4yNjEtMi4zMSAyLjA5Mi0zLjk2MSAyLjA5MmE0Ljc4IDQuNzggMCAwIDEtMy4wMDUtMS4wNTVsMS44MDktMS40NzQuOTg0Ljg0NyAxLjkwNS0xLjAwM0w4LjE3NCA1LjgybC0uMzg0LS43ODYtMS4xMTYuNjM1LS41MTYuNjk0LS42MjYuMjM2LS44NzMtLjM4N2gwbC0uMjEzLS45MS4zNTUtLjU2Ljc4Ny0uMzcuODQ1LS45NTktLjcwMi0uNTEtMS44NzQuNzEzLTEuMzYyIDEuNjUxLjY0NSAxLjA5OC0xLjgzMSAxLjQ5MnptOS42MTQtMS40NEE1LjQ0IDUuNDQgMCAwIDAgMTEgNS41QzExIDIuNDY0IDguNTAxIDAgNS40MjIgMCAyLjc5NiAwIC41OTEgMS43OTQgMCA0LjIwNmguODQ4QzEuNDE5IDIuMjQ1IDMuMjUyLjgwOSA1LjQyMi44MDljMi42MjYgMCA0Ljc1OCAyLjEwMiA0Ljc1OCA0LjY5MSAwIC4xOS0uMDEyLjM3Ni0uMDM0LjU2bC43NzcuMzU3aDB6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiM1ZGE0MjYiLz48L2c+PC9zdmc+)](https://modrinth.com/mod/sync-fabric)
 [![CurseForge](https://img.shields.io/badge/dynamic/json?color=%23f16436&label=CurseForge&query=title&url=https%3A%2F%2Fapi.cfwidget.com%2F515365&cacheSeconds=3600)](https://www.curseforge.com/minecraft/mc-mods/sync-fabric)
@@ -66,8 +66,82 @@ P.S. - If you aren't brave enough to fight the Wither in Hardcore, you can use [
   - Syncing works cross dimensional, and should support custom dimensions.
   - If you die while using a shell, you'll be immediately synced with your original body *(if you still have one; otherwise your mind will be transferred to a random shell)*.
   - Death of a shell doesn't increase your death counter.
-  - Shell storage should be constantly supplied with redstone power in order to keep stored shell alive.
+  - Shell can be equipped (or unequipped) with armor, tools, etc. via hoppers connected to a corresponding shell container.
+  - Shell storage should be constantly supplied with power in order to keep stored shell alive.
+    - Shell storage can be powered by redstone, if the `shellStorageAcceptsRedstone` option is set to `true`.
+    - Shell storage can be powered by any valid energy source (e.g., treadmills, machinery from popular tech mods, etc.).
+  - It's possible to measure a shell container's state with a comparator.
+    - You can determine progress of the shell construction process via strength of the comparator output.
+    - You can measure the fullness of a shell's inventory via strength of the comparator output.
+    - You can change a comparator output type by right-clicking on a shell container with a wrench.
   - Shell storage and shell constructor are pretty fragile, so don't try to mine them without `silk touch` enchantment.
+
+## Config
+
+The mod is highly configurable. The config is located at `./config/sync.json` and by default looks like this:
+
+```json
+{
+  "enableInstantShellConstruction": false,
+  "warnPlayerInsteadOfKilling": false,
+  "fingerstickDamage": 20.0,
+  "hardcoreFingerstickDamage": 40.0,
+  "shellConstructorCapacity": 256000,
+  "shellStorageCapacity": 320,
+  "shellStorageConsumption": 16,
+  "shellStorageAcceptsRedstone": true,
+  "shellStorageMaxUnpoweredLifespan": 20,
+  "energyMap": [
+    {
+      "entityId": "minecraft:chicken",
+      "outputEnergyQuantity": 2
+    },
+    {
+      "entityId": "minecraft:pig",
+      "outputEnergyQuantity": 16
+    },
+    {
+      "entityId": "minecraft:player",
+      "outputEnergyQuantity": 20
+    },
+    {
+      "entityId": "minecraft:wolf",
+      "outputEnergyQuantity": 24
+    },
+    {
+      "entityId": "minecraft:creeper",
+      "outputEnergyQuantity": 80
+    },
+    {
+      "entityId": "minecraft:enderman",
+      "outputEnergyQuantity": 160
+    }
+  ],
+  "syncPriority": [
+    { "priority": "NATURAL" }
+  ],
+  "wrench": "minecraft:stick",
+  "updateTranslationsAutomatically": false
+}
+```
+
+| Name | Description | Default value |
+| ---- | ----------- | ------------- |
+| `enableInstantShellConstruction` | If this option is enabled, creative-like shells will be constructed immediately, without the use of energy | `false` |
+| `warnPlayerInsteadOfKilling` | If this option is enabled, a player won't be killed by a shell constructor if they don't have enough health to create a new shell | `false` |
+| `fingerstickDamage` | The amount of damage that a shell constructor will deal to a player when they try to create a new shell | `20.0` |
+| `hardcoreFingerstickDamage` | The amount of damage that a shell constructor will deal to a player in the Hardcore mode when they try to create a new shell | `40.0` |
+| `shellConstructorCapacity` | The amount of energy required to construct a new shell | `256000` |
+| `shellStorageCapacity` | Determines capacity of a shell storage's inner battery | `320` |
+| `shellStorageConsumption` | Energy consumption of a shell storage's life support systems (per tick) | `16` |
+| `shellStorageAcceptsRedstone` | If this option is enabled, a shell storage can be powered by redstone | `true` |
+| `shellStorageMaxUnpoweredLifespan` | Determines how many ticks a shell can survive without a power supply connected to the corresponding shell storage | `20` |
+| `energyMap` | Specifies a list of entities that can produce energy via treadmills | [...](#user-content-config) |
+| `syncPriority` | The order of shell selection for synchronization in case of death <br><br>Available `priority` values:<br><ul><li>`NATURAL` - non-artificial shells are prioritized</li><li>`NEAREST` - nearest shells are prioritized</li><li>`WHITE`, `ORANGE`, `MAGENTA`, `LIGHT_BLUE`, `YELLOW`, `LIME`, `PINK`, `GRAY`, `LIGHT_GRAY`, `CYAN`, `PURPLE`, `BLUE`, `BROWN`, `GREEN`, `RED`, `BLACK` - shells of the given color are prioritized</li><ul> | `[{ "priority": "NATURAL" }]` |
+| `wrench` | Identifier of an item that can be used as a wrench in order to change a shell constructor's state | `minecraft:stick` |
+| `updateTranslationsAutomatically` | If this option is enabled, translations will be updated every time the game is launched | `false` |
+
+You can edit any of these values directly in the config file or via [ModMenu](https://github.com/TerraformersMC/ModMenu).
 
 ----
 
@@ -84,7 +158,7 @@ You can help translate the mod to additional languages here: [crowdin.com](https
 ## Installation
 
 Requirements:
- - Minecraft `1.17.x`
+ - Minecraft `1.17.1`
  - Fabric Loader `>=0.11.3`
  - Fabric API `>=0.39.0`
 
