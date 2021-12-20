@@ -27,7 +27,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import team.reborn.energy.api.EnergyStorage;
 
-@SuppressWarnings({"deprecation", "UnstableApiUsage"})
+@SuppressWarnings({"UnstableApiUsage"})
 public class ShellStorageBlockEntity extends AbstractShellContainerBlockEntity implements EnergyStorage {
     private EntityState entityState;
     private int ticksWithoutPower;

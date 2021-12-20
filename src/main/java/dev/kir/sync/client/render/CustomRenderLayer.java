@@ -34,7 +34,7 @@ public final class CustomRenderLayer extends RenderLayer {
     public static RenderLayer getEntityTranslucentPartiallyTextured(Identifier textureId, float cutoutY, boolean affectsOutline) {
         net.minecraft.client.render.Shader shader = CustomGameRenderer.getRenderTypeEntityTranslucentPartiallyTexturedShader();
         shader.getUniformOrDefault("CutoutY").set(cutoutY);
-        shader.getUniformOrDefault("ModelMat").set(MatrixStackStorage.getModelMatrixStack().peek().getModel());
+        shader.getUniformOrDefault("ModelMat").set(MatrixStackStorage.getModelMatrixStack().peek().getPositionMatrix());
         return ENTITY_TRANSLUCENT_PARTIALLY_TEXTURED.apply(textureId, affectsOutline);
     }
 

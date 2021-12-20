@@ -22,7 +22,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 
-@SuppressWarnings({"deprecation", "UnstableApiUsage"})
+@SuppressWarnings({"UnstableApiUsage"})
 public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEntity implements EnergyStorage {
     public ShellConstructorBlockEntity(BlockPos pos, BlockState state) {
         super(SyncBlockEntities.SHELL_CONSTRUCTOR, pos, state);

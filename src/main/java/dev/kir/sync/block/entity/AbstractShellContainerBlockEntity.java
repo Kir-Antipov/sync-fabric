@@ -7,12 +7,8 @@ import dev.kir.sync.api.shell.ShellStateManager;
 import dev.kir.sync.block.AbstractShellContainerBlock;
 import dev.kir.sync.item.SimpleInventory;
 import dev.kir.sync.util.ItemUtil;
-import dev.kir.sync.util.nbt.NbtSerializer;
-import dev.kir.sync.util.nbt.NbtSerializerFactory;
-import dev.kir.sync.util.nbt.NbtSerializerFactoryBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoubleBlockProperties;
@@ -23,6 +19,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -37,9 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
-public abstract class AbstractShellContainerBlockEntity extends BlockEntity implements ShellStateContainer, DoubleBlockEntity, TickableBlockEntity, BlockEntityClientSerializable, Inventory {
-    private static final NbtSerializerFactory<AbstractShellContainerBlockEntity> NBT_SERIALIZER_FACTORY;
-
+public abstract class AbstractShellContainerBlockEntity extends BlockEntity implements ShellStateContainer, DoubleBlockEntity, TickableBlockEntity, Inventory {
     protected final BooleanAnimator doorAnimator;
     protected ShellState shell;
     protected DyeColor color;
@@ -55,13 +53,10 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     private boolean inventoryDirty;
     private boolean visibleInventoryDirty;
 
-    private final NbtSerializer<AbstractShellContainerBlockEntity> serializer;
-
 
     public AbstractShellContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.doorAnimator = new BooleanAnimator(AbstractShellContainerBlock.isOpen(state));
-        this.serializer = NBT_SERIALIZER_FACTORY.create(this);
     }
 
 
@@ -212,25 +207,39 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
         return AbstractShellContainerBlock.getShellContainerHalf(state);
     }
 
-    @Override
-    public void fromClientTag(NbtCompound tag) {
-        this.serializer.readNbt(tag);
+    protected void sync() {
+        if (this.world instanceof ServerWorld serverWorld) {
+            serverWorld.getChunkManager().markForUpdate(this.pos);
+        }
     }
 
     @Override
-    public NbtCompound toClientTag(NbtCompound tag) {
-        return this.serializer.writeNbt(tag);
+    public NbtCompound toInitialChunkDataNbt() {
+        NbtCompound nbt = super.toInitialChunkDataNbt();
+        this.writeNbt(nbt);
+        return nbt;
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        return this.serializer.writeNbt(super.writeNbt(nbt));
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    @Override
+    protected void writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
+        if (this.shell != null) {
+            nbt.put("shell", this.shell.writeNbt(new NbtCompound()));
+        }
+        nbt.putInt("color", this.color == null ? -1 : this.color.getId());
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
-        this.serializer.readNbt(nbt);
+        this.shell = nbt.contains("shell") ? ShellState.fromNbt(nbt.getCompound("shell")) : null;
+        int colorId = nbt.contains("color", NbtElement.INT_TYPE) ? nbt.getInt("color") : -1;
+        this.color = colorId == -1 ? null : DyeColor.byId(colorId);
     }
 
     private static int reorderSlotIndex(int slot, SimpleInventory inventory) {
@@ -346,12 +355,5 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     @Override
     public boolean canPlayerUse(PlayerEntity player) {
         return false;
-    }
-
-    static {
-        NBT_SERIALIZER_FACTORY = new NbtSerializerFactoryBuilder<AbstractShellContainerBlockEntity>()
-            .add(NbtCompound.class,"shell", x -> x.shell == null ? null : x.shell.writeNbt(new NbtCompound()), (x, shell) -> x.shell = shell == null ? null : ShellState.fromNbt(shell))
-            .add(Integer.class,"color", x -> x.color == null ? null : x.color.getId(), (x, color) -> x.color = color == null ? null : DyeColor.byId(color))
-            .build();
     }
 }

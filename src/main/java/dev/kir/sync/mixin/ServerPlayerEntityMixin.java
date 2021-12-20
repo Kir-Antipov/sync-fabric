@@ -16,15 +16,21 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.MessageType;
+import net.minecraft.network.packet.s2c.play.DeathMessageS2CPacket;
 import net.minecraft.network.packet.s2c.play.DifficultyS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.Util;
@@ -64,6 +70,9 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
     @Final
     @Shadow
     public MinecraftServer server;
+
+    @Shadow
+    public ServerPlayNetworkHandler networkHandler;
 
     @Unique
     private boolean isArtificial = false;
@@ -108,7 +117,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
     public Either<ShellState, PlayerSyncEvents.SyncFailureReason> sync(ShellState state) {
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
         BlockPos currentPos = this.getBlockPos();
-        ServerWorld currentWorld = player.getServerWorld();
+        ServerWorld currentWorld = player.getWorld();
 
         if (!this.canBeApplied(state) || state.getProgress() < ShellState.PROGRESS_DONE) {
             return Either.right(PlayerSyncEvents.SyncFailureReason.INVALID_SHELL);
@@ -292,6 +301,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
 
         if (this.world.getGameRules().getBoolean(GameRules.SHOW_DEATH_MESSAGES)) {
             this.sendDeathMessageInChat();
+        } else {
+            this.sendEmptyDeathMessageInChat();
         }
 
         if (this.world.getGameRules().getBoolean(GameRules.FORGIVE_DEAD_PLAYERS)) {
@@ -327,6 +338,14 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
     @Unique
     private void sendDeathMessageInChat() {
         Text text = this.getDamageTracker().getDeathMessage();
+        this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), text), (future) -> {
+            if (!future.isSuccess()) {
+                String truncatedText = text.asTruncatedString(256);
+                Text tooLong = new TranslatableText("death.attack.message_too_long", (new LiteralText(truncatedText)).formatted(Formatting.YELLOW));
+                Text magic = (new TranslatableText("death.attack.even_more_magic", this.getDisplayName())).styled((style) -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooLong)));
+                this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), magic));
+            }
+        });
         AbstractTeam team = this.getScoreboardTeam();
         if (team != null && team.getDeathMessageVisibilityRule() != AbstractTeam.VisibilityRule.ALWAYS) {
             if (team.getDeathMessageVisibilityRule() == AbstractTeam.VisibilityRule.HIDE_FOR_OTHER_TEAMS) {
@@ -335,8 +354,13 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
                 this.server.getPlayerManager().sendToOtherTeams(this, text);
             }
         } else {
-            this.server.getPlayerManager().broadcastChatMessage(text, MessageType.SYSTEM, Util.NIL_UUID);
+            this.server.getPlayerManager().broadcast(text, MessageType.SYSTEM, Util.NIL_UUID);
         }
+    }
+
+    @Unique
+    private void sendEmptyDeathMessageInChat() {
+        this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), LiteralText.EMPTY));
     }
 
     @Shadow

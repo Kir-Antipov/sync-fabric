@@ -11,7 +11,7 @@ buildscript {
 }
 
 plugins {
-    id "fabric-loom" version "0.9-SNAPSHOT"
+    id "fabric-loom" version "0.10-SNAPSHOT"
     id "org.ajoberstar.grgit" version "4.1.0"
 }
 
@@ -20,8 +20,8 @@ crowdintranslate.crowdinProjectname = "sync-fabric"
 crowdintranslate.minecraftProjectName = "sync"
 crowdintranslate.verbose = true
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 String loaderDependencyVersion = project.loader_version.split(/\+/)[0]
 String minecraftDependencyVersion = project.minecraft_version.split(/[+ -]/)[0]
@@ -35,10 +35,6 @@ loom {
 }
 
 repositories {
-    maven {
-        name = "Databreaker"
-        url = "https://maven.gegy.dev/"
-    }
     maven {
         name = "TerraformersMC"
         url = "https://maven.terraformersmc.com/"
@@ -89,11 +85,6 @@ dependencies {
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
     modImplementation "dev.emi:trinkets:${project.trinkets_version}"
     modImplementation "io.github.ladysnake:requiem-api:${project.requiem_version}"
-
-    // Minecraft 1.17 is slow as heck
-    modRuntime("supercoder79:databreaker:${project.databreaker_version}") {
-        transitive = false
-    }
 }
 
 processResources {
@@ -121,7 +112,7 @@ tasks.withType(JavaCompile).configureEach {
     // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
     // If Javadoc is generated, this must be specified in that task too.
     it.options.encoding = "UTF-8"
-    it.options.release.set(16)
+    it.options.release.set(17)
 }
 
 java {

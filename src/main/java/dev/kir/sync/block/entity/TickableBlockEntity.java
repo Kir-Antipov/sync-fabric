@@ -26,5 +26,6 @@ public interface TickableBlockEntity {
         this.onTick(world, pos, state);
     }
 
+    @SuppressWarnings("unused")
     default void onTick(World world, BlockPos pos, BlockState state) { }
 }

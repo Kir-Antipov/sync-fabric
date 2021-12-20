@@ -54,7 +54,7 @@ public class MSAAFramebuffer extends Framebuffer {
     }
 
     public static void use(int samples, Framebuffer mainBuffer, Runnable drawAction) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         MSAAFramebuffer msaaBuffer = MSAAFramebuffer.getInstance(samples);
         msaaBuffer.resize(mainBuffer.textureWidth, mainBuffer.textureHeight, true);
 
@@ -99,7 +99,7 @@ public class MSAAFramebuffer extends Framebuffer {
     }
 
     private static void executeDelayedRenderCalls(int samples) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         ConcurrentLinkedQueue<Runnable> queue = RENDER_CALLS.getOrDefault(samples, Queues.newConcurrentLinkedQueue());
         while(!queue.isEmpty()) {
             queue.poll().run();
@@ -115,7 +115,7 @@ public class MSAAFramebuffer extends Framebuffer {
 
     @Override
     public void initFbo(int width, int height, boolean getError) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         int maxSize = RenderSystem.maxSupportedTextureSize();
         if (width <= 0 || width > maxSize || height <= 0 || height > maxSize) {
             throw new IllegalArgumentException("Window " + width + "x" + height + " size out of bounds (max. size: " + maxSize + ")");
@@ -152,7 +152,7 @@ public class MSAAFramebuffer extends Framebuffer {
 
     @Override
     public void delete() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         this.endRead();
         this.endWrite();
 

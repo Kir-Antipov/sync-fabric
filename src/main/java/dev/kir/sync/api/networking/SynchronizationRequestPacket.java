@@ -55,7 +55,7 @@ public class SynchronizationRequestPacket implements ServerPlayerPacket {
         ShellState state = shell.getShellStateByUuid(this.shellUuid);
 
         BlockPos currentPos = player.getBlockPos();
-        ServerWorld currentWorld = player.getServerWorld();
+        ServerWorld currentWorld = player.getWorld();
         Identifier currentWorldId = WorldUtil.getId(currentWorld);
         Direction currentFacing = BlockPosUtil.getHorizontalFacing(currentPos, currentWorld).orElse(player.getHorizontalFacing().getOpposite());
 

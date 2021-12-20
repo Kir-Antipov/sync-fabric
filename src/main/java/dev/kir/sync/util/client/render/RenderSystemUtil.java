@@ -33,7 +33,7 @@ public final class RenderSystemUtil {
 
     public static void drawAnnulusSector(MatrixStack matrices, VertexConsumer consumer, double cX, double cY, double majorR, double minorR, double from, double to, double step, float r, float g, float b, float a) {
         to += step / 32;
-        Matrix4f matrix = matrices.peek().getModel();
+        Matrix4f matrix = matrices.peek().getPositionMatrix();
         for (double i = from; i < to; i += step) {
             double sin = Math.sin(i);
             double cos = Math.cos(i);
@@ -59,7 +59,7 @@ public final class RenderSystemUtil {
         matrices.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(rotation));
         matrices.scale(scale, scale, 1);
         matrices.translate(-x, -y, 0);
-        Matrix4f matrix = matrices.peek().getModel();
+        Matrix4f matrix = matrices.peek().getPositionMatrix();
 
         drawQuadrant(matrix, consumer, x + width - borderRadius, y + height - borderRadius, borderRadius, 0, step, r, g, b, a);
         drawQuadrant(matrix, consumer, x + borderRadius, y + height - borderRadius, borderRadius, 1, step, r, g, b, a);
@@ -142,7 +142,7 @@ public final class RenderSystemUtil {
         matrices.translate(cX, cY, 0);
         matrices.scale(scale, scale, 1F);
         matrices.translate(-cX, -cY, 0);
-        textRenderer.draw(text, cX, cY, color, shadow, matrices.peek().getModel(), vertexConsumers, false, backgroundColor, MAX_LIGHT_LEVEL);
+        textRenderer.draw(text, cX, cY, color, shadow, matrices.peek().getPositionMatrix(), vertexConsumers, false, backgroundColor, MAX_LIGHT_LEVEL);
         matrices.pop();
     }
 }

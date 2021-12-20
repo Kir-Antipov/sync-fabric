@@ -4,7 +4,6 @@ import dev.kir.sync.block.TreadmillBlock;
 import dev.kir.sync.api.event.EntityFitnessEvents;
 import dev.kir.sync.config.SyncConfig;
 import dev.kir.sync.Sync;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoubleBlockProperties;
@@ -15,6 +14,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -27,8 +30,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"deprecation", "UnstableApiUsage"})
-public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEntity, TickableBlockEntity, EnergyStorage, BlockEntityClientSerializable {
+@SuppressWarnings({"UnstableApiUsage"})
+public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEntity, TickableBlockEntity, EnergyStorage {
     private static final int MAX_RUNNING_TIME = 20 * 60 * 15; // ticks -> seconds -> minutes
     private static final double MAX_SQUARED_DISTANCE = 0.5;
     private static final Map<EntityType<? extends Entity>, Long> ENERGY_MAP;
@@ -231,40 +234,46 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
         return this.cachedBackPart;
     }
 
+    protected void sync() {
+        if (this.world instanceof ServerWorld serverWorld) {
+            serverWorld.getChunkManager().markForUpdate(this.pos);
+        }
+    }
+
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        NbtCompound nbt = super.toInitialChunkDataNbt();
+        this.writeNbt(nbt);
+        return nbt;
+    }
+
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         this.runnerUUID = nbt.containsUuid("runner") ? nbt.getUuid("runner") : null;
+        this.runnerId = nbt.contains("runnerId", NbtElement.INT_TYPE) ? nbt.getInt("runnerId") : -1;
         this.producibleEnergyQuantity = nbt.getLong("energy");
         this.runningTime = nbt.getInt("time");
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
-        UUID runnerId = this.runnerUUID == null ? this.runner == null ? null : this.runner.getUuid() : this.runnerUUID;
+        UUID runnerUuid = this.runnerUUID == null ? this.runner == null ? null : this.runner.getUuid() : this.runnerUUID;
+        if (runnerUuid != null) {
+            nbt.putUuid("runner", runnerUuid);
+        }
+        Integer runnerId = this.runner == null ? null : this.runner.getId();
         if (runnerId != null) {
-            nbt.putUuid("runner", runnerId);
+            nbt.putInt("runnerId", runnerId);
         }
         nbt.putLong("energy", this.producibleEnergyQuantity);
         nbt.putInt("time", this.runningTime);
-        return nbt;
-    }
-
-    @Override
-    public void fromClientTag(NbtCompound nbt) {
-        this.runnerId = nbt.contains("runner") ? nbt.getInt("runner") : -1;
-        this.runningTime = nbt.getInt("time");
-    }
-
-    @Override
-    public NbtCompound toClientTag(NbtCompound nbt) {
-        Integer runnerId = this.runnerId == null ? this.runner == null ? null : this.runner.getId() : this.runnerId;
-        if (runnerId != null) {
-            nbt.putInt("runner", runnerId);
-        }
-        nbt.putInt("time", this.runningTime);
-        return nbt;
     }
 
     private static Long getOutputEnergyQuantityForEntity(Entity entity, EnergyStorage energyStorage) {

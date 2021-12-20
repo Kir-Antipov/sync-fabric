@@ -58,8 +58,8 @@ public class ShellStorageBlock extends AbstractShellContainerBlock {
             if (enabled != shouldBeEnabled) {
                 BlockPos secondPartPos = pos.offset(getDirectionTowardsAnotherPart(state));
                 if (enabled) {
-                    world.getBlockTickScheduler().schedule(pos, this, 4);
-                    world.getBlockTickScheduler().schedule(secondPartPos, this, 4);
+                    world.createAndScheduleBlockTick(pos, this, 4);
+                    world.createAndScheduleBlockTick(secondPartPos, this, 4);
                 } else {
                     world.setBlockState(pos, state.with(ENABLED, true), 2);
                     BlockState secondPartState = world.getBlockState(secondPartPos);
