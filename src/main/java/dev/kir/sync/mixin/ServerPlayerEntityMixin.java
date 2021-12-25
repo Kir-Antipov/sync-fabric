@@ -174,6 +174,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
             return;
         }
 
+        this.stopRiding();
         this.dropShoulderEntities();
         this.extinguish();
         this.setFrozenTicks(0);
