@@ -130,9 +130,6 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         boolean bottom = isBottom(state);
         BlockPos bottomPos = bottom ? pos : pos.down();
-        if (world.getBlockEntity(bottomPos) instanceof AbstractShellContainerBlockEntity shellContainer) {
-            shellContainer.onBreak(world, bottomPos);
-        }
         if (!world.isClient && player.isCreative()) {
             if (!bottom) {
                 BlockState blockState = world.getBlockState(bottomPos);
@@ -143,6 +140,16 @@ public abstract class AbstractShellContainerBlock extends BlockWithEntity {
             }
         }
         super.onBreak(world, pos, state, player);
+    }
+
+    @Override
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (!state.isOf(newState.getBlock())) {
+            if (isBottom(state) && world.getBlockEntity(pos) instanceof AbstractShellContainerBlockEntity shellContainer) {
+                shellContainer.onBreak(world, pos);
+            }
+            world.removeBlockEntity(pos);
+        }
     }
 
     @Override

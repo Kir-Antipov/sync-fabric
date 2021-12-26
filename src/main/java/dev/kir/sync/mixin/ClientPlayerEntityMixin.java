@@ -97,11 +97,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     @Override
     public void endSync(Identifier startWorld, BlockPos startPos, Direction startFacing, Identifier targetWorld, BlockPos targetPos, Direction targetFacing, @Nullable ShellState storedState) {
         ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
+        boolean syncFailed = Objects.equals(startPos, targetPos);
 
-        if (this.getHealth() <= 0) {
-            this.setHealth(0.01F);
+        if (!syncFailed) {
+            if (this.getHealth() <= 0) {
+                this.setHealth(0.01F);
+            }
+            this.deathTime = 0;
         }
-        this.deathTime = 0;
 
         float yaw = targetFacing.getOpposite().asRotation();
         this.setYaw(yaw);
@@ -118,8 +121,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
             PersistentCameraEntity.unset(this.client);
             HudController.restore();
             DeathScreenController.restore();
-
-            boolean syncFailed = Objects.equals(startPos, targetPos);
             if (!syncFailed) {
                 PlayerSyncEvents.STOP_SYNCING.invoker().onStopSyncing(this, startPos, storedState);
             }

@@ -65,6 +65,25 @@ repositories {
         name = "CrowdinTranslate"
         url = "https://minecraft.guntram.de/maven/"
     }
+    maven {
+        name = "JitPack"
+        url = "https://jitpack.io"
+        content {
+            includeGroupByRegex "(io|com)\\.github\\..*"
+        }
+    }
+    maven {
+        url = "https://maven.jamieswhiteshirt.com/libs-release/"
+        content {
+            includeGroup "com.jamieswhiteshirt"
+        }
+    }
+    maven {
+        url = "https://maven.cafeteria.dev"
+        content {
+            includeGroup "net.adriantodt.fabricmc"
+        }
+    }
 }
 
 // To change the versions see the gradle.properties file
@@ -85,6 +104,7 @@ dependencies {
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
     modImplementation "dev.emi:trinkets:${project.trinkets_version}"
     modImplementation "io.github.ladysnake:requiem-api:${project.requiem_version}"
+    modImplementation "com.github.apace100:origins-fabric:${project.origins_version}"
 }
 
 processResources {
@@ -98,7 +118,8 @@ processResources {
         "team_reborn_energy": project.tr_energy_version,
         "modmenu": ">=${project.modmenu_version}",
         "trinkets": ">=${project.trinkets_version}",
-        "requiem": ">=${project.requiem_version}"
+        "requiem": ">=${project.requiem_version}",
+        "origins": ">=${project.origins_version}",
     ]
 
     filesMatching("fabric.mod.json") {
