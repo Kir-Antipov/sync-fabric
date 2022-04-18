@@ -123,7 +123,7 @@ public class ShellSelectorButtonWidget extends AbstractWidget {
         PlayerSyncEvents.SyncFailureReason failureReason = ((ClientShell)client.player).beginSync(this.shell);
         if (failureReason != null) {
             if (client.currentScreen != null) {
-                client.currentScreen.onClose();
+                client.currentScreen.close();
             }
             client.player.sendMessage(failureReason.toText(), true);
         }

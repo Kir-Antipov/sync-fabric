@@ -2,17 +2,17 @@ package dev.kir.sync.util;
 
 import dev.kir.sync.Sync;
 import dev.kir.sync.config.SyncConfig;
-import net.fabricmc.fabric.api.tag.TagFactory;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.*;
 import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public final class ItemUtil {
-    private static final Tag<Item> WRENCHES = TagFactory.ITEM.create(new Identifier("c:wrenches"));
+    private static final TagKey<Item> WRENCHES = TagKey.of(Registry.ITEM_KEY, new Identifier("c:wrenches"));
 
     public static boolean isWrench(ItemStack itemStack) {
         if (itemStack.isIn(WRENCHES)) {

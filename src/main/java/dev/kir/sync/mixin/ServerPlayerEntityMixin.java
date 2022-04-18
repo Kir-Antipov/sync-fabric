@@ -440,7 +440,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
         ServerPlayerEntity serverPlayer = (ServerPlayerEntity)(Object)this;
 
         WorldProperties worldProperties = targetWorld.getLevelProperties();
-        serverPlayer.networkHandler.sendPacket(new PlayerRespawnS2CPacket(targetWorld.getDimension(), targetWorld.getRegistryKey(), BiomeAccess.hashSeed(targetWorld.getSeed()), serverPlayer.interactionManager.getGameMode(), serverPlayer.interactionManager.getPreviousGameMode(), targetWorld.isDebugWorld(), targetWorld.isFlat(), true));
+        //wtaf is method_40134?
+        serverPlayer.networkHandler.sendPacket(new PlayerRespawnS2CPacket(targetWorld.method_40134(), targetWorld.getRegistryKey(), BiomeAccess.hashSeed(targetWorld.getSeed()), serverPlayer.interactionManager.getGameMode(), serverPlayer.interactionManager.getPreviousGameMode(), targetWorld.isDebugWorld(), targetWorld.isFlat(), true));
         serverPlayer.networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
         PlayerManager playerManager = Objects.requireNonNull(this.world.getServer()).getPlayerManager();
         playerManager.sendCommandTree(serverPlayer);
