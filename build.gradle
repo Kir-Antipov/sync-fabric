@@ -84,6 +84,7 @@ repositories {
             includeGroup "net.adriantodt.fabricmc"
         }
     }
+    mavenLocal()
 }
 
 // To change the versions see the gradle.properties file
@@ -96,7 +97,7 @@ dependencies {
 
     modImplementation(include("de.guntram.mcmod:crowdin-translate:${project.crowdin_translate_version}"))
     modImplementation(include("teamreborn:energy:${project.tr_energy_version}"))
-    modImplementation(include("maven.modrinth:smart-recipes:${project.smartrecipes_version}"))
+    modImplementation(include("dev.kir:smart-recipes:${project.smartrecipes_version}"))
     modImplementation(include("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}"), {
         exclude group: "net.fabricmc.fabric-api"
     })
