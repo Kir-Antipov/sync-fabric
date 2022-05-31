@@ -10,16 +10,14 @@ import dev.kir.sync.api.shell.*;
 import dev.kir.sync.util.BlockPosUtil;
 import dev.kir.sync.util.WorldUtil;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.MessageType;
-import net.minecraft.network.packet.s2c.play.DeathMessageS2CPacket;
-import net.minecraft.network.packet.s2c.play.DifficultyS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
@@ -367,6 +365,9 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
     @Shadow
     protected abstract void forgiveMobAnger();
 
+    @Shadow
+    protected abstract void worldChanged(ServerWorld origin);
+
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
     private void writeCustomDataToNbt(NbtCompound nbt, CallbackInfo ci) {
         NbtList shellList = new NbtList();
@@ -440,7 +441,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
         ServerPlayerEntity serverPlayer = (ServerPlayerEntity)(Object)this;
 
         WorldProperties worldProperties = targetWorld.getLevelProperties();
-        //wtaf is method_40134?
+        // method_40134() -> GetDimensionRegistryKey()
         serverPlayer.networkHandler.sendPacket(new PlayerRespawnS2CPacket(targetWorld.method_40134(), targetWorld.getRegistryKey(), BiomeAccess.hashSeed(targetWorld.getSeed()), serverPlayer.interactionManager.getGameMode(), serverPlayer.interactionManager.getPreviousGameMode(), targetWorld.isDebugWorld(), targetWorld.isFlat(), true));
         serverPlayer.networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
         PlayerManager playerManager = Objects.requireNonNull(this.world.getServer()).getPlayerManager();
@@ -451,8 +452,12 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
         targetWorld.onPlayerChangeDimension(serverPlayer);
         this.setRotation(yaw, pitch);
         this.refreshPositionAfterTeleport(x, y, z);
+        this.worldChanged(targetWorld);
         serverPlayer.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(serverPlayer.getAbilities()));
         playerManager.sendWorldInfo(serverPlayer, targetWorld);
         playerManager.sendPlayerStatus(serverPlayer);
+        for (StatusEffectInstance statusEffectInstance : this.getStatusEffects()) {
+            this.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(this.getId(), statusEffectInstance));
+        }
     }
 }
