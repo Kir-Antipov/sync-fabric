@@ -40,6 +40,9 @@ public class ShellEntity extends AbstractClientPlayerEntity {
         state.getInventory().copyTo(this.getInventory());
         this.playerEntry = getPlayerEntry(state);
         this.refreshPositionAndAngles(state.getPos(), 0, 0);
+        this.prevCapeX = this.capeX = getX() + 0.5;
+        this.prevCapeY = this.capeY = getY();
+        this.prevCapeZ = this.capeZ = getZ() + 0.5;
 
         if (this.onInitialized != null) {
             this.onInitialized.run();
