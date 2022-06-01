@@ -59,7 +59,7 @@ public class ShellSelectorGUI extends Screen {
 
         this.wasClosed = false;
         this.arrowButtons = createArrowButtons(this.width, this.height, ARROW_TITLES, List.of(this::previousSection, this::nextPage, this::nextSection, this::previousPage));
-        this.crossButton = createCrossButton(this.width, this.height, this::onClose);
+        this.crossButton = createCrossButton(this.width, this.height, this::close);
         this.pageDisplay = createPageDisplay(this.width, this.height, data, selectedWorld, MAX_SLOTS, this::onPageChange);
         Stream.concat(this.arrowButtons.stream(), Stream.of(this.crossButton, this.pageDisplay)).forEach(this::addDrawableChild);
 
@@ -196,7 +196,7 @@ public class ShellSelectorGUI extends Screen {
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return false;
     }
 
@@ -235,13 +235,13 @@ public class ShellSelectorGUI extends Screen {
     }
 
     @Override
-    public void onClose() {
+    public void close() {
         HudController.restore();
         if (this.onCloseCallback != null) {
             this.onCloseCallback.run();
         }
         this.wasClosed = true;
-        super.onClose();
+        super.close();
     }
 
     @Override
