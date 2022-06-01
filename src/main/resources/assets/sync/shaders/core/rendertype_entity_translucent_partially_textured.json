@@ -4,8 +4,8 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "rendertype_entity_translucent_partially_textured",
-  "fragment": "rendertype_entity_translucent_partially_textured",
+  "vertex": "sync:rendertype_entity_translucent_partially_textured",
+  "fragment": "sync:rendertype_entity_translucent_partially_textured",
   "attributes": [
     "Position",
     "Color",

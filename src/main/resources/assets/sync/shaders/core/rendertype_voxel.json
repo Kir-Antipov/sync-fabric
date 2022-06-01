@@ -4,8 +4,8 @@
         "srcrgb": "srcalpha",
         "dstrgb": "1-srcalpha"
     },
-    "vertex": "rendertype_voxel",
-    "fragment": "rendertype_voxel",
+    "vertex": "sync:rendertype_voxel",
+    "fragment": "sync:rendertype_voxel",
     "attributes": [
         "Position",
         "Color",

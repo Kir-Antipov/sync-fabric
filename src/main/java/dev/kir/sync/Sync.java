@@ -1,6 +1,7 @@
 package dev.kir.sync;
 
 import de.guntram.mcmod.crowdintranslate.CrowdinTranslate;
+import dev.kir.sync.client.render.CustomGameRenderer;
 import dev.kir.sync.networking.SyncPackets;
 import dev.kir.sync.block.SyncBlocks;
 import dev.kir.sync.block.entity.SyncBlockEntities;
@@ -41,6 +42,7 @@ public class Sync implements ModInitializer, ClientModInitializer {
     @Override
     @Environment(EnvType.CLIENT)
     public void onInitializeClient() {
+        CustomGameRenderer.initClient();
         SyncRenderers.initClient();
         SyncPackets.initClient();
 
