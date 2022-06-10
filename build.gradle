@@ -112,10 +112,10 @@ processResources {
         "fabric": ">=${loaderDependencyVersion}",
         "minecraft": ">=${minecraftDependencyVersion}",
         "smart_recipes": project.smartrecipes_version,
-        "cloth_config": project.cloth_version,
         "satin_api": project.satin_version,
         "crowdin_translate": project.crowdin_translate_version,
         "team_reborn_energy": project.tr_energy_version,
+        "cloth_config": ">=${project.cloth_version}",
         "modmenu": ">=${project.modmenu_version}",
         "trinkets": ">=${project.trinkets_version}",
         "requiem": ">=${project.requiem_version}",
@@ -144,11 +144,11 @@ jar {
     from "LICENSE.md"
 }
 
-@SuppressWarnings('GrMethodMayBeStatic') // It cannot
+@SuppressWarnings("GrMethodMayBeStatic") // It cannot
 String getVersionMetadata() {
     // Release builds don't require additional metadata
-    String release_tag = System.getenv("RELEASE_TAG")
-    if (release_tag != null && release_tag.length() != 0) {
+    String ref = System.getenv("GITHUB_REF")
+    if (ref != null && ref.startsWith("refs/tags/")) {
         return ""
     }
 
@@ -158,9 +158,8 @@ String getVersionMetadata() {
         return "+build.${build_id}"
     }
 
-    if (grgit != null) {
-        def head = grgit.head()
-        def id = head.abbreviatedId
+    if (grgit != null && grgit.head() != null) {
+        def id = grgit.head().abbreviatedId
 
         // Flag the build if the build tree is not clean
         if (!grgit.status().clean) {
