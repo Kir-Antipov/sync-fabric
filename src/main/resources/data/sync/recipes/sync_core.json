@@ -28,7 +28,7 @@
   "result": {
     "item": "sync:sync_core"
   },
-  "conditions": {
+  "smart_recipes:conditions": {
     "not": "is_hardcore"
   }
 }
