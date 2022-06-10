@@ -50,12 +50,12 @@
   },
   "includes": {
     "smart-recipes": "${smart_recipes}",
-    "cloth-config": "${cloth_config}",
     "satin-api": "${satin_api}",
     "crowdin-translate": "${crowdin_translate}",
     "team_reborn_energy": "${team_reborn_energy}"
   },
   "suggests": {
+    "cloth-config": "${cloth_config}",
     "modmenu": "${modmenu}",
     "trinkets": "${trinkets}",
     "origins": "${origins}",

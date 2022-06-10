@@ -1,115 +1,118 @@
 package dev.kir.sync.config;
 
-import dev.kir.sync.Sync;
 import dev.kir.sync.api.shell.ShellPriority;
-import me.shedaniel.autoconfig.ConfigData;
-import me.shedaniel.autoconfig.annotation.Config;
-import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import dev.kir.sync.compat.cloth.SyncClothConfig;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Config(name = Sync.MOD_ID)
-public class SyncConfig implements ConfigData {
-    @ConfigEntry.Category(value = "shell_construction")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public boolean enableInstantShellConstruction = false;
+public interface SyncConfig {
+    List<EnergyMapEntry> DEFAULT_ENERGY_MAP = List.of(
+        EnergyMapEntry.of(EntityType.CHICKEN, 2),
+        EnergyMapEntry.of(EntityType.PIG, 16),
+        EnergyMapEntry.of(EntityType.PLAYER, 20),
+        EnergyMapEntry.of(EntityType.WOLF, 24),
+        EnergyMapEntry.of(EntityType.CREEPER, 80),
+        EnergyMapEntry.of(EntityType.ENDERMAN, 160)
+    );
 
-    @ConfigEntry.Category(value = "shell_construction")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public boolean warnPlayerInsteadOfKilling = false;
+    List<ShellPriorityEntry> DEFAULT_SYNC_PRIORITY = List.of(new ShellPriorityEntry() { });
 
-    @ConfigEntry.Category(value = "shell_construction")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public float fingerstickDamage = 20;
+    static SyncConfig resolve() {
+        return FabricLoader.getInstance().isModLoaded("cloth-config") ? SyncClothConfig.getInstance() : new SyncConfig() { };
+    }
 
-    @ConfigEntry.Category(value = "shell_construction")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public float hardcoreFingerstickDamage = 40;
+    default boolean enableInstantShellConstruction() {
+        return false;
+    }
 
-    @ConfigEntry.Category(value = "energy")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public long shellConstructorCapacity = 256000;
+    default boolean warnPlayerInsteadOfKilling() {
+        return false;
+    }
 
-    @ConfigEntry.Category(value = "energy")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public long shellStorageCapacity = 320;
+    default float fingerstickDamage() {
+        return 20F;
+    }
 
-    @ConfigEntry.Category(value = "energy")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public long shellStorageConsumption = 16;
+    default float hardcoreFingerstickDamage() {
+        return 40F;
+    }
 
-    @ConfigEntry.Category(value = "energy")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public boolean shellStorageAcceptsRedstone = true;
+    default long shellConstructorCapacity() {
+        return 256000;
+    }
 
-    @ConfigEntry.Category(value = "energy")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public int shellStorageMaxUnpoweredLifespan = 20;
+    default long shellStorageCapacity() {
+        return 320;
+    }
 
-    @ConfigEntry.Category(value = "energy")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    @ConfigEntry.Gui.RequiresRestart
-    public List<EnergyMapEntry> energyMap = new ArrayList<>(List.of(
-        new EnergyMapEntry(EntityType.CHICKEN, 2),
-        new EnergyMapEntry(EntityType.PIG, 16),
-        new EnergyMapEntry(EntityType.PLAYER, 20),
-        new EnergyMapEntry(EntityType.WOLF, 24),
-        new EnergyMapEntry(EntityType.CREEPER, 80),
-        new EnergyMapEntry(EntityType.ENDERMAN, 160)
-    ));
+    default long shellStorageConsumption() {
+        return 16;
+    }
 
-    @ConfigEntry.Category(value = "sync")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public List<ShellPriorityWrapper> syncPriority = new ArrayList<>(List.of(new ShellPriorityWrapper()));
+    default boolean shellStorageAcceptsRedstone() {
+        return true;
+    }
 
-    @ConfigEntry.Category(value = "misc")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public String wrench = "minecraft:stick";
+    default int shellStorageMaxUnpoweredLifespan() {
+        return 20;
+    }
 
-    @ConfigEntry.Category(value = "misc")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public boolean updateTranslationsAutomatically = false;
+    default List<EnergyMapEntry> energyMap() {
+        return DEFAULT_ENERGY_MAP;
+    }
 
-    public static class ShellPriorityWrapper {
-        @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-        public ShellPriority priority;
+    default List<ShellPriorityEntry> syncPriority() {
+        return DEFAULT_SYNC_PRIORITY;
+    }
 
-        public ShellPriorityWrapper() {
-            this(ShellPriority.NATURAL);
+    default String wrench() {
+        return "minecraft:stick";
+    }
+
+    default boolean updateTranslationsAutomatically() {
+        return false;
+    }
+
+    interface EnergyMapEntry {
+        default String entityId() {
+            return "minecraft:pig";
         }
 
-        public ShellPriorityWrapper(ShellPriority priority) {
-            this.priority = priority;
+        default long outputEnergyQuantity() {
+            return 16;
+        }
+
+        default EntityType<?> getEntityType() {
+            Identifier id = Identifier.tryParse(this.entityId());
+            return id == null ? EntityType.PIG : Registry.ENTITY_TYPE.get(id);
+        }
+
+        static EnergyMapEntry of(EntityType<?> entityType, long outputEnergyQuantity) {
+            return of(Registry.ENTITY_TYPE.getId(entityType).toString(), outputEnergyQuantity);
+        }
+
+        static EnergyMapEntry of(String id, long outputEnergyQuantity) {
+            return new EnergyMapEntry() {
+                @Override
+                public String entityId() {
+                    return id;
+                }
+
+                @Override
+                public long outputEnergyQuantity() {
+                    return outputEnergyQuantity;
+                }
+            };
         }
     }
 
-    public static class EnergyMapEntry {
-        @ConfigEntry.Gui.RequiresRestart
-        public String entityId;
-
-        @ConfigEntry.Gui.RequiresRestart
-        public long outputEnergyQuantity;
-
-        public EnergyMapEntry() {
-            this(EntityType.PIG, 16);
-        }
-
-        public EnergyMapEntry(EntityType<?> entityType, long outputEnergyQuantity) {
-            this(Registry.ENTITY_TYPE.getId(entityType).toString(), outputEnergyQuantity);
-        }
-
-        public EnergyMapEntry(String entityId, long outputEnergyQuantity) {
-            this.entityId = entityId;
-            this.outputEnergyQuantity = outputEnergyQuantity;
-        }
-
-        public EntityType<?> getEntityType() {
-            Identifier id = Identifier.tryParse(this.entityId);
-            return id == null ? EntityType.PIG : Registry.ENTITY_TYPE.get(id);
+    interface ShellPriorityEntry {
+        default ShellPriority priority() {
+            return ShellPriority.NATURAL;
         }
     }
 }

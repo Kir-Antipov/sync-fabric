@@ -9,6 +9,7 @@ import dev.kir.sync.api.shell.ShellState;
 import dev.kir.sync.client.gui.controller.DeathScreenController;
 import dev.kir.sync.client.gui.controller.HudController;
 import dev.kir.sync.api.shell.ShellPriority;
+import dev.kir.sync.config.SyncConfig;
 import dev.kir.sync.util.BlockPosUtil;
 import dev.kir.sync.entity.PersistentCameraEntity;
 import dev.kir.sync.entity.PersistentCameraEntityGoal;
@@ -206,7 +207,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
         boolean canRespawn = this.isArtificial() && this.shellsById.size() != 0;
         BlockPos pos = this.getBlockPos();
         Identifier world = WorldUtil.getId(this.world);
-        Comparator<ShellState> comparator = ShellPriority.asComparator(world, pos, Sync.getConfig().syncPriority.stream().map(x -> x.priority));
+        Comparator<ShellState> comparator = ShellPriority.asComparator(world, pos, Sync.getConfig().syncPriority().stream().map(SyncConfig.ShellPriorityEntry::priority));
         ShellState respawnShell = canRespawn ? this.shellsById.values().stream().filter(x -> this.canBeApplied(x) && x.getProgress() >= ShellState.PROGRESS_DONE).min(comparator).orElse(null) : null;
         if (respawnShell != null) {
             this.beginSync(respawnShell);

@@ -60,18 +60,18 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
         if (player instanceof ServerPlayerEntity serverPlayer) {
             SyncConfig config = Sync.getConfig();
 
-            float damage = serverPlayer.server.isHardcore() ? config.hardcoreFingerstickDamage : config.fingerstickDamage;
+            float damage = serverPlayer.server.isHardcore() ? config.hardcoreFingerstickDamage() : config.fingerstickDamage();
 
             boolean isCreative = !serverPlayer.interactionManager.getGameMode().isSurvivalLike();
             boolean isLowOnHealth = (player.getHealth() + player.getAbsorptionAmount()) <= damage;
             boolean hasTotemOfUndying = player.getMainHandStack().isOf(Items.TOTEM_OF_UNDYING) || player.getOffHandStack().isOf(Items.TOTEM_OF_UNDYING);
-            if (isLowOnHealth && !isCreative && !hasTotemOfUndying && config.warnPlayerInsteadOfKilling) {
+            if (isLowOnHealth && !isCreative && !hasTotemOfUndying && config.warnPlayerInsteadOfKilling()) {
                 return PlayerSyncEvents.ShellConstructionFailureReason.NOT_ENOUGH_HEALTH;
             }
 
             player.damage(FingerstickDamageSource.getInstance(), damage);
             this.shell = ShellState.empty(serverPlayer, pos);
-            if (isCreative && config.enableInstantShellConstruction) {
+            if (isCreative && config.enableInstantShellConstruction()) {
                 this.shell.setProgress(ShellState.PROGRESS_DONE);
             }
         }
@@ -105,7 +105,7 @@ public class ShellConstructorBlockEntity extends AbstractShellContainerBlockEnti
             return 0;
         }
 
-        long requiredEnergyAmount = Sync.getConfig().shellConstructorCapacity;
+        long requiredEnergyAmount = Sync.getConfig().shellConstructorCapacity();
         long maxEnergy = (long)((ShellState.PROGRESS_DONE - bottom.shell.getProgress()) * requiredEnergyAmount);
         context.addCloseCallback((ctx, result) -> {
             if (result.wasCommitted()) {

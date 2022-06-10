@@ -19,7 +19,7 @@ public final class ItemUtil {
         }
 
         SyncConfig config = Sync.getConfig();
-        Identifier wrenchId = config.wrench == null || config.wrench.isBlank() ? null : Identifier.tryParse(Sync.getConfig().wrench);
+        Identifier wrenchId = config.wrench() == null || config.wrench().isBlank() ? null : Identifier.tryParse(Sync.getConfig().wrench());
         if (wrenchId == null) {
             return false;
         }

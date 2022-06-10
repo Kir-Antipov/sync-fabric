@@ -313,7 +313,7 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
     }
 
     static {
-        ENERGY_MAP = Sync.getConfig().energyMap.stream().collect(Collectors.toUnmodifiableMap(SyncConfig.EnergyMapEntry::getEntityType, x -> x.outputEnergyQuantity, (a, b) -> a));
+        ENERGY_MAP = Sync.getConfig().energyMap().stream().collect(Collectors.toUnmodifiableMap(SyncConfig.EnergyMapEntry::getEntityType, SyncConfig.EnergyMapEntry::outputEnergyQuantity, (a, b) -> a));
         EnergyStorage.SIDED.registerForBlockEntities((x, __) -> (EnergyStorage)x, SyncBlockEntities.TREADMILL);
     }
 }
