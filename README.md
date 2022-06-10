@@ -155,6 +155,12 @@ You can help translate the mod to additional languages here: [crowdin.com](https
 
 ----
 
+## Known Issues
+
+ - Dynamic shell texturing does not work with Iris ([#25](https://github.com/Kir-Antipov/sync-fabric/issues/25))
+
+----
+
 ## Installation
 
 Requirements:
