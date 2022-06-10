@@ -104,6 +104,7 @@ dependencies {
     modImplementation "dev.emi:trinkets:${project.trinkets_version}"
     modImplementation "io.github.ladysnake:requiem-api:${project.requiem_version}"
     modImplementation "com.github.apace100:origins-fabric:${project.origins_version}"
+    modCompileOnly "maven.modrinth:haema:${project.haema_version}"
 }
 
 processResources {
@@ -120,6 +121,7 @@ processResources {
         "trinkets": ">=${project.trinkets_version}",
         "requiem": ">=${project.requiem_version}",
         "origins": ">=${project.origins_version}",
+        "haema": ">=${project.haema_version}",
     ]
 
     filesMatching("fabric.mod.json") {
