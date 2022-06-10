@@ -77,6 +77,10 @@ public interface SyncConfig {
         return false;
     }
 
+    default boolean preserveOrigins() {
+        return false;
+    }
+
     interface EnergyMapEntry {
         default String entityId() {
             return "minecraft:pig";

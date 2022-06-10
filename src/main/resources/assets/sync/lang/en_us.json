@@ -68,6 +68,8 @@
   "text.autoconfig.sync.option.EnergyMapEntry.entityId": "Entity id",
   "text.autoconfig.sync.option.EnergyMapEntry.outputEnergyQuantity": "The amount of energy produced per tick",
   "text.autoconfig.sync.category.sync": "Sync",
+  "text.autoconfig.sync.option.preserveOrigins": "Preserve origins",
+  "text.autoconfig.sync.option.preserveOrigins.@Tooltip": "If this option is enabled, all user shells will share the same origins",
   "text.autoconfig.sync.option.syncPriority": "Shell priority during auto synchronization",
   "text.autoconfig.sync.option.syncPriority.@Tooltip[0]": "The order of shell selection for synchronization",
   "text.autoconfig.sync.option.syncPriority.@Tooltip[1]": "in case of death",

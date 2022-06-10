@@ -117,6 +117,7 @@ The mod is highly configurable. The config is located at `./config/sync.json` an
       "outputEnergyQuantity": 160
     }
   ],
+  "preserveOrigins": false,
   "syncPriority": [
     { "priority": "NATURAL" }
   ],
@@ -137,6 +138,7 @@ The mod is highly configurable. The config is located at `./config/sync.json` an
 | `shellStorageAcceptsRedstone` | If this option is enabled, a shell storage can be powered by redstone | `true` |
 | `shellStorageMaxUnpoweredLifespan` | Determines how many ticks a shell can survive without a power supply connected to the corresponding shell storage | `20` |
 | `energyMap` | Specifies a list of entities that can produce energy via treadmills | [...](#user-content-config) |
+| `preserveOrigins` | If this option is enabled, all user shells will share the same [origins](https://www.curseforge.com/minecraft/mc-mods/origins) | `false` |
 | `syncPriority` | The order of shell selection for synchronization in case of death <br><br>Available `priority` values:<br><ul><li>`NATURAL` - non-artificial shells are prioritized</li><li>`NEAREST` - nearest shells are prioritized</li><li>`WHITE`, `ORANGE`, `MAGENTA`, `LIGHT_BLUE`, `YELLOW`, `LIME`, `PINK`, `GRAY`, `LIGHT_GRAY`, `CYAN`, `PURPLE`, `BLUE`, `BROWN`, `GREEN`, `RED`, `BLACK` - shells of the given color are prioritized</li><ul> | `[{ "priority": "NATURAL" }]` |
 | `wrench` | Identifier of an item that can be used as a wrench in order to change a shell constructor's state | `minecraft:stick` |
 | `updateTranslationsAutomatically` | If this option is enabled, translations will be updated every time the game is launched | `false` |

@@ -67,6 +67,11 @@ public class SyncClothConfig implements SyncConfig, ConfigData {
     public List<EnergyMapEntry> energyMap = SyncConfig.super.energyMap().stream().map(x -> new EnergyMapEntry(x.entityId(), x.outputEnergyQuantity())).collect(Collectors.toCollection(ArrayList::new));
 
     @ConfigEntry.Category(value = "sync")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.Gui.RequiresRestart
+    public boolean preserveOrigins = SyncConfig.super.preserveOrigins();
+
+    @ConfigEntry.Category(value = "sync")
     @ConfigEntry.Gui.Tooltip(count = 2)
     public List<ShellPriorityWrapper> syncPriority = SyncConfig.super.syncPriority().stream().map(x -> new ShellPriorityWrapper(x.priority())).collect(Collectors.toCollection(ArrayList::new));
 
@@ -130,6 +135,11 @@ public class SyncClothConfig implements SyncConfig, ConfigData {
         return (List<SyncConfig.EnergyMapEntry>)(List<?>)this.energyMap;
     }
 
+    @Override
+    public boolean preserveOrigins() {
+        return this.preserveOrigins;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public List<ShellPriorityEntry> syncPriority() {
@@ -145,7 +155,6 @@ public class SyncClothConfig implements SyncConfig, ConfigData {
     public boolean updateTranslationsAutomatically() {
         return this.updateTranslationsAutomatically;
     }
-
 
     public static class EnergyMapEntry implements SyncConfig.EnergyMapEntry {
         @ConfigEntry.Gui.RequiresRestart
