@@ -203,7 +203,7 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
 
         for (int i = 0; i < 2; ++i) {
             for (Direction direction : Direction.values()) {
-                EnergyStorage target = EnergyStorage.SIDED.find(world, pos.offset(direction), direction);
+                EnergyStorage target = EnergyStorage.SIDED.find(world, pos.offset(direction), direction.getOpposite());
                 if (target != null && target.supportsInsertion()) {
                     EnergyStorageUtil.move(back, target, Long.MAX_VALUE, null);
                     if (back.storedEnergy <= 0) {
