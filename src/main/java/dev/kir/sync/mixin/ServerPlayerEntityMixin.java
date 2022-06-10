@@ -16,7 +16,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.MessageType;
+import net.minecraft.network.encryption.PlayerPublicKey;
+import net.minecraft.network.message.MessageType;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.MinecraftServer;
@@ -25,13 +26,10 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.HoverEvent;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameMode;
@@ -88,8 +86,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
     private Map<UUID, Pair<ShellStateUpdateType, ShellState>> shellStateChanges = new ConcurrentHashMap<>();
 
 
-    private ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
-        super(world, pos, yaw, profile);
+    private ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile, PlayerPublicKey publicKey) {
+        super(world, pos, yaw, profile, publicKey);
     }
 
 
@@ -304,6 +302,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
             this.sendEmptyDeathMessageInChat();
         }
 
+        this.dropShoulderEntities();
         if (this.world.getGameRules().getBoolean(GameRules.FORGIVE_DEAD_PLAYERS)) {
             this.forgiveMobAnger();
         }
@@ -340,8 +339,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
         this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), text), (future) -> {
             if (!future.isSuccess()) {
                 String truncatedText = text.asTruncatedString(256);
-                Text tooLong = new TranslatableText("death.attack.message_too_long", (new LiteralText(truncatedText)).formatted(Formatting.YELLOW));
-                Text magic = (new TranslatableText("death.attack.even_more_magic", this.getDisplayName())).styled((style) -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooLong)));
+                Text tooLong = Text.translatable("death.attack.message_too_long", (Text.literal(truncatedText)).formatted(Formatting.YELLOW));
+                Text magic = (Text.translatable("death.attack.even_more_magic", this.getDisplayName())).styled((style) -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooLong)));
                 this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), magic));
             }
         });
@@ -353,13 +352,13 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
                 this.server.getPlayerManager().sendToOtherTeams(this, text);
             }
         } else {
-            this.server.getPlayerManager().broadcast(text, MessageType.SYSTEM, Util.NIL_UUID);
+            this.server.getPlayerManager().broadcast(text, MessageType.SYSTEM);
         }
     }
 
     @Unique
     private void sendEmptyDeathMessageInChat() {
-        this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), LiteralText.EMPTY));
+        this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), Text.empty()));
     }
 
     @Shadow
@@ -441,8 +440,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
         ServerPlayerEntity serverPlayer = (ServerPlayerEntity)(Object)this;
 
         WorldProperties worldProperties = targetWorld.getLevelProperties();
-        // method_40134() -> GetDimensionRegistryKey()
-        serverPlayer.networkHandler.sendPacket(new PlayerRespawnS2CPacket(targetWorld.method_40134(), targetWorld.getRegistryKey(), BiomeAccess.hashSeed(targetWorld.getSeed()), serverPlayer.interactionManager.getGameMode(), serverPlayer.interactionManager.getPreviousGameMode(), targetWorld.isDebugWorld(), targetWorld.isFlat(), true));
+        serverPlayer.networkHandler.sendPacket(new PlayerRespawnS2CPacket(targetWorld.getDimensionKey(), targetWorld.getRegistryKey(), BiomeAccess.hashSeed(targetWorld.getSeed()), serverPlayer.interactionManager.getGameMode(), serverPlayer.interactionManager.getPreviousGameMode(), targetWorld.isDebugWorld(), targetWorld.isFlat(), true, this.getLastDeathPos()));
         serverPlayer.networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
         PlayerManager playerManager = Objects.requireNonNull(this.world.getServer()).getPlayerManager();
         playerManager.sendCommandTree(serverPlayer);

@@ -11,6 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.math.Matrix4f;
 
@@ -22,8 +23,8 @@ public final class CustomGameRenderer extends GameRenderer {
 
     private static final ManagedCoreShader RENDER_TYPE_VOXEL_SHADER;
 
-    private CustomGameRenderer(MinecraftClient client, ResourceManager resourceManager, BufferBuilderStorage buffers) {
-        super(client, resourceManager, buffers);
+    private CustomGameRenderer(MinecraftClient client, HeldItemRenderer heldItemRenderer, ResourceManager resourceManager, BufferBuilderStorage buffers) {
+        super(client, heldItemRenderer, resourceManager, buffers);
     }
 
     public static void initRenderTypeEntityTranslucentPartiallyTexturedShader(float cutoutY, Matrix4f modelMatrix) {

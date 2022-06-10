@@ -7,8 +7,8 @@ import dev.kir.sync.api.shell.ShellState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.world.ClientWorld;
@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Environment(EnvType.CLIENT)
-public class ShellEntity extends AbstractClientPlayerEntity {
+public class ShellEntity extends OtherClientPlayerEntity {
     private static final Cache<UUID, PlayerListEntry> PLAYER_ENTRY_CACHE;
 
     public boolean isActive;
@@ -33,7 +33,7 @@ public class ShellEntity extends AbstractClientPlayerEntity {
     }
 
     public ShellEntity(ClientWorld world, ShellState state) {
-        super(world, getPlayerEntry(state).getProfile());
+        super(world, getPlayerEntry(state).getProfile(), getPlayerEntry(state).getPublicKeyData());
         this.isActive = false;
         this.pitchProgress = 0;
         this.state = state;
@@ -104,7 +104,8 @@ public class ShellEntity extends AbstractClientPlayerEntity {
     private static PlayerListEntry getPlayerEntry(ShellState state) {
         PlayerListEntry entry = PLAYER_ENTRY_CACHE.getIfPresent(state.getOwnerUuid());
         if (entry == null) {
-            ClientPlayNetworkHandler networkHandler = MinecraftClient.getInstance().getNetworkHandler();
+            MinecraftClient client = MinecraftClient.getInstance();
+            ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
             if (networkHandler != null) {
                 entry = networkHandler.getPlayerListEntry(state.getOwnerUuid());
                 if (entry == null) {
@@ -113,7 +114,7 @@ public class ShellEntity extends AbstractClientPlayerEntity {
             }
 
             if (entry == null) {
-                entry = new PlayerListEntry(new PlayerListS2CPacket.Entry(new GameProfile(state.getOwnerUuid(), state.getOwnerName()), 0, null, null));
+                entry = new PlayerListEntry(new PlayerListS2CPacket.Entry(new GameProfile(state.getOwnerUuid(), state.getOwnerName()), 0, null, null, null), client.getServicesSignatureVerifier());
             }
 
             PLAYER_ENTRY_CACHE.put(state.getOwnerUuid(), entry);

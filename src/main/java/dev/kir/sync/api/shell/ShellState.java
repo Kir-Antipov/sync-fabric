@@ -220,7 +220,7 @@ public class ShellState {
         shell.isArtificial = isArtificial;
 
         shell.ownerUuid = player.getUuid();
-        shell.ownerName = player.getName().asString();
+        shell.ownerName = player.getName().getString();
         shell.gameMode = player.interactionManager.getGameMode().getId();
         shell.inventory = new SimpleInventory();
         shell.component = ShellStateComponent.empty();

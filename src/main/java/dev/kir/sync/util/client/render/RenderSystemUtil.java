@@ -97,8 +97,7 @@ public final class RenderSystemUtil {
         BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(drawMode, format);
         consumer.accept(bufferBuilder);
-        bufferBuilder.end();
-        BufferRenderer.draw(bufferBuilder);
+        BufferRenderer.drawWithShader(bufferBuilder.end());
 
         RenderSystem.disableBlend();
         RenderSystem.enableTexture();

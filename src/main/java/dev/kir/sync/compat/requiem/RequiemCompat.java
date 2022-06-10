@@ -7,7 +7,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class RequiemCompat implements ModInitializer {
     @Override
@@ -16,7 +15,7 @@ public class RequiemCompat implements ModInitializer {
             return;
         }
 
-        final Text PLAYER_IS_UNDEAD = new TranslatableText("event.sync.any.fail.undead");
+        final Text PLAYER_IS_UNDEAD = Text.translatable("event.sync.any.fail.undead");
         PlayerSyncEvents.ALLOW_SHELL_CONSTRUCTION.register((player, __) -> isUndead(player) ? () -> PLAYER_IS_UNDEAD : null);
         PlayerSyncEvents.ALLOW_SHELL_SELECTION.register((player, __) -> isUndead(player) ? () -> PLAYER_IS_UNDEAD : null);
         PlayerSyncEvents.ALLOW_SYNCING.register((player, __) -> isUndead(player) ? () -> PLAYER_IS_UNDEAD : null);

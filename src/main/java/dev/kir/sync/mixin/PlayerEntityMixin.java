@@ -43,7 +43,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Inject(method = "getXpToDrop", at = @At("RETURN"), cancellable = true)
-    private void forceDropXp(PlayerEntity player, CallbackInfoReturnable<Integer> cir) {
+    private void forceDropXp(CallbackInfoReturnable<Integer> cir) {
         if (cir.getReturnValue() == 0 && this instanceof Shell shell && shell.isArtificial() && !this.isSpectator() && this.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
             cir.setReturnValue(Math.min(this.experienceLevel * 7, 100));
         }

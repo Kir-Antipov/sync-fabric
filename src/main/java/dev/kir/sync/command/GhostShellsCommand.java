@@ -18,7 +18,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 
@@ -28,7 +27,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public class GhostShellsCommand implements Command {
-    private static final SimpleCommandExceptionType INVALID_ACTION_TYPE = new SimpleCommandExceptionType(new TranslatableText("command.sync.ghostshells.invalid_action"));
+    private static final SimpleCommandExceptionType INVALID_ACTION_TYPE = new SimpleCommandExceptionType(Text.translatable("command.sync.ghostshells.invalid_action"));
 
     @Override
     public String getName() {
@@ -93,7 +92,7 @@ public class GhostShellsCommand implements Command {
             for (ServerPlayerEntity player : players) {
                 ShellState shellState = ((Shell)player).getAvailableShellStates().filter(x -> x.getPos().equals(finalPos)).findAny().orElse(null);
                 if (shellState == null) {
-                    logger.accept(new TranslatableText("command.sync.ghostshells.not_found", player.getName().asString(), pos.toShortString()));
+                    logger.accept(Text.translatable("command.sync.ghostshells.not_found", player.getName().getString(), pos.toShortString()));
                 } else {
                     updateShell(player, shellState, repair, canSkip, logger);
                 }
@@ -115,18 +114,18 @@ public class GhostShellsCommand implements Command {
 
         if (shouldRepair) {
             if (tryRepair(player.server, shellState)) {
-                logger.accept(new TranslatableText("command.sync.ghostshells.repaired", player.getName().asString(), shellState.getPos().toShortString()));
+                logger.accept(Text.translatable("command.sync.ghostshells.repaired", player.getName().getString(), shellState.getPos().toShortString()));
                 return;
             }
 
             if (!skipOnFailure) {
-                logger.accept(new TranslatableText("command.sync.ghostshells.failed", player.getName().asString(), shellState.getPos().toShortString()));
+                logger.accept(Text.translatable("command.sync.ghostshells.failed", player.getName().getString(), shellState.getPos().toShortString()));
                 return;
             }
         }
 
         ((Shell)player).remove(shellState);
-        logger.accept(new TranslatableText("command.sync.ghostshells.removed", player.getName().asString(), shellState.getPos().toShortString()));
+        logger.accept(Text.translatable("command.sync.ghostshells.removed", player.getName().getString(), shellState.getPos().toShortString()));
     }
 
     private static boolean shellExists(MinecraftServer server, ShellState shellState) {

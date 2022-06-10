@@ -83,7 +83,7 @@ class OriginsShellStateComponent extends ShellStateComponent {
             originComponent.sync();
         } else {
             for (OriginLayer layer : OriginLayers.getLayers()) {
-                if(layer.isEnabled()) {
+                if (layer.isEnabled()) {
                     originComponent.setOrigin(layer, Origin.EMPTY);
                 }
             }

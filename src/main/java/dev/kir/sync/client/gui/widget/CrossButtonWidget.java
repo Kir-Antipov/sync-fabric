@@ -8,13 +8,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.MathHelper;
 
 @Environment(EnvType.CLIENT)
 public class CrossButtonWidget extends AbstractButtonWidget {
-    private static final Text DEFAULT_DESCRIPTION = new TranslatableText("gui.sync.default.cross_button.title");
+    private static final Text DEFAULT_DESCRIPTION = Text.translatable("gui.sync.default.cross_button.title");
     private static final int DEFAULT_COLOR = ColorUtil.fromDyeColor(DyeColor.WHITE);
     private static final float DEFAULT_STEP = Radians.R_PI_32;
 

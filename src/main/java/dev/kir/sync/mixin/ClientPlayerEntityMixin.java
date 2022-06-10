@@ -21,6 +21,7 @@ import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -56,8 +57,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     private ConcurrentMap<UUID, ShellState> shellsById = new ConcurrentHashMap<>();
 
 
-    private ClientPlayerEntityMixin(ClientWorld world, GameProfile profile) {
-        super(world, profile);
+    private ClientPlayerEntityMixin(ClientWorld world, GameProfile profile, PlayerPublicKey publicKey) {
+        super(world, profile, publicKey);
     }
 
 

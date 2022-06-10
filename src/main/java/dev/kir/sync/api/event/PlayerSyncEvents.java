@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,9 +101,9 @@ public final class PlayerSyncEvents {
     @FunctionalInterface
     public interface SyncFailureReason {
         SyncFailureReason OTHER_PROBLEM = () -> null;
-        SyncFailureReason INVALID_SHELL = create(new TranslatableText("event.sync.request.fail.invalid.shell"));
-        SyncFailureReason INVALID_CURRENT_LOCATION = create(new TranslatableText("event.sync.request.fail.invalid.location.current"));
-        SyncFailureReason INVALID_TARGET_LOCATION = create(new TranslatableText("event.sync.request.fail.invalid.location.target"));
+        SyncFailureReason INVALID_SHELL = create(Text.translatable("event.sync.request.fail.invalid.shell"));
+        SyncFailureReason INVALID_CURRENT_LOCATION = create(Text.translatable("event.sync.request.fail.invalid.location.current"));
+        SyncFailureReason INVALID_TARGET_LOCATION = create(Text.translatable("event.sync.request.fail.invalid.location.target"));
 
         @Nullable
         Text toText();
@@ -117,8 +116,8 @@ public final class PlayerSyncEvents {
     @FunctionalInterface
     public interface ShellConstructionFailureReason {
         ShellConstructionFailureReason OTHER_PROBLEM = () -> null;
-        ShellConstructionFailureReason OCCUPIED = create(new TranslatableText("event.sync.construction.fail.occupied"));
-        ShellConstructionFailureReason NOT_ENOUGH_HEALTH = create(new TranslatableText("event.sync.construction.fail.health"));
+        ShellConstructionFailureReason OCCUPIED = create(Text.translatable("event.sync.construction.fail.occupied"));
+        ShellConstructionFailureReason NOT_ENOUGH_HEALTH = create(Text.translatable("event.sync.construction.fail.health"));
 
         @Nullable
         Text toText();

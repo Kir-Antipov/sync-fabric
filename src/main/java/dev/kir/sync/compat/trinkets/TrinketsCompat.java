@@ -8,10 +8,11 @@ import dev.kir.sync.entity.ShellEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 
 public class TrinketsCompat implements EntityComponentInitializer {
     @Override
-    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+    public void registerEntityComponentFactories(@NotNull EntityComponentFactoryRegistry registry) {
         if (!FabricLoader.getInstance().isModLoaded("trinkets")) {
             return;
         }

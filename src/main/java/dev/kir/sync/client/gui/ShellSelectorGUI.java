@@ -20,7 +20,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 
@@ -34,8 +33,8 @@ public class ShellSelectorGUI extends Screen {
     private static final int MAX_SLOTS = 8;
     private static final double MENU_RADIUS = 0.3F;
     private static final int BACKGROUND_COLOR = ColorUtil.fromDyeColor(DyeColor.BLACK, 0.3F);
-    private static final Text TITLE = new TranslatableText("gui.sync.default.cross_button.title");
-    private static final Collection<Text> ARROW_TITLES = List.of(new TranslatableText("gui.sync.shell_selector.up.title"), new TranslatableText("gui.sync.shell_selector.right.title"), new TranslatableText("gui.sync.shell_selector.down.title"), new TranslatableText("gui.sync.shell_selector.left.title"));
+    private static final Text TITLE = Text.translatable("gui.sync.default.cross_button.title");
+    private static final Collection<Text> ARROW_TITLES = List.of(Text.translatable("gui.sync.shell_selector.up.title"), Text.translatable("gui.sync.shell_selector.right.title"), Text.translatable("gui.sync.shell_selector.down.title"), Text.translatable("gui.sync.shell_selector.left.title"));
 
     private final Runnable onCloseCallback;
     private final Runnable onRemovedCallback;

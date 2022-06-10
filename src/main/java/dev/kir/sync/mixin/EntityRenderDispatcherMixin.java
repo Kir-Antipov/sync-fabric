@@ -8,10 +8,12 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.impl.client.rendering.RegistrationHelperImpl;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.model.EntityModelLoader;
+import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -31,17 +33,20 @@ import java.util.Map;
 @Environment(EnvType.CLIENT)
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
-    @Final
     @Shadow
-    private ItemRenderer itemRenderer;
+    private @Final ItemRenderer itemRenderer;
 
-    @Final
     @Shadow
-    private TextRenderer textRenderer;
+    private @Final TextRenderer textRenderer;
 
-    @Final
     @Shadow
-    private EntityModelLoader modelLoader;
+    private @Final EntityModelLoader modelLoader;
+
+    @Shadow
+    private @Final HeldItemRenderer heldItemRenderer;
+
+    @Shadow
+    private @Final BlockRenderManager blockRenderManager;
 
     @Unique
     private Map<String, EntityRenderer<? extends PlayerEntity>> shellRenderers = ImmutableMap.of();
@@ -59,7 +64,7 @@ public class EntityRenderDispatcherMixin {
 
     @Inject(method = "reload", at = @At("HEAD"))
     private void reload(ResourceManager manager, CallbackInfo ci) {
-        EntityRendererFactory.Context context = new EntityRendererFactory.Context((EntityRenderDispatcher)(Object)this, this.itemRenderer, manager, this.modelLoader, this.textRenderer);
+        EntityRendererFactory.Context context = new EntityRendererFactory.Context((EntityRenderDispatcher)(Object)this, this.itemRenderer, this.blockRenderManager, this.heldItemRenderer, manager, this.modelLoader, this.textRenderer);
         this.shellRenderers = ImmutableMap.of(
             "default", createShellEntityRenderer(context, false),
             "slim", createShellEntityRenderer(context, true)
