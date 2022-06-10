@@ -32,6 +32,7 @@
     ]
   },
   "mixins": [
+    "sync.compat.mixins.json",
     "sync.mixins.json"
   ],
   "accessWidener": "sync.accesswidener",
