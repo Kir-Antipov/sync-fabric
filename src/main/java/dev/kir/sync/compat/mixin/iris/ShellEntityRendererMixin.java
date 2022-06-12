@@ -8,15 +8,17 @@ import dev.kir.sync.compat.iris.IrisRenderLayer;
 import dev.kir.sync.entity.ShellEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.VertexConsumers;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ShellEntityRenderer.class)
@@ -25,19 +27,17 @@ final class ShellEntityRendererMixin extends PlayerEntityRenderer {
         super(ctx, slim);
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/VertexConsumerProvider;getBuffer(Lnet/minecraft/client/render/RenderLayer;)Lnet/minecraft/client/render/VertexConsumer;", ordinal = 0), remap = false)
-    private VertexConsumer getBuffer(VertexConsumerProvider vertexConsumers, RenderLayer baseLayer, AbstractClientPlayerEntity player, float yaw, float tickDelta, MatrixStack matrices) {
-        VertexConsumer baseConsumer = vertexConsumers.getBuffer(baseLayer);
+    @Inject(method = "getVertexConsumerForPartiallyTexturedEntity", at = @At("RETURN"), cancellable = true)
+    private void getVertexConsumerForPartiallyTexturedEntity(ShellEntity shellEntity, float progress, RenderLayer baseLayer, VertexConsumerProvider vertexConsumers, CallbackInfoReturnable<VertexConsumer> cir) {
+        VertexConsumer baseConsumer = cir.getReturnValue();
 
-        ShellEntity shell = (ShellEntity)player;
-        float progress = shell.getState().getProgress();
         if (!(progress >= ShellState.PROGRESS_PRINTING && progress < ShellState.PROGRESS_DONE)) {
-            return baseConsumer;
+            return;
         }
 
         Identifier[] textures = GeneratedTextureManager.getTextures(TextureGenerators.PlayerEntityPartiallyTexturedTextureGenerator);
         if (textures.length == 0) {
-            return baseConsumer;
+            return;
         }
 
         float printingProgress = (progress - ShellState.PROGRESS_PRINTING) / (ShellState.PROGRESS_PAINTING);
@@ -48,9 +48,10 @@ final class ShellEntityRendererMixin extends PlayerEntityRenderer {
         // and then fix combining baseConsumer with printingMaskVertexConsumer
         VertexConsumer printingMaskVertexConsumer = vertexConsumers.getBuffer(printingMaskLayer);
         if (printingMaskVertexConsumer == baseConsumer) {
-            return vertexConsumers.getBuffer(baseLayer);
+            cir.setReturnValue(vertexConsumers.getBuffer(baseLayer));
+            return;
         }
 
-        return VertexConsumers.union(printingMaskVertexConsumer, baseConsumer);
+        cir.setReturnValue(VertexConsumers.union(printingMaskVertexConsumer, baseConsumer));
     }
 }

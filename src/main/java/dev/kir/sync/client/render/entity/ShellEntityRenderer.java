@@ -32,6 +32,8 @@ public class ShellEntityRenderer extends PlayerEntityRenderer {
         matrices.push();
         matrices.translate(0.5, 0, 0.5);
         if (player instanceof ShellEntity shell && !shell.isActive) {
+            float progress = shell.getState().getProgress();
+
             matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180F));
             matrices.scale(-1.0F, -1.0F, 1.0F);
             this.scale(player, matrices, yaw);
@@ -39,10 +41,9 @@ public class ShellEntityRenderer extends PlayerEntityRenderer {
             matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(yaw));
 
             this.applyStateToModel(this.shellModel, shell.getState());
-            RenderLayer layer = this.shellModel.getLayer(player.getSkinTexture());
-            VertexConsumer consumer = vertexConsumers.getBuffer(layer);
+            VertexConsumer consumer = this.getVertexConsumerForPartiallyTexturedEntity(shell, progress, this.shellModel.getLayer(shell.getSkinTexture()), vertexConsumers);
             this.shellModel.render(matrices, consumer, light, getOverlay(player, tickDelta), 1F, 1F, 1F, 1F);
-            if (shell.getState().getProgress() >= ShellState.PROGRESS_DONE) {
+            if (progress >= ShellState.PROGRESS_DONE) {
                 for (FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> feature : this.features) {
                     feature.render(matrices, vertexConsumers, light, player, 0, 0, tickDelta, 0, 0, 0);
                 }
@@ -61,6 +62,11 @@ public class ShellEntityRenderer extends PlayerEntityRenderer {
             super.render(player, yaw, tickDelta, matrices, vertexConsumers, light);
         }
         matrices.pop();
+    }
+
+    @SuppressWarnings("unused")
+    private VertexConsumer getVertexConsumerForPartiallyTexturedEntity(ShellEntity shell, float progress, RenderLayer baseLayer, VertexConsumerProvider vertexConsumers) {
+        return vertexConsumers.getBuffer(baseLayer);
     }
 
     @Override
