@@ -208,7 +208,7 @@ There's [no documentation](https://www.commitstrip.com/en/2021/11/10/no-document
 ## Building from sources
 
 Requirements:
- - JDK `16`
+ - JDK `17`
 
 ### Linux/MacOS
 
