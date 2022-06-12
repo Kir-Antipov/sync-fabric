@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Environment(EnvType.CLIENT)
 @Mixin(CustomRenderLayer.class)
 final class CustomRenderLayerMixin {
-    @Redirect(method = "<clinit>", at = @At(value = "INVOKE", target = "Lladysnake/satin/api/managed/ManagedCoreShader;getRenderLayer(Lnet/minecraft/client/render/RenderLayer;)Lnet/minecraft/client/render/RenderLayer;", ordinal = 0, remap = false))
+    @Redirect(method = "<clinit>", at = @At(value = "INVOKE", target = "Lladysnake/satin/api/managed/ManagedCoreShader;getRenderLayer(Lnet/minecraft/client/render/RenderLayer;)Lnet/minecraft/client/render/RenderLayer;", ordinal = 0))
     private static RenderLayer initVoxelRenderLayer(ManagedCoreShader shader, RenderLayer baseLayer) {
         return IrisRenderLayer.getVoxels();
     }
@@ -24,7 +24,7 @@ final class CustomRenderLayerMixin {
      * @author Me
      * @reason It's my method, I know what I'm doing
      */
-    @Overwrite(remap = false)
+    @Overwrite
     public static RenderLayer getEntityTranslucentPartiallyTextured(Identifier textureId, float cutoutY, boolean affectsOutline) {
         return IrisRenderLayer.getEntityTranslucentPartiallyTextured(textureId, cutoutY, affectsOutline);
     }
