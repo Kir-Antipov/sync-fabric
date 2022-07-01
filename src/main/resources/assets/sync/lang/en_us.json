@@ -83,5 +83,13 @@
   "text.autoconfig.sync.option.updateTranslationsAutomatically.@Tooltip[0]": "If this option is enabled, translations will be",
   "text.autoconfig.sync.option.updateTranslationsAutomatically.@Tooltip[1]": "updated every time the game is launched",
 
+  "text.autoconfig.sync.category.easter_eggs": "Easter Eggs",
+  "text.autoconfig.sync.option.easterEggs.technoblade": "The King",
+  "text.autoconfig.sync.option.easterEggs.technoblade.enable": "Enable",
+  "text.autoconfig.sync.option.easterEggs.technoblade.renderCape": "Render cape",
+  "text.autoconfig.sync.option.easterEggs.technoblade.allowAnnouncements": "Allow announcements",
+  "text.autoconfig.sync.option.easterEggs.technoblade.allowQuotes": "Allow quotes",
+  "text.autoconfig.sync.option.easterEggs.technoblade.quoteDelay": "Quote delay",
+
   "modmenu.descriptionTranslation.sync": "One mind. Many bodies."
 }

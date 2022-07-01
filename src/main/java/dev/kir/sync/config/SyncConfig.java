@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface SyncConfig {
     List<EnergyMapEntry> DEFAULT_ENERGY_MAP = List.of(
@@ -79,6 +80,43 @@ public interface SyncConfig {
 
     default boolean preserveOrigins() {
         return false;
+    }
+
+    default boolean enableTechnobladeEasterEgg() {
+        return true;
+    }
+
+    default boolean renderTechnobladeCape() {
+        // Techno hasn't worn a cape lately
+        return false;
+    }
+
+    default boolean allowTechnobladeAnnouncements() {
+        return true;
+    }
+
+    default boolean allowTechnobladeQuotes() {
+        return true;
+    }
+
+    default int TechnobladeQuoteDelay() {
+        return 1800;
+    }
+
+    default boolean isTechnoblade(UUID uuid) {
+        return false;
+    }
+
+    default void addTechnoblade(UUID uuid) {
+
+    }
+
+    default void removeTechnoblade(UUID uuid) {
+
+    }
+
+    default void clearTechnobladeCache() {
+
     }
 
     interface EnergyMapEntry {
