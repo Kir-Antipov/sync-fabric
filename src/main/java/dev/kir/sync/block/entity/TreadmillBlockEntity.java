@@ -4,6 +4,7 @@ import dev.kir.sync.block.TreadmillBlock;
 import dev.kir.sync.api.event.EntityFitnessEvents;
 import dev.kir.sync.config.SyncConfig;
 import dev.kir.sync.Sync;
+import dev.kir.sync.easteregg.technoblade.TechnobladeManager;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoubleBlockProperties;
@@ -69,7 +70,13 @@ public class TreadmillBlockEntity extends BlockEntity implements DoubleBlockEnti
             EntityFitnessEvents.START_RUNNING.invoker().onStartRunning(this.runner, this);
         }
 
-        if (this.world != null && !this.world.isClient) {
+        if (this.world == null) {
+            return;
+        }
+
+        if (this.world.isClient) {
+            TechnobladeManager.refreshTechnobladeStatus(entity, this.pos);
+        } else {
             this.markDirty();
             this.sync();
         }

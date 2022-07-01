@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.kir.sync.easteregg.mixin",
+  "plugin": "dev.kir.sync.easteregg.mixin.MixinEasterEggs",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+    "technoblade.ClientWorldMixin",
+    "technoblade.PigEntityMixin",
+    "technoblade.MobEntityMixin",
+    "technoblade.MobEntityRendererMixin",
+    "technoblade.EntityRenderDispatcherMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

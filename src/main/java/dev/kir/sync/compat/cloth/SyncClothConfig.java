@@ -12,7 +12,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Config(name = Sync.MOD_ID)
@@ -83,6 +85,9 @@ public class SyncClothConfig implements SyncConfig, ConfigData {
     @ConfigEntry.Gui.Tooltip(count = 2)
     public boolean updateTranslationsAutomatically = SyncConfig.super.updateTranslationsAutomatically();
 
+    @ConfigEntry.Category(value = "easter_eggs")
+    @ConfigEntry.Gui.TransitiveObject
+    public EasterEggs easterEggs = new EasterEggs();
 
     @Override
     public boolean enableInstantShellConstruction() {
@@ -154,6 +159,71 @@ public class SyncClothConfig implements SyncConfig, ConfigData {
     @Override
     public boolean updateTranslationsAutomatically() {
         return this.updateTranslationsAutomatically;
+    }
+
+    @Override
+    public boolean enableTechnobladeEasterEgg() {
+        return this.easterEggs.technoblade.enable;
+    }
+
+    @Override
+    public boolean renderTechnobladeCape() {
+        return this.easterEggs.technoblade.renderCape;
+    }
+
+    @Override
+    public boolean allowTechnobladeAnnouncements() {
+        return this.easterEggs.technoblade.allowAnnouncements;
+    }
+
+    @Override
+    public boolean allowTechnobladeQuotes() {
+        return this.easterEggs.technoblade.allowQuotes;
+    }
+
+    @Override
+    public int TechnobladeQuoteDelay() {
+        return this.easterEggs.technoblade.quoteDelay;
+    }
+
+    @Override
+    public boolean isTechnoblade(UUID uuid) {
+        return this.easterEggs.technoblade.cache.contains(uuid);
+    }
+
+    @Override
+    public void addTechnoblade(UUID uuid) {
+        this.easterEggs.technoblade.cache.add(uuid);
+        AutoConfig.getConfigHolder(SyncClothConfig.class).save();
+    }
+
+    @Override
+    public void removeTechnoblade(UUID uuid) {
+        this.easterEggs.technoblade.cache.remove(uuid);
+        AutoConfig.getConfigHolder(SyncClothConfig.class).save();
+    }
+
+    @Override
+    public void clearTechnobladeCache() {
+        this.easterEggs.technoblade.cache.clear();
+        AutoConfig.getConfigHolder(SyncClothConfig.class).save();
+    }
+
+    public static class EasterEggs {
+        @ConfigEntry.Gui.CollapsibleObject
+        public TechnobladeEasterEgg technoblade = new TechnobladeEasterEgg();
+    }
+
+    public static class TechnobladeEasterEgg {
+        @ConfigEntry.Gui.RequiresRestart
+        public boolean enable = true;
+        public boolean renderCape = false;
+        public boolean allowAnnouncements = true;
+        public boolean allowQuotes = true;
+        public int quoteDelay = 1800;
+
+        @ConfigEntry.Gui.Excluded
+        public HashSet<UUID> cache = new HashSet<>();
     }
 
     public static class EnergyMapEntry implements SyncConfig.EnergyMapEntry {
