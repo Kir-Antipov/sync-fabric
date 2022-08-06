@@ -7,6 +7,7 @@ import dev.kir.sync.api.networking.PlayerIsAlivePacket;
 import dev.kir.sync.api.networking.ShellStateUpdatePacket;
 import dev.kir.sync.api.networking.ShellUpdatePacket;
 import dev.kir.sync.api.shell.*;
+import dev.kir.sync.entity.KillableEntity;
 import dev.kir.sync.util.BlockPosUtil;
 import dev.kir.sync.util.WorldUtil;
 import net.minecraft.entity.damage.DamageSource;
@@ -53,7 +54,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ServerShell {
+abstract class ServerPlayerEntityMixin extends PlayerEntity implements ServerShell, KillableEntity {
     @Shadow
     private int syncedExperience;
 
@@ -316,10 +317,10 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
     }
 
     @Override
-    protected void updatePostDeath() {
+    public boolean updateKillableEntityPostDeath() {
         this.deathTime = MathHelper.clamp(++this.deathTime, 0, 20);
         if (this.isArtificial && this.shellsById.values().stream().anyMatch(x -> this.canBeApplied(x) && x.getProgress() >= ShellState.PROGRESS_DONE)) {
-            return;
+            return true;
         }
 
         if (this.undead) {
@@ -331,6 +332,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Se
             this.world.sendEntityStatus(this, (byte)60);
             this.remove(RemovalReason.KILLED);
         }
+        return true;
     }
 
     @Unique

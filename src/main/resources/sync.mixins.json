@@ -5,10 +5,12 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "MinecraftServerMixin",
+    "LivingEntityMixin",
     "PlayerEntityMixin",
     "ServerPlayerEntityMixin"
   ],
   "client": [
+    "EntityMixin",
     "LivingEntityRendererAccessor",
     "ClientPlayerEntityMixin",
     "ClientPlayerInteractionManagerMixin",

@@ -21,8 +21,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(value = WorldRenderer.class, priority = 1001)
-public class WorldRendererMixin {
+@Mixin(value = WorldRenderer.class, priority = 1010)
+abstract class WorldRendererMixin {
     @Final
     @Shadow
     private MinecraftClient client;

@@ -109,24 +109,22 @@ dependencies {
 }
 
 processResources {
-    def fabricModProperties = [
-        "version": version,
-        "fabric": ">=${loaderDependencyVersion}",
-        "minecraft": ">=${minecraftDependencyVersion}",
-        "smart_recipes": project.smartrecipes_version,
-        "satin_api": project.satin_version,
-        "crowdin_translate": project.crowdin_translate_version,
-        "team_reborn_energy": project.tr_energy_version,
-        "cloth_config": ">=${project.cloth_version}",
-        "modmenu": ">=${project.modmenu_version}",
-        "trinkets": ">=${project.trinkets_version}",
-        "requiem": ">=${project.requiem_version}",
-        "origins": ">=${project.origins_version}",
-        "haema": ">=${project.haema_version}",
-    ]
-
     filesMatching("fabric.mod.json") {
-        expand fabricModProperties
+        expand([
+            "version": version,
+            "fabric": ">=${loaderDependencyVersion}",
+            "minecraft": ">=${minecraftDependencyVersion}",
+            "smart_recipes": project.smartrecipes_version,
+            "satin_api": project.satin_version,
+            "crowdin_translate": project.crowdin_translate_version,
+            "team_reborn_energy": project.tr_energy_version,
+            "cloth_config": ">=${project.cloth_version}",
+            "modmenu": ">=${project.modmenu_version}",
+            "trinkets": ">=${project.trinkets_version}",
+            "requiem": ">=${project.requiem_version}",
+            "origins": ">=${project.origins_version}",
+            "haema": ">=${project.haema_version}",
+        ])
     }
 }
 
