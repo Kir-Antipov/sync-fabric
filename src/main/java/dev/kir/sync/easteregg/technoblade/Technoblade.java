@@ -12,14 +12,11 @@ import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.network.message.MessageSender;
-import net.minecraft.network.message.MessageType;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.world.GameMode;
 
 import java.util.List;
@@ -30,7 +27,7 @@ import java.util.stream.Stream;
 public class Technoblade extends AbstractClientPlayerEntity {
     private static final Identifier TECHNOBLADE_SKIN = Sync.locate("textures/entity/technoblade.png");
     private static final GameProfile TECHNOBLADE_GAME_PROFILE = new GameProfile(UUID.fromString("b876ec32-e396-476b-a115-8438d83c67d4"), "Technoblade");
-    private static final PlayerListEntry TECHNOBLADE_PLAYER_LIST_ENTRY = new PlayerListEntry(new PlayerListS2CPacket.Entry(TECHNOBLADE_GAME_PROFILE, 0, GameMode.CREATIVE, null, null), null);
+    private static final PlayerListEntry TECHNOBLADE_PLAYER_LIST_ENTRY = new PlayerListEntry(new PlayerListS2CPacket.Entry(TECHNOBLADE_GAME_PROFILE, 0, GameMode.CREATIVE, null, null), null, false);
     // Feel free to add new quotes to this list if you are reading this
     private static final List<Text> TECHNOBLADE_QUOTES = Stream.of(
             "so long nerds",
@@ -103,7 +100,7 @@ public class Technoblade extends AbstractClientPlayerEntity {
 
     public void speak() {
         Text quote = this.getRandomQuote();
-        MinecraftClient.getInstance().inGameHud.onChatMessage(BuiltinRegistries.MESSAGE_TYPE.get(MessageType.CHAT), quote, new MessageSender(this.uuid, this.getDisplayName()));
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("chat.type.text", this.getDisplayName(), quote.getString()));
     }
 
     @Override

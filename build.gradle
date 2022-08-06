@@ -101,10 +101,10 @@ dependencies {
 
     modImplementation "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}"
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
-    modImplementation "dev.emi:trinkets:${project.trinkets_version}"
+    modCompileOnly "dev.emi:trinkets:${project.trinkets_version}"
     modCompileOnly("io.github.ladysnake:requiem-api:${project.requiem_version}", { transitive false })
-    modImplementation "maven.modrinth:origins:${project.origins_version}"
-    modImplementation "com.github.apace100:apoli:${project.apoli_version}"
+    modCompileOnly "maven.modrinth:origins:${project.origins_version}"
+    modCompileOnly "com.github.apace100:apoli:${project.apoli_version}"
     modCompileOnly "maven.modrinth:haema:${project.haema_version}"
 }
 

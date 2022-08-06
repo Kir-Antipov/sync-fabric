@@ -114,7 +114,7 @@ public class ShellEntity extends OtherClientPlayerEntity {
             }
 
             if (entry == null) {
-                entry = new PlayerListEntry(new PlayerListS2CPacket.Entry(new GameProfile(state.getOwnerUuid(), state.getOwnerName()), 0, null, null, null), client.getServicesSignatureVerifier());
+                entry = new PlayerListEntry(new PlayerListS2CPacket.Entry(new GameProfile(state.getOwnerUuid(), state.getOwnerName()), 0, null, null, null), client.getServicesSignatureVerifier(), false);
             }
 
             PLAYER_ENTRY_CACHE.put(state.getOwnerUuid(), entry);

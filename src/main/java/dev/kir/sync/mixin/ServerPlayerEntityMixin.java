@@ -17,8 +17,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.encryption.PlayerPublicKey;
-import net.minecraft.network.message.MessageType;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.MinecraftServer;
@@ -338,23 +338,21 @@ abstract class ServerPlayerEntityMixin extends PlayerEntity implements ServerShe
     @Unique
     private void sendDeathMessageInChat() {
         Text text = this.getDamageTracker().getDeathMessage();
-        this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), text), (future) -> {
-            if (!future.isSuccess()) {
-                String truncatedText = text.asTruncatedString(256);
-                Text tooLong = Text.translatable("death.attack.message_too_long", (Text.literal(truncatedText)).formatted(Formatting.YELLOW));
-                Text magic = (Text.translatable("death.attack.even_more_magic", this.getDisplayName())).styled((style) -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooLong)));
-                this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), magic));
-            }
-        });
-        AbstractTeam team = this.getScoreboardTeam();
-        if (team != null && team.getDeathMessageVisibilityRule() != AbstractTeam.VisibilityRule.ALWAYS) {
-            if (team.getDeathMessageVisibilityRule() == AbstractTeam.VisibilityRule.HIDE_FOR_OTHER_TEAMS) {
+        this.networkHandler.sendPacket(new DeathMessageS2CPacket(this.getDamageTracker(), text), PacketCallbacks.of(() -> {
+            String truncatedString = text.asTruncatedString(256);
+            Text messageWasTooLong = Text.translatable("death.attack.message_too_long", Text.literal(truncatedString).formatted(Formatting.YELLOW));
+            Text magic = Text.translatable("death.attack.even_more_magic", this.getDisplayName()).styled((style) -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, messageWasTooLong)));
+            return new DeathMessageS2CPacket(this.getDamageTracker(), magic);
+        }));
+        AbstractTeam abstractTeam = this.getScoreboardTeam();
+        if (abstractTeam != null && abstractTeam.getDeathMessageVisibilityRule() != AbstractTeam.VisibilityRule.ALWAYS) {
+            if (abstractTeam.getDeathMessageVisibilityRule() == AbstractTeam.VisibilityRule.HIDE_FOR_OTHER_TEAMS) {
                 this.server.getPlayerManager().sendToTeam(this, text);
-            } else if (team.getDeathMessageVisibilityRule() == AbstractTeam.VisibilityRule.HIDE_FOR_OWN_TEAM) {
+            } else if (abstractTeam.getDeathMessageVisibilityRule() == AbstractTeam.VisibilityRule.HIDE_FOR_OWN_TEAM) {
                 this.server.getPlayerManager().sendToOtherTeams(this, text);
             }
         } else {
-            this.server.getPlayerManager().broadcast(text, MessageType.SYSTEM);
+            this.server.getPlayerManager().broadcast(text, false);
         }
     }
 
