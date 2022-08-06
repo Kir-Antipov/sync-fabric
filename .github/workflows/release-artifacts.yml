@@ -9,12 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v2.1.0
+        uses: actions/setup-java@v3
         with:
-          distribution: zulu
+          distribution: temurin
           java-version: 17
 
       - name: Make gradlew executable
@@ -27,7 +27,7 @@ jobs:
         run: ./gradlew clean build
 
       - name: Upload assets to GitHub, Modrinth and CurseForge
-        uses: Kir-Antipov/mc-publish@v3.0
+        uses: Kir-Antipov/mc-publish@v3.1
         with:
           name: ""
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
