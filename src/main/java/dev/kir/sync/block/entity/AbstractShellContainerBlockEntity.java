@@ -63,6 +63,9 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
     @Override
     public void setShellState(ShellState shell) {
         this.shell = shell;
+        if (this.world != null && !this.world.isClient && this.pos != null && this.getCachedState() != null) {
+            this.checkShellState(this.world, this.pos, this.getCachedState());
+        }
     }
 
     @Override
@@ -97,6 +100,10 @@ public abstract class AbstractShellContainerBlockEntity extends BlockEntity impl
 
     @Override
     public void onServerTick(World world, BlockPos pos, BlockState state) {
+        this.checkShellState(world, pos, state);
+    }
+
+    private void checkShellState(World world, BlockPos pos, BlockState state) {
         if (this.shell != null && this.shell.getColor() != this.color) {
             this.shell.setColor(this.color);
         }
