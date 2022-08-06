@@ -10,6 +10,8 @@ import dev.kir.sync.client.gui.controller.DeathScreenController;
 import dev.kir.sync.client.gui.controller.HudController;
 import dev.kir.sync.api.shell.ShellPriority;
 import dev.kir.sync.config.SyncConfig;
+import dev.kir.sync.entity.KillableEntity;
+import dev.kir.sync.entity.LookingEntity;
 import dev.kir.sync.util.BlockPosUtil;
 import dev.kir.sync.entity.PersistentCameraEntity;
 import dev.kir.sync.entity.PersistentCameraEntityGoal;
@@ -44,7 +46,7 @@ import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientPlayerEntity.class)
-public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity implements ClientShell {
+abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity implements ClientShell, KillableEntity, LookingEntity {
     @Final
     @Shadow
     protected MinecraftClient client;
@@ -188,22 +190,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
     }
 
     @Override
-    public void changeLookDirection(double cursorDeltaX, double cursorDeltaY) {
-        if (this.client.getCameraEntity() == this) {
-            super.changeLookDirection(cursorDeltaX, cursorDeltaY);
-        }
+    public boolean changeLookingEntityLookDirection(double cursorDeltaX, double cursorDeltaY) {
+        return this.client.getCameraEntity() instanceof PersistentCameraEntity;
     }
 
     @Override
-    public void setHealth(float health) {
-        super.setHealth(health);
-        if (health <= 0F) {
-            this.onDeath();
-        }
-    }
-
-    @Unique
-    private void onDeath() {
+    public void onKillableEntityDeath() {
         boolean canRespawn = this.isArtificial() && this.shellsById.size() != 0;
         BlockPos pos = this.getBlockPos();
         Identifier world = WorldUtil.getId(this.world);

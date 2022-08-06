@@ -30,7 +30,7 @@ import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 @Mixin(EntityRenderDispatcher.class)
-public class EntityRenderDispatcherMixin {
+abstract class EntityRenderDispatcherMixin {
     @Final
     @Shadow
     private ItemRenderer itemRenderer;

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Environment(EnvType.CLIENT)
 @Mixin(LivingEntityRenderer.class)
-public interface LivingEntityRendererAccessor<T extends LivingEntity, M extends EntityModel<T>> {
+interface LivingEntityRendererAccessor<T extends LivingEntity, M extends EntityModel<T>> {
     @Invoker("addFeature")
     boolean executeAddFeature(FeatureRenderer<T, M> featureRenderer);
 }
