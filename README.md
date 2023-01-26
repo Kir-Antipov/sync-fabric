@@ -4,7 +4,7 @@
 [![GitHub tag](https://img.shields.io/github/v/tag/Kir-Antipov/sync-fabric.svg?cacheSeconds=3600&sort=date)](https://github.com/Kir-Antipov/sync-fabric/releases/latest)
 [![GitHub build status](https://img.shields.io/github/actions/workflow/status/Kir-Antipov/sync-fabric/build-artifacts.yml?branch=1.19.x/dev&cacheSeconds=3600)](https://github.com/Kir-Antipov/sync-fabric/actions/workflows/build-artifacts.yml)
 [![Modrinth](https://img.shields.io/badge/dynamic/json?color=00AF5C&label=Modrinth&query=title&url=https://api.modrinth.com/v2/project/sync-fabric&style=flat&cacheSeconds=3600&logo=modrinth)](https://modrinth.com/mod/sync-fabric)
-[![CurseForge](https://img.shields.io/badge/dynamic/json?color=%23f16436&label=CurseForge&query=title&url=https%3A%2F%2Fapi.cfwidget.com%2F515365&cacheSeconds=3600)](https://www.curseforge.com/minecraft/mc-mods/sync-fabric)
+[![CurseForge](https://img.shields.io/badge/dynamic/json?color=%23f16436&label=CurseForge&query=title&url=https%3A%2F%2Fapi.cfwidget.com%2F515365&cacheSeconds=3600&logo=curseforge)](https://www.curseforge.com/minecraft/mc-mods/sync-fabric)
 [![GitHub license](https://img.shields.io/github/license/Kir-Antipov/sync-fabric.svg?cacheSeconds=36000)](https://github.com/Kir-Antipov/sync-fabric#readme)
 
 [Sync (Fabric)](https://github.com/Kir-Antipov/sync-fabric) is an unofficial reimplementation of the [Sync](https://github.com/iChun/Sync) mod, that was originally developed by [iChun](https://github.com/iChun).
